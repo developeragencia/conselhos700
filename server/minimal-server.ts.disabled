@@ -1,0 +1,47 @@
+import express from "express";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const app = express();
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
+
+const data = {
+  consultants: [
+    { id: 1, name: "Maria Fernanda", specialty: "Tarot", price_per_minute: "3.50", rating: "4.90" },
+    { id: 2, name: "João Carlos", specialty: "Astrologia", price_per_minute: "4.00", rating: "4.80" }
+  ],
+  testimonials: [
+    { id: 1, content: "Consulta incrível!", authorName: "Sandra", authorLocation: "São Paulo" },
+    { id: 2, content: "Muito preciso!", authorName: "Pedro", authorLocation: "Rio de Janeiro" }
+  ],
+  services: [
+    { id: 1, name: "Tarot Completo", basePrice: "35.00", duration: 45 },
+    { id: 2, name: "Mapa Astral", basePrice: "50.00", duration: 60 }
+  ]
+};
+
+app.get("/api/consultants/featured", (req, res) => res.json(data.consultants));
+app.get("/api/testimonials", (req, res) => res.json(data.testimonials));
+app.get("/api/services", (req, res) => res.json(data.services));
+app.get("/api/blog-posts", (req, res) => res.json([]));
+app.get("/api/banner-slides", (req, res) => res.json([]));
+app.get("/api/health", (req, res) => res.json({ status: "OK" }));
+
+app.post("/api/test/register", (req, res) => {
+  const { name, email } = req.body;
+  if (!name || !email) return res.status(400).json({ error: 'Dados obrigatórios' });
+  res.json({ success: true, user: { id: Date.now(), email, firstName: name } });
+});
+
+app.get('*', (req, res) => {
+  if (req.path.startsWith('/api/')) return res.status(404).json({ error: 'Not found' });
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on port ${PORT}`);
+});

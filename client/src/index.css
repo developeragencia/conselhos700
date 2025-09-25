@@ -1,0 +1,144 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom Animations */
+@keyframes ping-slow {
+  0% {
+    transform: scale(1);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.2;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.3;
+  }
+}
+
+.animate-ping-slow {
+  animation: ping-slow 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 20 14.3% 4.1%;
+    --muted: 60 4.8% 95.9%;
+    --muted-foreground: 25 5.3% 44.7%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 20 14.3% 4.1%;
+    --card: 0 0% 100%;
+    --card-foreground: 20 14.3% 4.1%;
+    --border: 20 5.9% 90%;
+    --input: 20 5.9% 90%;
+    --primary: 271 76% 37%; /* #662D91 - roxo do logo */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 265 51% 45%; /* #7B45BF - versão mais clara do roxo */
+    --secondary-foreground: 0 0% 100%;
+    --accent: 45 57% 50%; /* #DAA520 - dourado do logo */
+    --accent-foreground: 0 0% 0%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 60 9.1% 97.8%;
+    --ring: 45 57% 50%;
+    --radius: 0.5rem;
+    --success: 122 39% 49%; /* #4CAF50 */
+    --warning: 45 100% 51%; /* #FFC107 */
+    --error: 358 83% 58%; /* #F44336 */
+  }
+
+  .dark {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --primary: 271 76% 47%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 265 51% 55%;
+    --secondary-foreground: 0 0% 100%;
+    --accent: 45 57% 60%;
+    --accent-foreground: 0 0% 0%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --ring: 45 57% 60%;
+    --success: 122 39% 59%;
+    --warning: 45 100% 61%;
+    --error: 358 83% 68%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer utilities {
+  .text-shadow {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  }
+
+  .gold-gradient {
+    background: linear-gradient(45deg, #D4AF37 0%, #FFF4BD 50%, #D4AF37 100%);
+  }
+
+  .bg-mystical {
+    background: linear-gradient(to right, rgba(74, 47, 128, 0.9), rgba(31, 47, 92, 0.9));
+  }
+
+  .transition-transform {
+    transition: transform 0.3s ease;
+  }
+
+  .hover-up:hover {
+    transform: translateY(-5px);
+  }
+
+  .tarot-card-hover:hover {
+    transform: translateY(-10px) rotate(5deg);
+  }
+
+  .font-heading {
+    font-family: 'Playfair Display', serif;
+  }
+
+  .font-body {
+    font-family: 'Open Sans', sans-serif;
+  }
+
+  .font-accent {
+    font-family: 'Cormorant Garamond', serif;
+  }
+}

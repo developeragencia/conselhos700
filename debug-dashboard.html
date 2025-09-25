@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Dashboard</title>
+</head>
+<body>
+    <h1>TESTE DE DASHBOARD</h1>
+    <script>
+        // Limpar completamente o cache
+        localStorage.clear();
+        sessionStorage.clear();
+        
+        console.log('=== DEBUGGING DASHBOARD ===');
+        console.log('Local Storage:', localStorage);
+        console.log('Session Storage:', sessionStorage);
+        
+        // Verificar se há dados em cache
+        console.log('Todos os dados limpos');
+        
+        // Redirecionar para o dashboard limpo
+        setTimeout(() => {
+            window.location.href = '/client-dashboard';
+        }, 1000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="500" height="500" viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <g transform="translate(50, 20)">
+    <!-- Stars -->
+    <path d="M200 20 L205 10 L210 20 L220 25 L210 30 L205 40 L200 30 L190 25 Z" fill="#DAA520"/>
+    <path d="M120 60 L125 50 L130 60 L140 65 L130 70 L125 80 L120 70 L110 65 Z" fill="#DAA520"/>
+    <path d="M300 50 L305 40 L310 50 L320 55 L310 60 L305 70 L300 60 L290 55 Z" fill="#DAA520"/>
+    <path d="M350 120 L355 110 L360 120 L370 125 L360 130 L355 140 L350 130 L340 125 Z" fill="#DAA520"/>
+    <path d="M50 130 L55 120 L60 130 L70 135 L60 140 L55 150 L50 140 L40 135 Z" fill="#DAA520"/>
+    <path d="M150 400 L155 390 L160 400 L170 405 L160 410 L155 420 L150 410 L140 405 Z" fill="#DAA520"/>
+    <path d="M250 400 L255 390 L260 400 L270 405 L260 410 L255 420 L250 410 L240 405 Z" fill="#DAA520"/>
+    <path d="M200 350 L205 340 L210 350 L220 355 L210 360 L205 370 L200 360 L190 355 Z" fill="#DAA520"/>
+
+    <!-- Sunburst -->
+    <g>
+      <path d="M200 200 L200 100" stroke="#DAA520" stroke-width="2"/>
+      <path d="M200 200 L175 105" stroke="#DAA520" stroke-width="2"/>
+      <path d="M200 200 L150 115" stroke="#DAA520" stroke-width="2"/>
+      <path d="M200 200 L130 130" stroke="#DAA520" stroke-width="2"/>
+      <path d="M200 200 L115 150" stroke="#DAA520" stroke-width="2"/>
+      <path d="M200 200 L105 175" stroke="#DAA520" stroke-width="2"/>
+      <path d="M200 200 L100 200" stroke="#DAA520" stroke-width="2"/>
+      <path d="M200 200 L105 225" stroke="#DAA520" stroke-width="2"/>
+      <path d="M200 200 L115 250" stroke="#DAA520" stroke-width="2"/>
+      <path d="M200 200 L130 270" stroke="#DAA520" stroke-width="2"/>
+      <path d="M200 200 L150 285" stroke="#DAA520" stroke-width="2"/>
+      <path d="M200 200 L175 295" stroke="#DAA520" stroke-width="2"/>
+      <path d="M200 200 L200 300" stroke="#DAA520" stroke-width="2"/>
+      <path d="M200 200 L225 295" stroke="#DAA520" stroke-width="2"/>
+      <path d="M200 200 L250 285" stroke="#DAA520" stroke-width="2"/>
+      <path d="M200 200 L270 270" stroke="#DAA520" stroke-width="2"/>
+      <path d="M200 200 L285 250" stroke="#DAA520" stroke-width="2"/>
+      <path d="M200 200 L295 225" stroke="#DAA520" stroke-width="2"/>
+      <path d="M200 200 L300 200" stroke="#DAA520" stroke-width="2"/>
+      <path d="M200 200 L295 175" stroke="#DAA520" stroke-width="2"/>
+      <path d="M200 200 L285 150" stroke="#DAA520" stroke-width="2"/>
+      <path d="M200 200 L270 130" stroke="#DAA520" stroke-width="2"/>
+      <path d="M200 200 L250 115" stroke="#DAA520" stroke-width="2"/>
+      <path d="M200 200 L225 105" stroke="#DAA520" stroke-width="2"/>
+    </g>
+
+    <!-- Center Circle -->
+    <circle cx="200" cy="200" r="30" fill="#662D91"/>
+    <g fill="#DAA520">
+      <circle cx="190" cy="195" r="5"/>
+      <circle cx="210" cy="195" r="5"/>
+      <circle cx="200" cy="185" r="5"/>
+    </g>
+
+    <!-- Hands -->
+    <path d="M50,180 C60,150 90,120 120,140 C140,150 145,180 130,200 C125,210 115,215 100,210 C80,205 70,185 70,170 Z" fill="#662D91" stroke="#DAA520" stroke-width="2"/>
+    <path d="M60,190 C70,170 90,150 110,160 C125,165 130,180 125,195 C120,205 110,210 95,205 C75,200 65,190 65,175 Z" fill="#662D91" stroke="#DAA520" stroke-width="2"/>
+    <path d="M350,180 C340,150 310,120 280,140 C260,150 255,180 270,200 C275,210 285,215 300,210 C320,205 330,185 330,170 Z" fill="#662D91" stroke="#DAA520" stroke-width="2"/>
+    <path d="M340,190 C330,170 310,150 290,160 C275,165 270,180 275,195 C280,205 290,210 305,205 C325,200 335,190 335,175 Z" fill="#662D91" stroke="#DAA520" stroke-width="2"/>
+
+    <!-- Text -->
+    <text x="200" y="360" fill="#DAA520" font-family="Arial" font-weight="bold" font-size="24" text-anchor="middle">CONSELHOS</text>
+    <text x="200" y="400" fill="#DAA520" font-family="Arial" font-weight="bold" font-size="32" text-anchor="middle" stroke="#DAA520" stroke-width="1">ESOTÉRICO</text>
+  </g>
+</svg>

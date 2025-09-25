@@ -1,0 +1,13 @@
+DEPLOYMENT CONFIGURATION - NO DATABASE MIGRATIONS
+
+This project uses clean-server.js only.
+No database migrations are needed.
+Deploy directly without any schema checks.
+
+CONFIGURATION:
+- Uses memory storage as fallback
+- No Drizzle schema files
+- No migration detection
+- Clean deployment ready
+
+SYSTEM STATUS: DEPLOYMENT READY

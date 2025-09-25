@@ -1,0 +1,199 @@
+import express, { type Request, Response, NextFunction } from "express";
+import { createServer } from "http";
+import routes from "./routes";
+import { setupVite, serveStatic, log } from "./vite";
+import { WebSocketServer, WebSocket } from "ws";
+import { db } from "./db";
+import { consultationMessages, consultationRooms } from "@shared/schema";
+import { eq } from "drizzle-orm";
+import path from "path";
+
+const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+
+// Remove problematic middleware completely
+
+(async () => {
+  // Create HTTP server first
+  const server = createServer(app);
+  
+  // Register API routes BEFORE Vite setup
+  app.use(routes);
+
+  // Error handler
+  app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+    const status = err.status || err.statusCode || 500;
+    const message = err.message || "Internal Server Error";
+    
+    if (status >= 500) {
+      console.error('Server error:', message);
+    }
+    
+    if (!res.headersSent) {
+      res.status(status).json({ message });
+    }
+  });
+
+  // Setup WebSocket for real-time consultation chat
+  const wss = new WebSocketServer({ server, path: '/ws' });
+  
+  // Store active connections by room
+  const rooms = new Map<string, Set<WebSocket & { userId?: string; userType?: 'client' | 'consultant' }>>();
+  
+  wss.on('connection', (ws: WebSocket & { userId?: string; userType?: 'client' | 'consultant' }, req) => {
+    console.log('Nova conexão WebSocket estabelecida');
+    
+    ws.on('message', async (data) => {
+      try {
+        const message = JSON.parse(data.toString());
+        
+        switch (message.type) {
+          case 'join_room':
+            const { roomId, userId, userType } = message;
+            ws.userId = userId;
+            ws.userType = userType;
+            
+            if (!rooms.has(roomId)) {
+              rooms.set(roomId, new Set());
+            }
+            rooms.get(roomId)?.add(ws);
+            
+            // Notificar outros usuários na sala
+            const roomConnections = rooms.get(roomId);
+            if (roomConnections) {
+              roomConnections.forEach(client => {
+                if (client !== ws && client.readyState === WebSocket.OPEN) {
+                  client.send(JSON.stringify({
+                    type: 'user_joined',
+                    userId,
+                    userType
+                  }));
+                }
+              });
+            }
+            break;
+            
+          case 'chat_message':
+            const { roomId: chatRoomId, content, messageType = 'text' } = message;
+            
+            // Salvar mensagem no banco
+            await db.insert(consultationMessages).values({
+              roomId: chatRoomId,
+              senderId: ws.userId!,
+              senderType: ws.userType!,
+              messageType,
+              content,
+              status: 'sent'
+            });
+            
+            // Enviar para todos na sala
+            const chatRoomConnections = rooms.get(chatRoomId);
+            if (chatRoomConnections) {
+              const broadcastMessage = {
+                type: 'new_message',
+                roomId: chatRoomId,
+                senderId: ws.userId,
+                senderType: ws.userType,
+                content,
+                messageType,
+                timestamp: new Date().toISOString()
+              };
+              
+              chatRoomConnections.forEach(client => {
+                if (client.readyState === WebSocket.OPEN) {
+                  client.send(JSON.stringify(broadcastMessage));
+                }
+              });
+            }
+            break;
+            
+          case 'consultation_status':
+            const { roomId: statusRoomId, status } = message;
+            
+            // Atualizar status da consulta
+            await db.update(consultationRooms)
+              .set({ 
+                connectionStatus: status
+              })
+              .where(eq(consultationRooms.roomId, statusRoomId));
+            
+            // Notificar mudança de status
+            const statusRoomConnections = rooms.get(statusRoomId);
+            if (statusRoomConnections) {
+              statusRoomConnections.forEach(client => {
+                if (client !== ws && client.readyState === WebSocket.OPEN) {
+                  client.send(JSON.stringify({
+                    type: 'status_update',
+                    roomId: statusRoomId,
+                    status,
+                    userId: ws.userId
+                  }));
+                }
+              });
+            }
+            break;
+        }
+      } catch (error) {
+        console.error('Erro ao processar mensagem WebSocket:', error);
+      }
+    });
+    
+    ws.on('close', () => {
+      // Remover conexão de todas as salas
+      rooms.forEach((connections, roomId) => {
+        if (connections.has(ws)) {
+          connections.delete(ws);
+          
+          // Notificar outros usuários
+          connections.forEach(client => {
+            if (client.readyState === WebSocket.OPEN) {
+              client.send(JSON.stringify({
+                type: 'user_left',
+                userId: ws.userId,
+                userType: ws.userType
+              }));
+            }
+          });
+          
+          // Remover sala se vazia
+          if (connections.size === 0) {
+            rooms.delete(roomId);
+          }
+        }
+      });
+    });
+  });
+
+  // Service Worker com MIME type correto
+  app.get('/sw.js', (req, res) => {
+    res.setHeader('Content-Type', 'application/javascript');
+    res.sendFile(path.join(__dirname, '../public/sw.js'));
+  });
+
+  // Manifest com MIME type correto  
+  app.get('/manifest.json', (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.sendFile(path.join(__dirname, '../public/manifest.json'));
+  });
+
+  // Setup Vite in development mode AFTER all API routes
+  if (app.get("env") === "development") {
+    await setupVite(app, server);
+  } else {
+    serveStatic(app);
+  }
+
+  // Start server with flexible port configuration
+  const port = process.env.PORT ? parseInt(process.env.PORT) : 5000;
+  const host = process.env.HOST || "0.0.0.0";
+  
+  server.listen({
+    port,
+    host,
+    reusePort: true,
+  }, () => {
+    log(`serving on port ${port}`);
+    log(`WebSocket server running on ws://${host}:${port}/ws`);
+  });
+})();

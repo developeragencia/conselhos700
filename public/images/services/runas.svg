@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="400" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#c25e0f" />
+      <stop offset="100%" stop-color="#e67e22" />
+    </linearGradient>
+    <radialGradient id="stoneGradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+      <stop offset="0%" stop-color="#f5f5f5" />
+      <stop offset="50%" stop-color="#e0e0e0" />
+      <stop offset="100%" stop-color="#bdbdbd" />
+    </radialGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3" />
+      <feOffset dx="2" dy="2" result="offsetblur" />
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5" />
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="400" height="400" fill="url(#bgGradient)" rx="20" ry="20" />
+  
+  <!-- Wooden texture elements -->
+  <g opacity="0.3">
+    <rect x="20" y="20" width="360" height="10" rx="2" fill="#8b4513" />
+    <rect x="20" y="370" width="360" height="10" rx="2" fill="#8b4513" />
+    <rect x="20" y="20" width="10" height="360" rx="2" fill="#8b4513" />
+    <rect x="370" y="20" width="10" height="360" rx="2" fill="#8b4513" />
+  </g>
+  
+  <!-- Nordic patterns -->
+  <g fill="none" stroke="#8b4513" stroke-width="2" opacity="0.2">
+    <path d="M40 40 L60 60 L40 80 L60 100 L40 120 L60 140 L40 160 L60 180 L40 200 L60 220 L40 240 L60 260 L40 280 L60 300 L40 320 L60 340 L40 360" />
+    <path d="M360 40 L340 60 L360 80 L340 100 L360 120 L340 140 L360 160 L340 180 L360 200 L340 220 L360 240 L340 260 L360 280 L340 300 L360 320 L340 340 L360 360" />
+    <path d="M40 40 L60 40 L80 60 L100 40 L120 40 L140 60 L160 40 L180 40 L200 60 L220 40 L240 40 L260 60 L280 40 L300 40 L320 60 L340 40 L360 40" />
+    <path d="M40 360 L60 360 L80 340 L100 360 L120 360 L140 340 L160 360 L180 360 L200 340 L220 360 L240 360 L260 340 L280 360 L300 360 L320 340 L340 360 L360 360" />
+  </g>
+  
+  <!-- Rune stones -->
+  <g transform="translate(100, 80)">
+    <g filter="url(#shadow)">
+      <rect width="60" height="80" rx="5" fill="url(#stoneGradient)" />
+      <path d="M30 15 L30 65 M20 15 L40 65" stroke="#8b4513" stroke-width="3" stroke-linecap="round" />
+    </g>
+  </g>
+  
+  <g transform="translate(170, 60)">
+    <g filter="url(#shadow)">
+      <rect width="60" height="80" rx="5" fill="url(#stoneGradient)" />
+      <path d="M20 20 L40 20 L30 60" stroke="#8b4513" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+    </g>
+  </g>
+  
+  <g transform="translate(240, 80)">
+    <g filter="url(#shadow)">
+      <rect width="60" height="80" rx="5" fill="url(#stoneGradient)" />
+      <path d="M20 20 L40 60 M40 20 L20 60" stroke="#8b4513" stroke-width="3" stroke-linecap="round" />
+    </g>
+  </g>
+  
+  <g transform="translate(85, 170)">
+    <g filter="url(#shadow)">
+      <rect width="60" height="80" rx="5" fill="url(#stoneGradient)" />
+      <path d="M20 20 L40 20 L40 60 L20 60" stroke="#8b4513" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+    </g>
+  </g>
+  
+  <g transform="translate(170, 150)">
+    <g filter="url(#shadow)">
+      <rect width="60" height="80" rx="5" fill="url(#stoneGradient)" />
+      <path d="M20 20 L40 40 L20 60" stroke="#8b4513" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+    </g>
+  </g>
+  
+  <g transform="translate(255, 170)">
+    <g filter="url(#shadow)">
+      <rect width="60" height="80" rx="5" fill="url(#stoneGradient)" />
+      <path d="M30 20 L30 60 M20 40 L40 40" stroke="#8b4513" stroke-width="3" stroke-linecap="round" />
+    </g>
+  </g>
+  
+  <g transform="translate(100, 260)">
+    <g filter="url(#shadow)">
+      <rect width="60" height="80" rx="5" fill="url(#stoneGradient)" />
+      <path d="M20 20 L40 40 L20 60 M25 40 L35 40" stroke="#8b4513" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+    </g>
+  </g>
+  
+  <g transform="translate(170, 240)">
+    <g filter="url(#shadow)">
+      <rect width="60" height="80" rx="5" fill="url(#stoneGradient)" />
+      <path d="M20 20 L40 20 M20 40 L40 40 M20 60 L40 60" stroke="#8b4513" stroke-width="3" stroke-linecap="round" />
+    </g>
+  </g>
+  
+  <g transform="translate(240, 260)">
+    <g filter="url(#shadow)">
+      <rect width="60" height="80" rx="5" fill="url(#stoneGradient)" />
+      <path d="M30 20 L20 60 M30 20 L40 60" stroke="#8b4513" stroke-width="3" stroke-linecap="round" />
+    </g>
+  </g>
+  
+  <!-- Fire effect around runes -->
+  <g opacity="0.3">
+    <circle cx="130" cy="120" r="8" fill="#ff4500" />
+    <circle cx="200" cy="100" r="6" fill="#ff4500" />
+    <circle cx="270" cy="120" r="7" fill="#ff4500" />
+    <circle cx="115" cy="210" r="7" fill="#ff4500" />
+    <circle cx="200" cy="190" r="8" fill="#ff4500" />
+    <circle cx="285" cy="210" r="6" fill="#ff4500" />
+    <circle cx="130" cy="300" r="7" fill="#ff4500" />
+    <circle cx="200" cy="280" r="6" fill="#ff4500" />
+    <circle cx="270" cy="300" r="8" fill="#ff4500" />
+  </g>
+</svg>

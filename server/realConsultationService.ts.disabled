@@ -1,0 +1,353 @@
+import { db } from "./db";
+import { 
+  consultants, 
+  consultantAvailability, 
+  consultations, 
+  consultationQueue,
+  consultationRooms,
+  whatsappConsultations,
+  creditTransactions,
+  users
+} from "@shared/schema";
+import { eq, and, sql, isNotNull, desc } from "drizzle-orm";
+
+export class RealConsultationService {
+  // Buscar consultores reais disponíveis online
+  async getAvailableConsultants(serviceType?: string) {
+    try {
+      const availableConsultants = await db
+        .select({
+          id: consultants.id,
+          name: consultants.name,
+          specialties: consultants.specialties,
+          rating: consultants.rating,
+          profileImage: consultants.profileImage,
+          isOnline: consultants.isOnline,
+          whatsappNumber: consultants.whatsappNumber,
+          hourlyRate: consultants.hourlyRate,
+          totalReviews: consultants.totalReviews,
+          // Dados de disponibilidade
+          status: consultantAvailability.status,
+          pricePerMinute: consultantAvailability.pricePerMinute,
+          communicationMethods: consultantAvailability.communicationMethods,
+          isAcceptingClients: consultantAvailability.isAcceptingClients,
+          currentClients: consultantAvailability.currentClients,
+          specialtyAreas: consultantAvailability.specialtyAreas,
+        })
+        .from(consultants)
+        .leftJoin(consultantAvailability, eq(consultants.id, consultantAvailability.consultantId))
+        .where(
+          and(
+            eq(consultants.isOnline, true),
+            eq(consultants.status, 'approved'),
+            eq(consultantAvailability.isAcceptingClients, true)
+          )
+        );
+
+      // Buscar estatísticas reais para cada consultor
+      const consultorsWithStats = await Promise.all(
+        availableConsultants.map(async (consultant) => {
+          // Total de consultas realizadas
+          const [totalConsultationsResult] = await db
+            .select({ count: sql<number>`count(*)` })
+            .from(consultations)
+            .where(eq(consultations.consultantId, consultant.id));
+
+          return {
+            id: consultant.id,
+            name: consultant.name,
+            specialty: consultant.specialties?.[0] || 'Consultas Espirituais',
+            rating: parseFloat(consultant.rating || '4.5'),
+            pricePerMinute: parseFloat(consultant.pricePerMinute || consultant.hourlyRate || '3.50') / (consultant.pricePerMinute ? 1 : 60),
+            isOnline: consultant.isOnline,
+            responseTime: consultant.currentClients && consultant.currentClients > 2 ? "< 1min" : "< 30s",
+            totalConsultations: totalConsultationsResult?.count || 0,
+            imageUrl: consultant.profileImage || `https://images.unsplash.com/photo-1494790108755-2616b612b5bc?w=150`,
+            whatsappNumber: consultant.whatsappNumber,
+            availableMethods: consultant.communicationMethods || ['chat', 'video', 'audio', 'whatsapp'],
+            status: consultant.status || 'online',
+            specialties: consultant.specialties || []
+          };
+        })
+      );
+
+      return consultorsWithStats;
+    } catch (error) {
+      console.error('Erro ao buscar consultores disponíveis:', error);
+      return [];
+    }
+  }
+
+  // Adicionar cliente à fila de espera
+  async addToQueue(clientId: string, serviceType: string, communicationMethod: string, maxPricePerMinute: number) {
+    try {
+      // Verificar se já está na fila
+      const existingQueue = await db
+        .select()
+        .from(consultationQueue)
+        .where(
+          and(
+            eq(consultationQueue.clientId, clientId),
+            eq(consultationQueue.status, 'waiting')
+          )
+        );
+
+      if (existingQueue.length > 0) {
+        throw new Error('Cliente já está na fila de espera');
+      }
+
+      // Calcular posição na fila
+      const [queueCount] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(consultationQueue)
+        .where(eq(consultationQueue.status, 'waiting'));
+
+      const position = (queueCount?.count || 0) + 1;
+
+      // Inserir na fila
+      const [queueItem] = await db
+        .insert(consultationQueue)
+        .values({
+          clientId,
+          serviceType,
+          communicationMethod,
+          maxPricePerMinute: maxPricePerMinute.toString(),
+          position,
+          estimatedWaitTime: position * 5, // 5 minutos por posição
+        })
+        .returning();
+
+      return { queueItem, position };
+    } catch (error) {
+      console.error('Erro ao adicionar à fila:', error);
+      throw error;
+    }
+  }
+
+  // Iniciar consulta pelo WhatsApp
+  async initiateWhatsAppConsultation(
+    clientId: string, 
+    consultantId: number, 
+    serviceType: string, 
+    whatsappNumber: string,
+    pricePerMinute: number
+  ) {
+    try {
+      // Verificar se o consultor existe e está disponível
+      const consultant = await db
+        .select()
+        .from(consultants)
+        .where(
+          and(
+            eq(consultants.id, consultantId),
+            eq(consultants.isOnline, true)
+          )
+        );
+
+      if (consultant.length === 0) {
+        throw new Error('Consultor não encontrado ou indisponível');
+      }
+
+      // Criar mensagem personalizada
+      const clientMessage = `Olá ${consultant[0].name}! Gostaria de fazer uma consulta de ${serviceType}. Vim através do site Conselhos Esotéricos.`;
+      
+      // Gerar URL do WhatsApp
+      const cleanNumber = whatsappNumber.replace(/\D/g, '');
+      const whatsappUrl = `https://wa.me/${cleanNumber}?text=${encodeURIComponent(clientMessage)}`;
+
+      // Registrar consulta no banco
+      const [whatsappConsultation] = await db
+        .insert(whatsappConsultations)
+        .values({
+          clientId,
+          consultantId,
+          serviceType,
+          whatsappNumber,
+          pricePerMinute: pricePerMinute.toString(),
+          clientMessage,
+          redirectUrl: whatsappUrl,
+          status: 'initiated'
+        })
+        .returning();
+
+      return {
+        consultationId: whatsappConsultation.id,
+        whatsappUrl,
+        consultant: consultant[0],
+        message: clientMessage
+      };
+    } catch (error) {
+      console.error('Erro ao iniciar consulta WhatsApp:', error);
+      throw error;
+    }
+  }
+
+  // Criar sala de consulta em tempo real
+  async createConsultationRoom(
+    clientId: string, 
+    consultantId: number, 
+    roomType: string, 
+    creditsPerMinute: number
+  ) {
+    try {
+      const roomId = `room_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+      const [room] = await db
+        .insert(consultationRooms)
+        .values({
+          roomId,
+          clientId,
+          consultantId,
+          roomType,
+          creditsPerMinute: creditsPerMinute.toString(),
+          isActive: true,
+          startedAt: new Date(),
+          connectionStatus: 'connected'
+        })
+        .returning();
+
+      return room;
+    } catch (error) {
+      console.error('Erro ao criar sala de consulta:', error);
+      throw error;
+    }
+  }
+
+  // Processar pagamento da consulta
+  async processConsultationPayment(
+    userId: string, 
+    consultationId: number, 
+    minutesUsed: number, 
+    pricePerMinute: number
+  ) {
+    try {
+      const totalAmount = minutesUsed * pricePerMinute;
+
+      // Registrar transação de crédito
+      const [transaction] = await db
+        .insert(creditTransactions)
+        .values({
+          userId,
+          consultationId,
+          transactionType: 'consumption',
+          amount: totalAmount.toString(),
+          minutesUsed,
+          pricePerMinute: pricePerMinute.toString(),
+          status: 'completed'
+        })
+        .returning();
+
+      // Atualizar créditos do usuário
+      await db
+        .update(users)
+        .set({
+          credits: sql`${users.credits} - ${totalAmount}`,
+          updatedAt: new Date()
+        })
+        .where(eq(users.id, userId));
+
+      return transaction;
+    } catch (error) {
+      console.error('Erro ao processar pagamento:', error);
+      throw error;
+    }
+  }
+
+  // Atualizar status do consultor
+  async updateConsultantStatus(consultantId: number, status: 'online' | 'busy' | 'away' | 'offline') {
+    try {
+      // Atualizar status na tabela principal
+      await db
+        .update(consultants)
+        .set({
+          isOnline: status !== 'offline',
+          updatedAt: new Date()
+        })
+        .where(eq(consultants.id, consultantId));
+
+      // Atualizar ou criar registro de disponibilidade
+      const existingAvailability = await db
+        .select()
+        .from(consultantAvailability)
+        .where(eq(consultantAvailability.consultantId, consultantId));
+
+      if (existingAvailability.length > 0) {
+        await db
+          .update(consultantAvailability)
+          .set({
+            status,
+            isAcceptingClients: status === 'online',
+            lastOnline: new Date(),
+            updatedAt: new Date()
+          })
+          .where(eq(consultantAvailability.consultantId, consultantId));
+      } else {
+        await db
+          .insert(consultantAvailability)
+          .values({
+            consultantId,
+            status,
+            isAcceptingClients: status === 'online',
+            pricePerMinute: '3.50',
+            specialtyAreas: ['tarot', 'astrologia'],
+            communicationMethods: ['chat', 'video', 'audio', 'whatsapp'],
+            lastOnline: new Date()
+          });
+      }
+
+      return { success: true };
+    } catch (error) {
+      console.error('Erro ao atualizar status do consultor:', error);
+      throw error;
+    }
+  }
+
+  // Obter estatísticas de consultas
+  async getConsultationStats() {
+    try {
+      // Total de consultores online
+      const [onlineConsultants] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(consultants)
+        .where(eq(consultants.isOnline, true));
+
+      // Total de consultas hoje
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const [todayConsultations] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(consultations)
+        .where(sql`${consultations.createdAt} >= ${today}`);
+
+      // Consultas ativas agora
+      const [activeRooms] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(consultationRooms)
+        .where(eq(consultationRooms.isActive, true));
+
+      // Fila de espera atual
+      const [queueLength] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(consultationQueue)
+        .where(eq(consultationQueue.status, 'waiting'));
+
+      return {
+        onlineConsultants: onlineConsultants?.count || 0,
+        todayConsultations: todayConsultations?.count || 0,
+        activeConsultations: activeRooms?.count || 0,
+        queueLength: queueLength?.count || 0
+      };
+    } catch (error) {
+      console.error('Erro ao obter estatísticas:', error);
+      return {
+        onlineConsultants: 0,
+        todayConsultations: 0,
+        activeConsultations: 0,
+        queueLength: 0
+      };
+    }
+  }
+}
+
+export const realConsultationService = new RealConsultationService();

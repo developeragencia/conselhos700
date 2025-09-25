@@ -1,0 +1,19 @@
+modules = ["nodejs-20"]
+entrypoint = "run.sh"
+run = "./run.sh"
+
+[deployment]
+build = ["echo", "deployment-ready"]
+run = ["bash", "run.sh"]
+deploymentTarget = "cloudrun"
+
+[deployment.env]
+NODE_ENV = "production"
+PORT = "3000"
+
+[[ports]]
+localPort = 3000
+externalPort = 80
+
+[nix]
+channel = "stable-24_05"

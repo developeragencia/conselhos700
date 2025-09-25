@@ -1,0 +1,126 @@
+import passport from "passport";
+import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+import session from "express-session";
+import type { Express, RequestHandler } from "express";
+import connectPg from "connect-pg-simple";
+import { storage } from "./storage";
+
+// Configurações do Google OAuth
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || "demo-client-id";
+const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || "demo-client-secret";
+const BASE_URL = process.env.NODE_ENV === 'production' 
+  ? 'https://79e0bc7c-9a6b-497e-a939-4215fbbf861c-00-27j44s63cev0f.picard.replit.dev'
+  : 'http://localhost:5000';
+
+export function getSession() {
+  const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
+  const pgStore = connectPg(session);
+  const sessionStore = new pgStore({
+    conString: process.env.DATABASE_URL,
+    createTableIfMissing: false,
+    ttl: sessionTtl,
+    tableName: "sessions",
+  });
+  return session({
+    secret: process.env.SESSION_SECRET!,
+    store: sessionStore,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: sessionTtl,
+    },
+  });
+}
+
+async function upsertUser(profile: any) {
+  const userData = {
+    id: profile.id,
+    email: profile.emails?.[0]?.value || profile.email,
+    firstName: profile.name?.givenName || profile.given_name,
+    lastName: profile.name?.familyName || profile.family_name,
+    profileImageUrl: profile.photos?.[0]?.value || profile.picture,
+  };
+  
+  return await storage.upsertUser(userData);
+}
+
+export async function setupAuth(app: Express) {
+  app.set("trust proxy", 1);
+  app.use(getSession());
+  app.use(passport.initialize());
+  app.use(passport.session());
+
+  // Configurar Google OAuth Strategy
+  passport.use(new GoogleStrategy({
+    clientID: GOOGLE_CLIENT_ID,
+    clientSecret: GOOGLE_CLIENT_SECRET,
+    callbackURL: `${BASE_URL}/api/auth/google/callback`,
+    scope: ['profile', 'email']
+  }, async (accessToken: string, refreshToken: string, profile: any, done: any) => {
+    try {
+      const user = await upsertUser(profile);
+      return done(null, { ...user, accessToken, refreshToken });
+    } catch (error) {
+      return done(error, null);
+    }
+  }));
+
+  // Serialização do usuário
+  passport.serializeUser((user: any, done) => {
+    done(null, user.id);
+  });
+
+  passport.deserializeUser(async (id: string, done) => {
+    try {
+      const user = await storage.getUser(id);
+      done(null, user);
+    } catch (error) {
+      done(error, null);
+    }
+  });
+
+  // Rotas de autenticação
+  app.get("/api/login", passport.authenticate('google', {
+    scope: ['profile', 'email']
+  }));
+
+  app.get("/api/auth/google", passport.authenticate('google', {
+    scope: ['profile', 'email']
+  }));
+
+  app.get("/api/auth/google/callback", 
+    passport.authenticate('google', { failureRedirect: '/login?error=auth_failed' }),
+    (req, res) => {
+      // Sucesso na autenticação
+      res.redirect('/dashboard');
+    }
+  );
+
+  app.get("/api/logout", (req, res) => {
+    req.logout((err) => {
+      if (err) {
+        return res.status(500).json({ error: 'Erro ao fazer logout' });
+      }
+      res.redirect('/');
+    });
+  });
+}
+
+export const isAuthenticated: RequestHandler = (req, res, next) => {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  
+  // Se for uma requisição AJAX, retornar JSON
+  if (req.xhr || req.headers.accept?.indexOf('json') > -1) {
+    return res.status(401).json({ 
+      message: "Não autorizado. Faça login para continuar.",
+      redirectTo: "/api/login"
+    });
+  }
+  
+  // Caso contrário, redirecionar para login
+  res.redirect("/api/login");
+};

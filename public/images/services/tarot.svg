@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="400" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="cardGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#52307c" />
+      <stop offset="100%" stop-color="#724e91" />
+    </linearGradient>
+    <linearGradient id="moonGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffd700" />
+      <stop offset="100%" stop-color="#ffa500" />
+    </linearGradient>
+    <linearGradient id="starGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="100%" stop-color="#ffd700" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="400" height="400" fill="#1a103d" rx="20" ry="20" />
+  
+  <!-- Mystical Background Elements -->
+  <g opacity="0.2">
+    <circle cx="60" cy="60" r="40" fill="#a374db" />
+    <circle cx="340" cy="340" r="40" fill="#a374db" />
+    <circle cx="340" cy="60" r="25" fill="#a374db" />
+    <circle cx="60" cy="340" r="25" fill="#a374db" />
+  </g>
+  
+  <!-- Card 1 -->
+  <g transform="translate(120, 80) rotate(-10)">
+    <rect width="100" height="160" rx="5" ry="5" fill="url(#cardGradient)" stroke="#ffd700" stroke-width="2" />
+    <circle cx="50" cy="50" r="30" fill="url(#moonGradient)" />
+    <path d="M50 90 L65 130 L50 120 L35 130 Z" fill="#ffd700" />
+    <circle cx="50" cy="50" r="30" fill="none" stroke="#ffd700" stroke-width="1" />
+  </g>
+  
+  <!-- Card 2 -->
+  <g transform="translate(180, 80) rotate(5)">
+    <rect width="100" height="160" rx="5" ry="5" fill="url(#cardGradient)" stroke="#ffd700" stroke-width="2" />
+    <circle cx="50" cy="40" r="20" fill="url(#starGradient)" />
+    <path d="M50 70 L60 110 L50 100 L40 110 Z" fill="#ffd700" />
+    <g transform="translate(20, 20)">
+      <path d="M30 0 L35 18 L50 20 L35 25 L30 40 L25 25 L10 20 L25 18 Z" fill="#ffd700" />
+    </g>
+  </g>
+  
+  <!-- Card 3 -->
+  <g transform="translate(150, 100) rotate(-5)">
+    <rect width="100" height="160" rx="5" ry="5" fill="url(#cardGradient)" stroke="#ffd700" stroke-width="2" />
+    <g transform="translate(25, 40)">
+      <path d="M25 0 L30 15 L45 15 L35 25 L40 40 L25 30 L10 40 L15 25 L5 15 L20 15 Z" fill="#ffd700" />
+    </g>
+    <line x1="25" y1="90" x2="75" y2="90" stroke="#ffd700" stroke-width="2" />
+    <line x1="25" y1="100" x2="75" y2="100" stroke="#ffd700" stroke-width="2" />
+    <line x1="25" y1="110" x2="75" y2="110" stroke="#ffd700" stroke-width="2" />
+  </g>
+  
+  <!-- Sparkles -->
+  <g opacity="0.8">
+    <path d="M50 50 L55 60 L60 50 L55 40 Z" fill="#ffd700" />
+    <path d="M350 150 L355 160 L360 150 L355 140 Z" fill="#ffd700" />
+    <path d="M250 350 L255 360 L260 350 L255 340 Z" fill="#ffd700" />
+    <path d="M100 250 L105 260 L110 250 L105 240 Z" fill="#ffd700" />
+    <path d="M300 100 L305 110 L310 100 L305 90 Z" fill="#ffd700" />
+  </g>
+</svg>

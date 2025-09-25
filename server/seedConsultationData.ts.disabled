@@ -1,0 +1,208 @@
+import { db } from "./db";
+import { 
+  users, 
+  consultants, 
+  consultantAvailability,
+  services 
+} from "@shared/schema";
+import { eq } from "drizzle-orm";
+
+export async function seedConsultationData() {
+  try {
+    console.log('🌱 Criando dados reais de consultas...');
+
+    // Criar usuários consultores
+    const consultorUsers = [
+      {
+        id: 'consultor-maria-luz',
+        email: 'maria.luz@conselhosesotericos.com',
+        password: 'consultor123',
+        firstName: 'Maria',
+        lastName: 'Luz',
+        userType: 'consultant',
+        isActive: true,
+        credits: '0.00'
+      },
+      {
+        id: 'consultor-joao-vidente',
+        email: 'joao.vidente@conselhosesotericos.com',
+        password: 'consultor123',
+        firstName: 'João',
+        lastName: 'Vidente',
+        userType: 'consultant',
+        isActive: true,
+        credits: '0.00'
+      },
+      {
+        id: 'consultor-ana-espiritual',
+        email: 'ana.espiritual@conselhosesotericos.com',
+        password: 'consultor123',
+        firstName: 'Ana',
+        lastName: 'Espiritual',
+        userType: 'consultant',
+        isActive: true,
+        credits: '0.00'
+      }
+    ];
+
+    // Inserir usuários (ou atualizar se já existem)
+    for (const user of consultorUsers) {
+      const existingUser = await db.select().from(users).where(eq(users.id, user.id));
+      if (existingUser.length === 0) {
+        await db.insert(users).values(user);
+        console.log(`✅ Usuário criado: ${user.firstName} ${user.lastName}`);
+      }
+    }
+
+    // Criar perfis de consultores
+    const consultorProfiles = [
+      {
+        userId: 'consultor-maria-luz',
+        name: 'Maria Luz',
+        title: 'Especialista em Tarot do Amor',
+        specialties: ['tarot', 'amor', 'relacionamentos'],
+        description: 'Mais de 10 anos de experiência em leituras de tarot focadas em questões amorosas e relacionamentos.',
+        experience: 10,
+        rating: '4.9',
+        totalReviews: 156,
+        hourlyRate: '180.00',
+        profileImage: 'https://images.unsplash.com/photo-1494790108755-2616b612b5bc?w=300',
+        isOnline: true,
+        isVerified: true,
+        status: 'approved',
+        whatsappNumber: '+5511999887766',
+        availableServices: ['tarot', 'amor', 'relacionamentos'],
+        totalEarnings: '15600.00'
+      },
+      {
+        userId: 'consultor-joao-vidente',
+        name: 'João Vidente',
+        title: 'Astrólogo e Numerólogo',
+        specialties: ['astrologia', 'numerologia', 'mapa astral'],
+        description: 'Especialista em astrologia natal e numerologia com formação internacional.',
+        experience: 8,
+        rating: '4.8',
+        totalReviews: 124,
+        hourlyRate: '210.00',
+        profileImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300',
+        isOnline: true,
+        isVerified: true,
+        status: 'approved',
+        whatsappNumber: '+5511888776655',
+        availableServices: ['astrologia', 'numerologia', 'mapa astral'],
+        totalEarnings: '18900.00'
+      },
+      {
+        userId: 'consultor-ana-espiritual',
+        name: 'Ana Espiritual',
+        title: 'Médium e Terapeuta Holística',
+        specialties: ['mediunidade', 'terapia holística', 'energia'],
+        description: 'Médium intuitiva especializada em contato espiritual e cura energética.',
+        experience: 12,
+        rating: '4.7',
+        totalReviews: 89,
+        hourlyRate: '240.00',
+        profileImage: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300',
+        isOnline: true,
+        isVerified: true,
+        status: 'approved',
+        whatsappNumber: '+5511777665544',
+        availableServices: ['mediunidade', 'terapia holística', 'energia'],
+        totalEarnings: '21300.00'
+      }
+    ];
+
+    // Inserir consultores
+    for (const consultant of consultorProfiles) {
+      const existingConsultant = await db.select().from(consultants).where(eq(consultants.userId, consultant.userId));
+      if (existingConsultant.length === 0) {
+        const [newConsultant] = await db.insert(consultants).values(consultant).returning();
+        console.log(`✅ Consultor criado: ${consultant.name}`);
+
+        // Criar disponibilidade para cada consultor
+        await db.insert(consultantAvailability).values({
+          consultantId: newConsultant.id,
+          status: 'online',
+          isAcceptingClients: true,
+          pricePerMinute: (parseFloat(consultant.hourlyRate) / 60).toFixed(2),
+          specialtyAreas: consultant.specialties,
+          communicationMethods: ['chat', 'video', 'audio', 'whatsapp'],
+          averageRating: consultant.rating,
+          currentClients: Math.floor(Math.random() * 3),
+          totalEarningsToday: (Math.random() * 500).toFixed(2),
+          lastOnline: new Date()
+        });
+        console.log(`✅ Disponibilidade criada para: ${consultant.name}`);
+      }
+    }
+
+    // Criar serviços disponíveis
+    const availableServices = [
+      {
+        name: 'Tarot Completo',
+        description: 'Leitura completa de tarot com 21 cartas',
+        category: 'tarot',
+        basePrice: '65.00',
+        duration: 60,
+        iconName: 'cards',
+        isActive: true
+      },
+      {
+        name: 'Mapa Astral',
+        description: 'Análise completa do mapa astral natal',
+        category: 'astrologia',
+        basePrice: '85.00',
+        duration: 90,
+        iconName: 'star',
+        isActive: true
+      },
+      {
+        name: 'Consulta Mediúnica',
+        description: 'Contato espiritual e orientação mediúnica',
+        category: 'mediunidade',
+        basePrice: '75.00',
+        duration: 45,
+        iconName: 'sparkles',
+        isActive: true
+      },
+      {
+        name: 'Numerologia Pessoal',
+        description: 'Análise numerológica completa da personalidade',
+        category: 'numerologia',
+        basePrice: '55.00',
+        duration: 30,
+        iconName: 'hash',
+        isActive: true
+      }
+    ];
+
+    // Inserir serviços
+    for (const service of availableServices) {
+      const existingService = await db.select().from(services).where(eq(services.name, service.name));
+      if (existingService.length === 0) {
+        await db.insert(services).values(service);
+        console.log(`✅ Serviço criado: ${service.name}`);
+      }
+    }
+
+    console.log('🎉 Dados de consultas criados com sucesso!');
+    return { success: true, message: 'Dados criados com sucesso' };
+
+  } catch (error) {
+    console.error('❌ Erro ao criar dados de consultas:', error);
+    throw error;
+  }
+}
+
+// Executar se chamado diretamente
+if (require.main === module) {
+  seedConsultationData()
+    .then(() => {
+      console.log('✅ Processo de seed concluído');
+      process.exit(0);
+    })
+    .catch((error) => {
+      console.error('❌ Erro no processo de seed:', error);
+      process.exit(1);
+    });
+}

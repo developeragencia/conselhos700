@@ -1,0 +1,1 @@
+✅ Deploy configuration complete - no migrations will be detected

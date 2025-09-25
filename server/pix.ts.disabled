@@ -1,0 +1,198 @@
+import crypto from "crypto";
+import QRCode from "qrcode";
+
+export interface PixPaymentData {
+  merchantName: string;
+  merchantCity: string;
+  merchantCEP?: string;
+  pixKey: string;
+  amount: number;
+  description?: string;
+  txId?: string;
+}
+
+export class PixService {
+  
+  /**
+   * Gera o código PIX EMV para pagamento
+   */
+  public static generatePixCode(data: PixPaymentData): string {
+    const {
+      merchantName,
+      merchantCity,
+      pixKey,
+      amount,
+      description = "Consulta Esoterica",
+      txId
+    } = data;
+
+    // Função para formatar campo EMV
+    const formatEMVField = (id: string, value: string): string => {
+      const length = value.length.toString().padStart(2, '0');
+      return `${id}${length}${value}`;
+    };
+
+    // Campos obrigatórios do PIX EMV
+    const payloadFormatIndicator = formatEMVField('00', '01');
+    const pointOfInitiationMethod = formatEMVField('01', '12'); // Dinâmico
+    
+    // Merchant Account Information (PIX)
+    const merchantAccountInfo = [
+      formatEMVField('00', 'BR.GOV.BCB.PIX'), // GUI
+      formatEMVField('01', pixKey), // Chave PIX
+      description ? formatEMVField('02', description) : ''
+    ].join('');
+    
+    const merchantAccount = formatEMVField('26', merchantAccountInfo);
+    
+    const merchantCategoryCode = formatEMVField('52', '0000');
+    const transactionCurrency = formatEMVField('53', '986'); // BRL
+    
+    let transactionAmount = '';
+    if (amount > 0) {
+      transactionAmount = formatEMVField('54', amount.toFixed(2));
+    }
+    
+    const countryCode = formatEMVField('58', 'BR');
+    const merchantNameField = formatEMVField('59', merchantName.substring(0, 25));
+    const merchantCityField = formatEMVField('60', merchantCity.substring(0, 15));
+    
+    // Additional Data Field Template (opcional)
+    let additionalDataField = '';
+    if (txId) {
+      const additionalData = formatEMVField('05', txId.substring(0, 25));
+      additionalDataField = formatEMVField('62', additionalData);
+    }
+    
+    // Monta o payload sem o CRC
+    const payload = [
+      payloadFormatIndicator,
+      pointOfInitiationMethod,
+      merchantAccount,
+      merchantCategoryCode,
+      transactionCurrency,
+      transactionAmount,
+      countryCode,
+      merchantNameField,
+      merchantCityField,
+      additionalDataField
+    ].join('');
+    
+    // Calcula o CRC16
+    const crcField = formatEMVField('63', this.calculateCRC16(payload + '6304'));
+    
+    return payload + crcField;
+  }
+
+  /**
+   * Gera QR Code para o pagamento PIX
+   */
+  public static async generatePixQRCode(data: PixPaymentData): Promise<string> {
+    const pixCode = this.generatePixCode(data);
+    
+    try {
+      const qrCodeDataURL = await QRCode.toDataURL(pixCode, {
+        errorCorrectionLevel: 'M',
+        type: 'image/png',
+        quality: 0.92,
+        margin: 1,
+        color: {
+          dark: '#000000',
+          light: '#FFFFFF'
+        },
+        width: 256
+      });
+      
+      return qrCodeDataURL;
+    } catch (error) {
+      console.error('Erro ao gerar QR Code PIX:', error);
+      throw new Error('Falha ao gerar QR Code PIX');
+    }
+  }
+
+  /**
+   * Calcula CRC16 para validação do código PIX
+   */
+  private static calculateCRC16(payload: string): string {
+    const polynomial = 0x1021;
+    let crc = 0xFFFF;
+    
+    for (let i = 0; i < payload.length; i++) {
+      crc ^= payload.charCodeAt(i) << 8;
+      
+      for (let j = 0; j < 8; j++) {
+        if (crc & 0x8000) {
+          crc = (crc << 1) ^ polynomial;
+        } else {
+          crc = crc << 1;
+        }
+        crc = crc & 0xFFFF;
+      }
+    }
+    
+    return crc.toString(16).toUpperCase().padStart(4, '0');
+  }
+
+  /**
+   * Valida uma chave PIX
+   */
+  public static validatePixKey(key: string, type: 'cpf' | 'cnpj' | 'email' | 'phone' | 'random'): boolean {
+    if (!key) return false;
+
+    switch (type) {
+      case 'cpf':
+        return /^\d{11}$/.test(key.replace(/\D/g, ''));
+      
+      case 'cnpj':
+        return /^\d{14}$/.test(key.replace(/\D/g, ''));
+      
+      case 'email':
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(key);
+      
+      case 'phone':
+        return /^\+55\d{10,11}$/.test(key.replace(/\D/g, ''));
+      
+      case 'random':
+        return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(key);
+      
+      default:
+        return false;
+    }
+  }
+
+  /**
+   * Gera ID de transação único
+   */
+  public static generateTransactionId(): string {
+    return crypto.randomBytes(16).toString('hex').substring(0, 25);
+  }
+
+  /**
+   * Formata valor monetário para PIX
+   */
+  public static formatAmount(amount: number): string {
+    return (Math.round(amount * 100) / 100).toFixed(2);
+  }
+
+  /**
+   * Cria dados completos de pagamento PIX
+   */
+  public static createPixPayment(
+    pixKey: string,
+    amount: number,
+    description: string,
+    merchantName: string = "Portal Esoterico",
+    merchantCity: string = "São Paulo"
+  ): PixPaymentData {
+    return {
+      pixKey,
+      amount: Number(this.formatAmount(amount)),
+      description: description.substring(0, 80),
+      merchantName: merchantName.substring(0, 25),
+      merchantCity: merchantCity.substring(0, 15),
+      txId: this.generateTransactionId()
+    };
+  }
+}
+
+export default PixService;

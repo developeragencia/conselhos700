@@ -1,0 +1,102 @@
+import express from "express";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import { db } from "./db";
+import { users, consultants } from "@shared/schema";
+import { eq } from "drizzle-orm";
+
+const router = express.Router();
+const JWT_SECRET = process.env.JWT_SECRET || "secret";
+
+// Endpoint de teste para registro
+router.post("/api/test/register", async (req, res) => {
+  try {
+    const { email, password, name, role, cpf, phone, specialty, experience, description, pricePerMinute } = req.body;
+
+    console.log("Dados recebidos:", { email, name, role, cpf, phone });
+
+    // Validação simples
+    if (!email || !password || !name || !role || !cpf || !phone) {
+      return res.status(400).json({ 
+        error: "Campos obrigatórios: email, password, name, role, cpf, phone" 
+      });
+    }
+
+    // Validação para consultores
+    if (role === 'consultor') {
+      if (!specialty || !experience || !description || !pricePerMinute) {
+        return res.status(400).json({ 
+          error: "Consultores precisam: specialty, experience, description, pricePerMinute" 
+        });
+      }
+    }
+
+    // Criar hash da senha
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    // Criar usuário
+    const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    const [newUser] = await db.insert(users).values({
+      id: userId,
+      email,
+      firstName: name.split(' ')[0] || name,
+      lastName: name.split(' ').slice(1).join(' ') || '',
+      passwordHash,
+      role,
+      cpf,
+      phone,
+      credits: role === 'cliente' ? "10.00" : "0.00",
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }).returning();
+
+    console.log("Usuário criado:", newUser.id);
+
+    // Se for consultor, criar registro de consultor
+    if (role === 'consultor') {
+      await db.insert(consultants).values({
+        user_id: newUser.id,
+        name: name,
+        title: `Especialista em ${specialty}`,
+        specialty,
+        experience,
+        description,
+        price_per_minute: pricePerMinute,
+        rating: "0.00",
+        total_consultations: 0,
+        is_available: false,
+        status: 'pending'
+      });
+      console.log("Consultor criado para:", newUser.id);
+    }
+
+    // Gerar token
+    const token = jwt.sign(
+      { userId: newUser.id, email: newUser.email, role: newUser.role },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.json({
+      success: true,
+      token,
+      user: {
+        id: newUser.id,
+        email: newUser.email,
+        firstName: newUser.firstName,
+        role: newUser.role
+      },
+      message: role === 'cliente' ? 
+        "Cliente registrado com sucesso! Você ganhou 10 créditos de bônus!" :
+        "Consultor registrado! Aguarde aprovação do administrador."
+    });
+
+  } catch (error) {
+    console.error("Erro no registro:", error);
+    res.status(500).json({ error: "Erro interno do servidor", details: error.message });
+  }
+});
+
+export default router;

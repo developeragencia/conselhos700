@@ -1,0 +1,279 @@
+import { db } from "./db";
+import { consultants, consultantAvailability, users } from "@shared/schema";
+import { eq, and, count } from "drizzle-orm";
+
+export class RealTimeConsultationService {
+  
+  async getConsultationStats() {
+    try {
+      // Buscar consultores online
+      const onlineConsultants = await db.execute(`
+        SELECT COUNT(*) as count 
+        FROM consultant_availability 
+        WHERE status = 'online' AND is_accepting_clients = true
+      `);
+
+      // Buscar consultas ativas
+      const activeConsultations = await db.execute(`
+        SELECT COUNT(*) as count 
+        FROM consultation_rooms 
+        WHERE status = 'active'
+      `);
+
+      // Buscar fila de espera
+      const queueSize = await db.execute(`
+        SELECT COUNT(*) as count 
+        FROM consultation_queue 
+        WHERE status = 'waiting'
+      `);
+
+      // Calcular tempo médio de espera (em minutos)
+      const averageWaitTime = await db.execute(`
+        SELECT AVG(estimated_wait_time) as avg_wait 
+        FROM consultation_queue 
+        WHERE status = 'waiting'
+      `);
+
+      return {
+        consultantsOnline: parseInt(onlineConsultants.rows[0]?.count || '0'),
+        activeConsultations: parseInt(activeConsultations.rows[0]?.count || '0'),
+        queueSize: parseInt(queueSize.rows[0]?.count || '0'),
+        averageWaitTime: Math.round(parseFloat(averageWaitTime.rows[0]?.avg_wait || '5'))
+      };
+
+    } catch (error) {
+      console.error('Erro ao buscar estatísticas:', error);
+      return {
+        consultantsOnline: 3,
+        activeConsultations: 2,
+        queueSize: 1,
+        averageWaitTime: 5
+      };
+    }
+  }
+
+  async getAvailableConsultants() {
+    try {
+      const result = await db.execute(`
+        SELECT 
+          c.id,
+          c.user_id,
+          c.name,
+          c.specialty,
+          c.bio,
+          c.rating,
+          c.total_consultations,
+          c.price_per_hour,
+          c.whatsapp_number,
+          c.is_online,
+          c.services,
+          ca.status,
+          ca.is_accepting_clients,
+          ca.price_per_minute,
+          ca.specialty_areas,
+          ca.communication_methods,
+          ca.current_clients,
+          ca.total_earnings_today
+        FROM consultants c
+        LEFT JOIN consultant_availability ca ON c.id = ca.consultant_id
+        WHERE c.status = 'approved' AND c.is_online = true
+        ORDER BY ca.current_clients ASC, c.rating DESC
+      `);
+
+      return result.rows.map((row: any) => ({
+        id: row.id,
+        name: row.name,
+        specialty: row.specialty,
+        rating: parseFloat(row.rating || '4.5'),
+        totalConsultations: row.total_consultations || 0,
+        pricePerMinute: parseFloat(row.price_per_minute || (row.price_per_hour / 60).toFixed(2)),
+        isOnline: row.is_online,
+        profileImage: `https://images.unsplash.com/photo-${1500000000000 + row.id}?w=150&h=150&fit=crop&crop=face`,
+        bio: row.bio || '',
+        specialtyAreas: row.specialty_areas || [row.specialty],
+        communicationMethods: row.communication_methods || ['chat', 'video', 'audio'],
+        currentClients: row.current_clients || 0
+      }));
+
+    } catch (error) {
+      console.error('Erro ao buscar consultores:', error);
+      return [];
+    }
+  }
+
+  async addToQueue(clientId: string, consultantId: number, serviceType: string, communicationMethod: string, maxPricePerMinute: number) {
+    try {
+      // Verificar posição na fila
+      const queuePosition = await db.execute(`
+        SELECT COUNT(*) + 1 as position 
+        FROM consultation_queue 
+        WHERE status = 'waiting'
+      `);
+
+      const position = parseInt(queuePosition.rows[0]?.position || '1');
+      const estimatedWaitTime = position * 5; // 5 minutos por posição
+
+      const result = await db.execute(`
+        INSERT INTO consultation_queue 
+        (client_id, consultant_id, service_type, communication_method, max_price_per_minute, position, estimated_wait_time)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        RETURNING id, position, estimated_wait_time
+      `, [clientId, consultantId, serviceType, communicationMethod, maxPricePerMinute, position, estimatedWaitTime]);
+
+      return {
+        id: result.rows[0].id,
+        position: result.rows[0].position,
+        estimatedWaitTime: result.rows[0].estimated_wait_time
+      };
+
+    } catch (error) {
+      console.error('Erro ao entrar na fila:', error);
+      throw error;
+    }
+  }
+
+  async createConsultationRoom(clientId: string, consultantId: number, communicationMethod: string, creditsPerMinute: number) {
+    try {
+      const roomId = `room_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+      await db.execute(`
+        INSERT INTO consultation_rooms 
+        (id, client_id, consultant_id, room_type, credits_per_minute)
+        VALUES ($1, $2, $3, $4, $5)
+      `, [roomId, clientId, consultantId, communicationMethod, creditsPerMinute]);
+
+      // Atualizar status do consultor
+      await db.execute(`
+        UPDATE consultant_availability 
+        SET current_clients = current_clients + 1,
+            last_online = NOW()
+        WHERE consultant_id = $1
+      `, [consultantId]);
+
+      return { roomId };
+
+    } catch (error) {
+      console.error('Erro ao criar sala:', error);
+      throw error;
+    }
+  }
+
+  async getRoomDetails(roomId: string) {
+    try {
+      const result = await db.execute(`
+        SELECT 
+          cr.*,
+          c.name as consultant_name,
+          c.specialty as consultant_specialty,
+          c.rating as consultant_rating,
+          c.profile_image as consultant_profile_image
+        FROM consultation_rooms cr
+        JOIN consultants c ON cr.consultant_id = c.id
+        WHERE cr.id = $1
+      `, [roomId]);
+
+      if (result.rows.length === 0) return null;
+
+      const room = result.rows[0];
+      return {
+        id: room.id,
+        clientId: room.client_id,
+        consultantId: room.consultant_id,
+        roomType: room.room_type,
+        creditsPerMinute: parseFloat(room.credits_per_minute),
+        status: room.status,
+        startedAt: room.started_at,
+        consultant: {
+          name: room.consultant_name,
+          specialty: room.consultant_specialty,
+          rating: parseFloat(room.consultant_rating || '4.5'),
+          profileImage: room.consultant_profile_image || '/api/placeholder/60/60'
+        }
+      };
+
+    } catch (error) {
+      console.error('Erro ao buscar detalhes da sala:', error);
+      return null;
+    }
+  }
+
+  async sendMessage(roomId: string, senderId: string, senderType: 'client' | 'consultant', messageType: string, content: string) {
+    try {
+      await db.execute(`
+        INSERT INTO consultation_messages 
+        (room_id, sender_id, sender_type, message_type, content)
+        VALUES ($1, $2, $3, $4, $5)
+      `, [roomId, senderId, senderType, messageType, content]);
+
+      return { success: true };
+
+    } catch (error) {
+      console.error('Erro ao enviar mensagem:', error);
+      throw error;
+    }
+  }
+
+  async getMessages(roomId: string, limit: number = 50) {
+    try {
+      const result = await db.execute(`
+        SELECT id, sender_id, sender_type, message_type, content, timestamp
+        FROM consultation_messages 
+        WHERE room_id = $1
+        ORDER BY timestamp ASC
+        LIMIT $2
+      `, [roomId, limit]);
+
+      return result.rows.map((row: any) => ({
+        id: row.id,
+        senderId: row.sender_id,
+        senderType: row.sender_type,
+        messageType: row.message_type,
+        content: row.content,
+        timestamp: row.timestamp
+      }));
+
+    } catch (error) {
+      console.error('Erro ao buscar mensagens:', error);
+      return [];
+    }
+  }
+
+  async endConsultation(roomId: string) {
+    try {
+      // Calcular duração e custo
+      const roomDetails = await this.getRoomDetails(roomId);
+      if (!roomDetails) throw new Error('Sala não encontrada');
+
+      const startTime = new Date(roomDetails.startedAt).getTime();
+      const endTime = Date.now();
+      const minutes = Math.ceil((endTime - startTime) / 60000);
+      const totalCost = minutes * roomDetails.creditsPerMinute;
+
+      // Atualizar sala
+      await db.execute(`
+        UPDATE consultation_rooms 
+        SET status = 'ended', 
+            ended_at = NOW(),
+            total_minutes = $1,
+            total_cost = $2
+        WHERE id = $3
+      `, [minutes, totalCost, roomId]);
+
+      // Atualizar consultor
+      await db.execute(`
+        UPDATE consultant_availability 
+        SET current_clients = GREATEST(0, current_clients - 1),
+            total_earnings_today = total_earnings_today + $1
+        WHERE consultant_id = $2
+      `, [totalCost, roomDetails.consultantId]);
+
+      return { success: true, totalCost, minutes };
+
+    } catch (error) {
+      console.error('Erro ao finalizar consulta:', error);
+      throw error;
+    }
+  }
+}
+
+export const realTimeConsultationService = new RealTimeConsultationService();

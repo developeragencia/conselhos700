@@ -1,0 +1,535 @@
+import express from "express";
+import { createServer } from "http";
+import { db } from "./db";
+import { consultants, testimonials, blogPosts, bannerSlides, services, users } from "@shared/schema";
+import { eq, or, sql } from "drizzle-orm";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const app = express();
+
+// Serve static files
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+app.use(express.static(path.join(__dirname, '..', 'dist', 'public')));
+
+// Minimal middleware
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: false }));
+
+// Basic API endpoints needed for PWA
+app.get("/api/consultants/featured", async (req, res) => {
+  try {   
+    const featuredConsultants = await db.select().from(consultants).limit(6);
+    res.json(featuredConsultants);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch consultants' });
+  }
+});
+
+app.get("/api/testimonials", async (req, res) => {
+  try {
+    const testimonialsData = await db.select().from(testimonials).limit(6);
+    res.json(testimonialsData);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch testimonials' });
+  }
+});
+
+app.get("/api/blog-posts", async (req, res) => {
+  try {
+    const posts = await db.select().from(blogPosts).limit(3);
+    res.json(posts);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch blog posts' });
+  }
+});
+
+app.get("/api/banner-slides", async (req, res) => {
+  try {
+    const slides = await db.select().from(bannerSlides).limit(3);
+    res.json(slides);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch banner slides' });
+  }
+});
+
+app.get("/api/services", async (req, res) => {
+  try {
+    const servicesData = await db.select().from(services);
+    res.json(servicesData);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch services' });
+  }
+});
+
+// API para buscar dados de um consultor específico
+app.get("/api/consultants/:id", async (req, res) => {
+  try {
+    const consultantId = req.params.id;
+    
+    // Se for um ID numérico, buscar por ID
+    if (!isNaN(Number(consultantId))) {
+      const [consultant] = await db.select().from(consultants).where(eq(consultants.id, Number(consultantId)));
+      if (consultant) {
+        return res.json(consultant);
+      }
+    }
+    
+    // Se for um ID com formato consultant-1, extrair o número
+    const match = consultantId.match(/consultant-(\d+)/);
+    if (match) {
+      const id = Number(match[1]);
+      const [consultant] = await db.select().from(consultants).where(eq(consultants.id, id));
+      if (consultant) {
+        return res.json(consultant);
+      }
+    }
+    
+    // Buscar por nome ou slug
+    const [consultant] = await db.select().from(consultants).where(eq(consultants.name, consultantId));
+    if (consultant) {
+      return res.json(consultant);
+    }
+    
+    res.status(404).json({ error: 'Consultor não encontrado' });
+  } catch (error) {
+    console.error('Error fetching consultant:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
+
+// Health check
+app.get("/api/health", (req, res) => {
+  res.json({ status: "OK", timestamp: new Date().toISOString() });
+});
+
+// JWT Secret
+const JWT_SECRET = process.env.JWT_SECRET || "conselhos-esotericos-secret-key-2025";
+
+// Cadastro de Cliente com validação de duplicidade
+app.post("/api/register/client", async (req, res) => {
+  try {
+    const { firstName, lastName, email, phone, cpf, password } = req.body;
+
+    // Validações obrigatórias
+    if (!firstName || !lastName || !email || !cpf || !password) {
+      return res.status(400).json({ error: 'Todos os campos obrigatórios devem ser preenchidos' });
+    }
+
+    // Limpar CPF
+    const cleanCPF = cpf.replace(/\D/g, '');
+    if (cleanCPF.length !== 11) {
+      return res.status(400).json({ error: 'CPF deve ter 11 dígitos válidos' });
+    }
+
+    // Verificar duplicidades - email, telefone e CPF
+    const existingUser = await db.select()
+      .from(users)
+      .where(or(
+        eq(users.email, email),
+        eq(users.cpf, cleanCPF),
+        phone ? eq(users.phone, phone) : undefined
+      ))
+      .limit(1);
+
+    if (existingUser.length > 0) {
+      const existing = existingUser[0];
+      if (existing.email === email) {
+        return res.status(400).json({ error: 'Este email já está cadastrado no sistema' });
+      }
+      if (existing.cpf === cleanCPF) {
+        return res.status(400).json({ error: 'Este CPF já está cadastrado no sistema' });
+      }
+      if (existing.phone === phone) {
+        return res.status(400).json({ error: 'Este telefone já está cadastrado no sistema' });
+      }
+    }
+
+    // Hash da senha
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Criar usuário
+    const [newUser] = await db.insert(users).values({
+      cpf: cleanCPF,
+      firstName,
+      lastName,
+      email,
+      phone: phone || null,
+      passwordHash: hashedPassword,
+      role: 'client',
+      isActive: true
+    }).returning();
+
+    // Créditos bônus são adicionados diretamente na tabela users (produção real)
+    await db.update(users)
+      .set({
+        credits: '0.00',
+        bonusCredits: '20.00',
+        hasReceivedBonus: true
+      })
+      .where(eq(users.id, newUser.id));
+
+    // Gerar token JWT
+    const token = jwt.sign(
+      { userId: newUser.id, email: newUser.email, role: 'client' },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.json({
+      success: true,
+      message: 'Cadastro realizado com sucesso! Você ganhou R$ 20,00 de bônus para suas primeiras consultas!',
+      user: {
+        id: newUser.id,
+        firstName: newUser.firstName,
+        lastName: newUser.lastName,
+        email: newUser.email,
+        role: newUser.role
+      },
+      token,
+      bonusCredits: 20
+    });
+  } catch (error) {
+    console.error('Error registering client:', error);
+    res.status(500).json({ error: 'Erro interno do servidor. Tente novamente.' });
+  }
+});
+
+// Cadastro de Consultor com validação de duplicidade
+app.post("/api/register/consultant", async (req, res) => {
+  try {
+    const { firstName, lastName, email, phone, cpf, password, specialties, experience, description, pricePerMinute } = req.body;
+
+    // Validações obrigatórias
+    if (!firstName || !lastName || !email || !cpf || !password) {
+      return res.status(400).json({ error: 'Todos os campos obrigatórios devem ser preenchidos' });
+    }
+
+    // Limpar CPF
+    const cleanCPF = cpf.replace(/\D/g, '');
+    if (cleanCPF.length !== 11) {
+      return res.status(400).json({ error: 'CPF deve ter 11 dígitos válidos' });
+    }
+
+    // Verificar duplicidades
+    const existingUser = await db.select()
+      .from(users)
+      .where(or(
+        eq(users.email, email),
+        eq(users.cpf, cleanCPF),
+        phone ? eq(users.phone, phone) : undefined
+      ))
+      .limit(1);
+
+    if (existingUser.length > 0) {
+      const existing = existingUser[0];
+      if (existing.email === email) {
+        return res.status(400).json({ error: 'Este email já está cadastrado no sistema' });
+      }
+      if (existing.cpf === cleanCPF) {
+        return res.status(400).json({ error: 'Este CPF já está cadastrado no sistema' });
+      }
+      if (existing.phone === phone) {
+        return res.status(400).json({ error: 'Este telefone já está cadastrado no sistema' });
+      }
+    }
+
+    // Hash da senha
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Criar usuário consultor
+    const [newUser] = await db.insert(users).values({
+      cpf: cleanCPF,
+      firstName,
+      lastName,
+      email,
+      phone: phone || null,
+      passwordHash: hashedPassword,
+      role: 'consultant',
+      isActive: false // Consultores precisam de aprovação
+    }).returning();
+
+    // Criar perfil de consultor usando SQL direto (evitando problemas de tipos)
+    const fullName = `${firstName} ${lastName}`;
+    const bio = description || 'Consultor especializado em orientação espiritual';
+    const price = pricePerMinute ? parseFloat(pricePerMinute) : 5.00;
+    const imageUrl = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face';
+    const specialty = (specialties && specialties.length > 0) ? specialties[0] : 'Tarot';
+    const specialtiesArray = (specialties && specialties.length > 0) ? specialties : ['Tarot'];
+    
+    // Usar SQL direto para inserir dados
+    await db.execute(sql.raw(`
+      INSERT INTO consultants (
+        user_id, display_name, bio, specialties, experience, 
+        rating, total_consultations, price_per_minute, availability, 
+        is_approved, profile_image, name, title, description, 
+        review_count, image_url, specialty, is_active, status
+      ) VALUES (
+        '${newUser.id}', '${fullName}', '${bio}', ARRAY['${specialtiesArray.join("','")}'], 5,
+        0.0, 0, ${price}, 'offline',
+        false, '${imageUrl}', '${fullName}', 'Consultor Espiritual', '${bio}',
+        0, '${imageUrl}', '${specialty}', false, 'pending'
+      )
+    `));
+
+    res.json({
+      success: true,
+      message: 'Cadastro de consultor enviado para análise. Você receberá um email em até 24 horas.',
+      user: {
+        id: newUser.id,
+        firstName: newUser.firstName,
+        lastName: newUser.lastName,
+        email: newUser.email,
+        role: newUser.role
+      }
+    });
+  } catch (error) {
+    console.error('Error registering consultant:', error);
+    res.status(500).json({ error: 'Erro interno do servidor. Tente novamente.' });
+  }
+});
+
+// Login endpoint
+app.post("/api/login", async (req, res) => {
+  try {
+    const { email, password, role } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email e senha são obrigatórios' });
+    }
+
+    // Buscar usuário pelo email
+    const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
+
+    if (!user) {
+      return res.status(401).json({ error: 'Email ou senha incorretos' });
+    }
+
+    // Verificar senha
+    if (!user.passwordHash) {
+      return res.status(401).json({ error: 'Conta não configurada corretamente. Entre em contato com o suporte.' });
+    }
+    
+    const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: 'Email ou senha incorretos' });
+    }
+
+    // Mapear roles do frontend para backend se necessário
+    let mappedRole = role;
+    if (role === 'cliente') mappedRole = 'client';
+    if (role === 'consultor') mappedRole = 'consultant';
+    if (role === 'admin') mappedRole = 'admin';
+
+    // Verificar se o role corresponde (se fornecido)
+    if (mappedRole && user.role !== mappedRole) {
+      return res.status(401).json({ error: `Usuário não tem permissão de ${role}` });
+    }
+
+    // Gerar token JWT
+    const token = jwt.sign(
+      { 
+        userId: user.id, 
+        email: user.email, 
+        role: user.role 
+      },
+      JWT_SECRET,
+      { expiresIn: '30d' } // Token válido por 30 dias
+    );
+
+    res.json({
+      success: true,
+      message: 'Login realizado com sucesso',
+      token,
+      user: {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        role: user.role,
+        credits: user.credits,
+        bonusCredits: user.bonusCredits
+      }
+    });
+  } catch (error) {
+    console.error('Error logging in:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
+
+// Rota para verificar autenticação
+app.get("/api/verify-auth", async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ error: 'Token não fornecido' });
+    }
+
+    const token = authHeader.substring(7);
+    
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET) as any;
+      
+      // Buscar dados atualizados do usuário
+      const [user] = await db.select().from(users).where(eq(users.id, decoded.userId)).limit(1);
+      
+      if (!user) {
+        return res.status(401).json({ error: 'Usuário não encontrado' });
+      }
+
+      res.json({
+        success: true,
+        user: {
+          id: user.id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          role: user.role,
+          credits: user.credits,
+          bonusCredits: user.bonusCredits
+        }
+      });
+    } catch (jwtError) {
+      return res.status(401).json({ error: 'Token inválido' });
+    }
+  } catch (error) {
+    console.error('Error verifying auth:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
+
+// Endpoint para obter dados do usuário autenticado (compatível com o frontend)
+app.get('/api/auth/user', async (req, res) => {
+  try {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    
+    if (!token) {
+      return res.status(401).json({ error: 'Token não fornecido' });
+    }
+
+    const decoded = jwt.verify(token, JWT_SECRET) as any;
+    
+    // Buscar dados atualizados do usuário
+    const [user] = await db.select().from(users).where(eq(users.id, decoded.userId)).limit(1);
+    
+    if (!user) {
+      return res.status(401).json({ error: 'Usuário não encontrado' });
+    }
+
+    // Retornar dados do usuário compatíveis com o frontend
+    res.json({
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      role: user.role,
+      credits: user.credits?.toString() || '0.00',
+      bonusCredits: user.bonusCredits?.toString() || '0.00',
+      phone: user.phone,
+      cpf: user.cpf,
+      isActive: user.isActive,
+      createdAt: user.createdAt,
+      profileImageUrl: user.profileImageUrl
+    });
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    res.status(401).json({ error: 'Token inválido' });
+  }
+});
+
+// Rotas de recuperação de senha
+app.post('/api/auth/verify-email', async (req, res) => {
+  try {
+    const { email } = req.body;
+    
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'E-mail não encontrado' });
+    }
+    
+    // Retorna info sobre os dígitos do CPF (primeiros ou últimos 3)
+    const cpf = user.cpf;
+    const type = Math.random() > 0.5 ? 'first' : 'last';
+    const digits = type === 'first' ? cpf.slice(0, 3) : cpf.slice(-3);
+    
+    res.json({ 
+      success: true, 
+      cpfInfo: { digits, type } 
+    });
+  } catch (error) {
+    console.error('Erro ao verificar email:', error);
+    res.status(500).json({ success: false, message: 'Erro interno do servidor' });
+  }
+});
+
+app.post('/api/auth/verify-cpf-digits', async (req, res) => {
+  try {
+    const { email, digits, type } = req.body;
+    
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Usuário não encontrado' });
+    }
+    
+    const cpf = user.cpf;
+    const expectedDigits = type === 'first' ? cpf.slice(0, 3) : cpf.slice(-3);
+    
+    if (digits !== expectedDigits) {
+      return res.status(400).json({ success: false, message: 'Dígitos incorretos' });
+    }
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Erro ao verificar CPF:', error);
+    res.status(500).json({ success: false, message: 'Erro interno do servidor' });
+  }
+});
+
+app.post('/api/auth/reset-password', async (req, res) => {
+  try {
+    const { email, newPassword } = req.body;
+    
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    
+    await db.update(users)
+      .set({ passwordHash: hashedPassword })
+      .where(eq(users.email, email));
+    
+    res.json({ success: true, message: 'Senha alterada com sucesso' });
+  } catch (error) {
+    console.error('Erro ao alterar senha:', error);
+    res.status(500).json({ success: false, message: 'Erro interno do servidor' });
+  }
+});
+
+// Serve static files
+app.use(express.static(path.join(__dirname, '..', 'dist', 'public')));
+
+// Serve React app for all non-API routes (SPA fallback)
+app.get('*', (req, res) => {
+  // Não interceptar rotas de API
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({ error: 'API endpoint not found' });
+  }
+  
+  const indexPath = path.join(__dirname, '..', 'dist', 'public', 'index.html');
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      console.error('Error serving index.html:', err);
+      res.status(500).send('Error loading page');
+    }
+  });
+});
+
+// Create server
+const server = createServer(app);
+const PORT = process.env.PORT || 5000;
+
+server.listen(PORT, "0.0.0.0", () => {
+  console.log(`Clean server running on port ${PORT}`);
+});

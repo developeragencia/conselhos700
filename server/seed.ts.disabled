@@ -1,0 +1,251 @@
+import { db } from "./db";
+import { 
+  consultants, 
+  services, 
+  blogPosts, 
+  testimonials, 
+  promotions, 
+  products 
+} from "@shared/schema";
+
+async function seedDatabase() {
+  console.log("🌱 Seeding database...");
+
+  try {
+    // Seed Services
+    await db.insert(services).values([
+      {
+        title: "Leitura de Tarot",
+        description: "Consulta completa com cartas do tarot para orientação pessoal",
+        icon: "🔮",
+        link: "/servicos/tarot",
+      },
+      {
+        title: "Mapa Astral",
+        description: "Análise completa do seu mapa astral natal",
+        icon: "⭐",
+        link: "/servicos/astrologia",
+      },
+      {
+        title: "Numerologia",
+        description: "Descubra os números que influenciam sua vida",
+        icon: "🔢",
+        link: "/servicos/numerologia",
+      },
+      {
+        title: "Quiromancia",
+        description: "Leitura das linhas das mãos",
+        icon: "🤲",
+        link: "/servicos/quiromancia",
+      },
+      {
+        title: "Cristaloterapia",
+        description: "Terapia com cristais e pedras energéticas",
+        icon: "💎",
+        link: "/servicos/cristaloterapia",
+      }
+    ]);
+
+    // Seed Consultants
+    await db.insert(consultants).values([
+      {
+        name: "Maria Silva",
+        title: "Especialista em Tarot",
+        bio: "Mais de 15 anos de experiência em leituras de tarot e orientação espiritual.",
+        specialties: ["Tarot", "Amor", "Carreira"],
+        rating: 4.9,
+        reviewCount: 127,
+        consultations: 500,
+        responseTime: "2 min",
+        price: 89.90,
+        status: "online",
+        imageUrl: "https://images.unsplash.com/photo-1494790108755-2616b9ee9b90?q=80&w=1000&auto=format&fit=crop",
+        experience: "15+ anos",
+        availability: "24/7",
+        certifications: ["Certified Tarot Reader", "Reiki Master"],
+        userId: "user1",
+      },
+      {
+        name: "João Santos",
+        title: "Astrólogo Profissional",
+        bio: "Especialista em astrologia ocidental e interpretação de mapas astrais.",
+        specialties: ["Astrologia", "Mapa Astral", "Previsões"],
+        rating: 4.8,
+        reviewCount: 89,
+        consultations: 320,
+        responseTime: "5 min",
+        price: 119.90,
+        status: "busy",
+        imageUrl: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=1000&auto=format&fit=crop",
+        experience: "10+ anos",
+        availability: "Seg-Sex 9h-18h",
+        certifications: ["Professional Astrologer", "ISAR Certified"],
+        userId: "user2",
+      },
+      {
+        name: "Ana Costa",
+        title: "Numeróloga e Terapeuta",
+        bio: "Especializada em numerologia pitagórica e terapias holísticas.",
+        specialties: ["Numerologia", "Terapia Holística", "Autoconhecimento"],
+        rating: 4.7,
+        reviewCount: 156,
+        consultations: 400,
+        responseTime: "3 min",
+        price: 75.90,
+        status: "online",
+        imageUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=1000&auto=format&fit=crop",
+        experience: "8+ anos",
+        availability: "24/7",
+        certifications: ["Numerology Expert", "Holistic Therapist"],
+        userId: "user3",
+      }
+    ]);
+
+    // Seed Blog Posts
+    await db.insert(blogPosts).values([
+      {
+        title: "Como o Tarot pode ajudar em momentos de decisão",
+        content: "O Tarot é uma ferramenta milenar de autoconhecimento...",
+        excerpt: "Descubra como as cartas do tarot podem oferecer insights valiosos para suas escolhas mais importantes da vida.",
+        slug: "tarot-momentos-decisao",
+        published: true,
+        category: "Tarot",
+        imageUrl: "https://images.unsplash.com/photo-1518893063132-36e46dbe2428?q=80&w=1000&auto=format&fit=crop",
+        authorId: "admin",
+        tags: ["Tarot", "Autoconhecimento", "Decisões", "Espiritualidade"],
+      },
+      {
+        title: "Os 12 Signos do Zodíaco e suas Características",
+        content: "Cada signo do zodíaco possui características únicas...",
+        excerpt: "Conheça as principais características de cada signo astrológico e descubra mais sobre sua personalidade.",
+        slug: "12-signos-caracteristicas",
+        published: true,
+        category: "Astrologia",
+        imageUrl: "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?q=80&w=1000&auto=format&fit=crop",
+        authorId: "admin",
+        tags: ["Astrologia", "Signos", "Personalidade", "Zodíaco"],
+      },
+      {
+        title: "Numerologia: Descubra seu Número da Sorte",
+        content: "A numerologia é uma ciência milenar que estuda a influência dos números...",
+        excerpt: "Aprenda a calcular e interpretar seu número pessoal através da numerologia.",
+        slug: "numerologia-numero-sorte",
+        published: true,
+        category: "Numerologia",
+        imageUrl: "https://images.unsplash.com/photo-1617791160505-6f00504e3519?q=80&w=1000&auto=format&fit=crop",
+        authorId: "admin",
+        tags: ["Numerologia", "Números", "Sorte", "Cálculo"],
+      }
+    ]);
+
+    // Seed Testimonials
+    await db.insert(testimonials).values([
+      {
+        content: "A consulta com a Maria foi incrível! Ela conseguiu me orientar exatamente sobre o que eu precisava saber.",
+        rating: 5,
+        approved: true,
+        authorName: "Ana Paula",
+        authorLocation: "São Paulo, SP",
+        authorImageUrl: "https://images.unsplash.com/photo-1494790108755-2616b9ee9b90?q=80&w=400&auto=format&fit=crop",
+        consultantId: 1,
+        userId: "client1",
+      },
+      {
+        content: "O mapa astral feito pelo João abriu meus olhos para aspectos da minha personalidade que eu não conhecia.",
+        rating: 5,
+        approved: true,
+        authorName: "Carlos Silva",
+        authorLocation: "Rio de Janeiro, RJ",
+        authorImageUrl: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=400&auto=format&fit=crop",
+        consultantId: 2,
+        userId: "client2",
+      },
+      {
+        content: "A numerologia da Ana me ajudou a entender melhor meus ciclos de vida. Recomendo muito!",
+        rating: 5,
+        approved: true,
+        authorName: "Fernanda Costa",
+        authorLocation: "Belo Horizonte, MG",
+        authorImageUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=400&auto=format&fit=crop",
+        consultantId: 3,
+        userId: "client3",
+      }
+    ]);
+
+    // Seed Promotions
+    await db.insert(promotions).values([
+      {
+        title: "Combo Autoconhecimento",
+        description: "Tarot + Mapa Astral + Numerologia em um pacote especial",
+        price: 149.90,
+        originalPrice: 220.00,
+        discount: 32,
+        active: true,
+        validUntil: new Date("2024-12-31"),
+        features: ["Consulta de Tarot completa", "Mapa Astral personalizado", "Análise numerológica", "Relatório digital"],
+      },
+      {
+        title: "Primeira Consulta",
+        description: "50% de desconto para novos clientes",
+        price: 29.90,
+        originalPrice: 59.90,
+        discount: 50,
+        active: true,
+        validUntil: new Date("2024-12-31"),
+        features: ["Consulta de 30 minutos", "Escolha o consultor", "Garantia de satisfação"],
+      }
+    ]);
+
+    // Seed Products
+    await db.insert(products).values([
+      {
+        name: "Baralho de Tarot Rider-Waite",
+        description: "Baralho de tarot clássico para iniciantes e profissionais",
+        price: 45.90,
+        originalPrice: 65.90,
+        category: "Tarot",
+        imageUrl: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?q=80&w=400&auto=format&fit=crop",
+        inStock: true,
+        featured: true,
+      },
+      {
+        name: "Cristal de Quartzo Rosa",
+        description: "Cristal natural para amor próprio e relacionamentos",
+        price: 35.90,
+        category: "Cristais",
+        imageUrl: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?q=80&w=400&auto=format&fit=crop",
+        inStock: true,
+        featured: false,
+      },
+      {
+        name: "Livro: Introdução à Astrologia",
+        description: "Guia completo para iniciantes em astrologia",
+        price: 29.90,
+        category: "Livros",
+        imageUrl: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=400&auto=format&fit=crop",
+        inStock: true,
+        featured: true,
+      },
+      {
+        name: "Kit de Incensos Energéticos",
+        description: "Set com 7 tipos de incensos para limpeza energética",
+        price: 22.90,
+        category: "Incensos",
+        imageUrl: "https://images.unsplash.com/photo-1602664949007-9e6c8a21aa0a?q=80&w=400&auto=format&fit=crop",
+        inStock: true,
+        featured: false,
+      }
+    ]);
+
+    console.log("✅ Database seeded successfully!");
+  } catch (error) {
+    console.error("❌ Error seeding database:", error);
+  }
+}
+
+// Run seed if this file is executed directly
+if (require.main === module) {
+  seedDatabase();
+}
+
+export { seedDatabase };

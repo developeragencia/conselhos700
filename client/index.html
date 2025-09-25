@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Conselhos Esotéricos - Portal de Consultas Místicas</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <script>
+      const buildVersion = 'v' + Date.now();
+      console.log("🔥 FORÇANDO ATUALIZAÇÃO COMPLETA:", buildVersion);
+      
+      // Sistema anti-cache mais agressivo
+      if ("caches" in window) {
+        caches.keys().then(names => {
+          names.forEach(name => {
+            caches.delete(name);
+            console.log("🗑️ Cache deletado:", name);
+          });
+        });
+      }
+      
+      // Limpa todos os storages
+      try {
+        localStorage.clear();
+        sessionStorage.clear();
+        if (window.indexedDB) {
+          indexedDB.databases().then(dbs => {
+            dbs.forEach(db => indexedDB.deleteDatabase(db.name));
+          });
+        }
+      } catch(e) {}
+      
+      // Força reload se necessário
+      const lastVersion = localStorage.getItem('buildVersion');
+      if (lastVersion && lastVersion !== buildVersion) {
+        console.log("🔄 VERSÃO MUDOU - RECARREGANDO");
+        window.location.reload(true);
+      }
+      localStorage.setItem('buildVersion', buildVersion);
+      
+      console.log("✅ SISTEMA ATUALIZADO:", buildVersion);
+      
+      // Força reload completo se estiver na página de cadastro
+      if (window.location.pathname === '/cadastro') {
+        console.log("🔄 PÁGINA CADASTRO - FORÇANDO RELOAD");
+        setTimeout(() => window.location.reload(true), 100);
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

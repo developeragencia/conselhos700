@@ -1,0 +1,395 @@
+import { db } from './db';
+import { 
+  consultationQueue, 
+  consultationRooms, 
+  consultationMessages, 
+  consultantAvailability,
+  creditTransactions,
+  consultations,
+  users,
+  consultants
+} from '@shared/schema';
+import { eq, and, desc, asc } from 'drizzle-orm';
+import { nanoid } from 'nanoid';
+
+export class ConsultationService {
+  
+  // ===== FILA DE ESPERA =====
+  
+  async addToQueue(clientId: string, serviceType: string, communicationMethod: string, maxPricePerMinute: number) {
+    try {
+      // Verificar se cliente já está na fila
+      const existingQueue = await db.select()
+        .from(consultationQueue)
+        .where(and(
+          eq(consultationQueue.clientId, clientId),
+          eq(consultationQueue.status, 'waiting')
+        ));
+
+      if (existingQueue.length > 0) {
+        throw new Error('Cliente já está na fila de espera');
+      }
+
+      // Calcular posição na fila
+      const queueCount = await db.select()
+        .from(consultationQueue)
+        .where(eq(consultationQueue.status, 'waiting'));
+      
+      const position = queueCount.length + 1;
+
+      // Adicionar à fila
+      const [queueItem] = await db.insert(consultationQueue).values({
+        clientId,
+        serviceType,
+        communicationMethod,
+        maxPricePerMinute: maxPricePerMinute.toString(),
+        position,
+        estimatedWaitTime: position * 5, // 5 minutos por posição
+      }).returning();
+
+      // Tentar fazer match imediatamente
+      await this.tryMatchConsultant(queueItem.id);
+
+      return queueItem;
+    } catch (error) {
+      console.error('Erro ao adicionar à fila:', error);
+      throw error;
+    }
+  }
+
+  async tryMatchConsultant(queueId: number) {
+    try {
+      const queueItem = await db.select()
+        .from(consultationQueue)
+        .where(eq(consultationQueue.id, queueId))
+        .limit(1);
+
+      if (!queueItem[0] || queueItem[0].status !== 'waiting') {
+        return null;
+      }
+
+      // Buscar consultores disponíveis
+      const availableConsultants = await db.select()
+        .from(consultantAvailability)
+        .innerJoin(consultants, eq(consultantAvailability.consultantId, consultants.id))
+        .where(and(
+          eq(consultantAvailability.status, 'online'),
+          eq(consultantAvailability.isAcceptingClients, true)
+        ));
+
+      for (const consultant of availableConsultants) {
+        const pricePerMinute = parseFloat(consultant.consultant_availability.pricePerMinute || '0');
+        const maxPrice = parseFloat(queueItem[0].maxPricePerMinute || '0');
+
+        if (pricePerMinute <= maxPrice) {
+          // Match encontrado!
+          await db.update(consultationQueue)
+            .set({
+              consultantId: consultant.consultant_availability.consultantId,
+              status: 'matched',
+              matchedAt: new Date()
+            })
+            .where(eq(consultationQueue.id, queueId));
+
+          // Criar sala de consulta
+          const roomId = nanoid();
+          const room = await this.createConsultationRoom(
+            roomId,
+            queueItem[0].clientId,
+            consultant.consultant_availability.consultantId,
+            queueItem[0].communicationMethod,
+            pricePerMinute
+          );
+
+          return room;
+        }
+      }
+
+      return null;
+    } catch (error) {
+      console.error('Erro ao tentar match:', error);
+      return null;
+    }
+  }
+
+  // ===== SALAS DE CONSULTA =====
+
+  async createConsultationRoom(roomId: string, clientId: string, consultantId: number, roomType: string, creditsPerMinute: number) {
+    try {
+      const [room] = await db.insert(consultationRooms).values({
+        roomId,
+        clientId,
+        consultantId,
+        roomType,
+        creditsPerMinute: creditsPerMinute.toString(),
+        startedAt: new Date(),
+        connectionStatus: 'connected'
+      }).returning();
+
+      // Criar consulta oficial
+      await db.insert(consultations).values({
+        clientId,
+        consultantId,
+        communicationMethod: roomType,
+        status: 'in_progress',
+        amount: '0.00', // Será calculado por minuto
+        pricePerMinute: creditsPerMinute.toString(),
+        startedAt: new Date()
+      });
+
+      // Atualizar disponibilidade do consultor
+      await db.update(consultantAvailability)
+        .set({
+          currentClients: db.select().from(consultationRooms)
+            .where(and(
+              eq(consultationRooms.consultantId, consultantId),
+              eq(consultationRooms.isActive, true)
+            )).as('count'),
+          status: 'busy'
+        })
+        .where(eq(consultantAvailability.consultantId, consultantId));
+
+      return room;
+    } catch (error) {
+      console.error('Erro ao criar sala de consulta:', error);
+      throw error;
+    }
+  }
+
+  async getRoomDetails(roomId: string) {
+    try {
+      const room = await db.select()
+        .from(consultationRooms)
+        .innerJoin(users, eq(consultationRooms.clientId, users.id))
+        .innerJoin(consultants, eq(consultationRooms.consultantId, consultants.id))
+        .where(eq(consultationRooms.roomId, roomId))
+        .limit(1);
+
+      return room[0] || null;
+    } catch (error) {
+      console.error('Erro ao buscar detalhes da sala:', error);
+      return null;
+    }
+  }
+
+  // ===== SISTEMA DE MENSAGENS =====
+
+  async sendMessage(roomId: string, senderId: string, senderType: 'client' | 'consultant', messageType: string, content: string) {
+    try {
+      // Verificar se a sala está ativa
+      const room = await db.select()
+        .from(consultationRooms)
+        .where(and(
+          eq(consultationRooms.roomId, roomId),
+          eq(consultationRooms.isActive, true)
+        ))
+        .limit(1);
+
+      if (!room[0]) {
+        throw new Error('Sala de consulta não encontrada ou inativa');
+      }
+
+      // Calcular custo em créditos (baseado no tempo desde a última mensagem)
+      const lastMessage = await db.select()
+        .from(consultationMessages)
+        .where(eq(consultationMessages.roomId, roomId))
+        .orderBy(desc(consultationMessages.createdAt))
+        .limit(1);
+
+      let creditsCost = 0;
+      if (messageType === 'text' && senderType === 'client') {
+        const minutesSinceStart = Math.ceil((Date.now() - room[0].startedAt!.getTime()) / 60000);
+        const creditsPerMinute = parseFloat(room[0].creditsPerMinute || '0');
+        creditsCost = creditsPerMinute / 60; // Custo por segundo, aproximadamente
+      }
+
+      // Inserir mensagem
+      const [message] = await db.insert(consultationMessages).values({
+        roomId,
+        senderId,
+        senderType,
+        messageType,
+        content,
+        creditsCost: creditsCost.toString()
+      }).returning();
+
+      // Atualizar total de créditos usados na sala
+      await db.update(consultationRooms)
+        .set({
+          totalCreditsUsed: (parseFloat(room[0].totalCreditsUsed || '0') + creditsCost).toString()
+        })
+        .where(eq(consultationRooms.roomId, roomId));
+
+      return message;
+    } catch (error) {
+      console.error('Erro ao enviar mensagem:', error);
+      throw error;
+    }
+  }
+
+  async getMessages(roomId: string, limit: number = 50) {
+    try {
+      const messages = await db.select()
+        .from(consultationMessages)
+        .innerJoin(users, eq(consultationMessages.senderId, users.id))
+        .where(eq(consultationMessages.roomId, roomId))
+        .orderBy(asc(consultationMessages.createdAt))
+        .limit(limit);
+
+      return messages;
+    } catch (error) {
+      console.error('Erro ao buscar mensagens:', error);
+      return [];
+    }
+  }
+
+  // ===== CONTROLE DE CRÉDITOS =====
+
+  async processConsultationPayment(roomId: string, userId: string, minutesUsed: number) {
+    try {
+      const room = await db.select()
+        .from(consultationRooms)
+        .where(eq(consultationRooms.roomId, roomId))
+        .limit(1);
+
+      if (!room[0]) {
+        throw new Error('Sala não encontrada');
+      }
+
+      const creditsPerMinute = parseFloat(room[0].creditsPerMinute || '0');
+      const totalCost = creditsPerMinute * minutesUsed;
+
+      // Verificar se o usuário tem créditos suficientes
+      const user = await db.select()
+        .from(users)
+        .where(eq(users.id, userId))
+        .limit(1);
+
+      if (!user[0]) {
+        throw new Error('Usuário não encontrado');
+      }
+
+      const userCredits = parseFloat(user[0].credits || '0');
+      if (userCredits < totalCost) {
+        throw new Error('Créditos insuficientes');
+      }
+
+      // Debitar créditos do usuário
+      await db.update(users)
+        .set({
+          credits: (userCredits - totalCost).toString()
+        })
+        .where(eq(users.id, userId));
+
+      // Registrar transação
+      await db.insert(creditTransactions).values({
+        userId,
+        roomId,
+        transactionType: 'consumption',
+        amount: totalCost.toString(),
+        minutesUsed,
+        pricePerMinute: creditsPerMinute.toString(),
+        consultantId: room[0].consultantId,
+        status: 'completed'
+      });
+
+      return { success: true, totalCost, remainingCredits: userCredits - totalCost };
+    } catch (error) {
+      console.error('Erro ao processar pagamento:', error);
+      throw error;
+    }
+  }
+
+  // ===== DISPONIBILIDADE DOS CONSULTORES =====
+
+  async updateConsultantStatus(consultantId: number, status: 'online' | 'busy' | 'away' | 'offline') {
+    try {
+      await db.update(consultantAvailability)
+        .set({
+          status,
+          lastOnline: status === 'offline' ? new Date() : undefined,
+          updatedAt: new Date()
+        })
+        .where(eq(consultantAvailability.consultantId, consultantId));
+
+      return { success: true };
+    } catch (error) {
+      console.error('Erro ao atualizar status:', error);
+      throw error;
+    }
+  }
+
+  async getAvailableConsultants(serviceType?: string) {
+    try {
+      const consultants = await db.select()
+        .from(consultantAvailability)
+        .innerJoin(consultants, eq(consultantAvailability.consultantId, consultants.id))
+        .where(and(
+          eq(consultantAvailability.status, 'online'),
+          eq(consultantAvailability.isAcceptingClients, true)
+        ))
+        .orderBy(asc(consultantAvailability.pricePerMinute));
+
+      return consultants;
+    } catch (error) {
+      console.error('Erro ao buscar consultores disponíveis:', error);
+      return [];
+    }
+  }
+
+  // ===== FINALIZAÇÃO DE CONSULTA =====
+
+  async endConsultation(roomId: string) {
+    try {
+      const room = await db.select()
+        .from(consultationRooms)
+        .where(eq(consultationRooms.roomId, roomId))
+        .limit(1);
+
+      if (!room[0]) {
+        throw new Error('Sala não encontrada');
+      }
+
+      // Calcular duração total
+      const duration = Math.ceil((Date.now() - room[0].startedAt!.getTime()) / 60000);
+      const totalCost = parseFloat(room[0].totalCreditsUsed || '0');
+
+      // Finalizar sala
+      await db.update(consultationRooms)
+        .set({
+          isActive: false,
+          endedAt: new Date(),
+          connectionStatus: 'disconnected'
+        })
+        .where(eq(consultationRooms.roomId, roomId));
+
+      // Atualizar consulta
+      await db.update(consultations)
+        .set({
+          status: 'completed',
+          endedAt: new Date(),
+          duration,
+          amount: totalCost.toString()
+        })
+        .where(eq(consultations.clientId, room[0].clientId));
+
+      // Processar pagamento final
+      await this.processConsultationPayment(roomId, room[0].clientId, duration);
+
+      // Liberar consultor
+      await db.update(consultantAvailability)
+        .set({
+          currentClients: Math.max(0, (room[0].consultantId || 0) - 1),
+          status: 'online'
+        })
+        .where(eq(consultantAvailability.consultantId, room[0].consultantId));
+
+      return { success: true, duration, totalCost };
+    } catch (error) {
+      console.error('Erro ao finalizar consulta:', error);
+      throw error;
+    }
+  }
+}
+
+export const consultationService = new ConsultationService();

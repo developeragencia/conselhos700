@@ -1,0 +1,289 @@
+import { db } from './db';
+import { userCredits, creditTransactions, users, consultationRooms } from '@shared/schema';
+import { eq, and, gte, desc, sum } from 'drizzle-orm';
+
+export class CreditManager {
+  // Add credits to user account
+  async addCredits(userId: string, amount: number, type: 'purchase' | 'bonus' | 'refund', description: string) {
+    try {
+      // Get current user credits
+      const [currentCredits] = await db.select()
+        .from(userCredits)
+        .where(eq(userCredits.userId, userId))
+        .limit(1);
+
+      const currentBalance = currentCredits ? parseFloat(currentCredits.creditsBalance || '0') : 0;
+      const currentTotal = currentCredits ? parseFloat(currentCredits.totalPurchased || '0') : 0;
+
+      // Add transaction record
+      await db.insert(creditTransactions).values({
+        userId: parseInt(userId),
+        transactionType: type,
+        amount: amount.toString(),
+        description,
+        createdAt: new Date()
+      });
+
+      // Update user credits
+      if (currentCredits) {
+        await db.update(userCredits)
+          .set({
+            creditsBalance: (currentBalance + amount).toString(),
+            totalPurchased: type === 'purchase' ? (currentTotal + amount).toString() : currentTotal.toString(),
+            updatedAt: new Date()
+          })
+          .where(eq(userCredits.userId, userId));
+      } else {
+        await db.insert(userCredits).values({
+          userId: parseInt(userId),
+          creditsBalance: amount.toString(),
+          totalPurchased: type === 'purchase' ? amount.toString() : '0',
+          totalUsed: '0',
+          createdAt: new Date(),
+          updatedAt: new Date()
+        });
+      }
+
+      return { success: true, newBalance: currentBalance + amount };
+    } catch (error) {
+      console.error('Error adding credits:', error);
+      return { success: false, error: 'Failed to add credits' };
+    }
+  }
+
+  // Deduct credits for consultation
+  async deductCredits(userId: string, amount: number, roomId: string, description: string) {
+    try {
+      // Get current user credits
+      const [currentCredits] = await db.select()
+        .from(userCredits)
+        .where(eq(userCredits.userId, userId))
+        .limit(1);
+
+      if (!currentCredits) {
+        return { success: false, error: 'User credits not found' };
+      }
+
+      const currentBalance = parseFloat(currentCredits.creditsBalance || '0');
+      const currentUsed = parseFloat(currentCredits.totalUsed || '0');
+
+      if (currentBalance < amount) {
+        return { success: false, error: 'Insufficient credits' };
+      }
+
+      // Add transaction record
+      await db.insert(creditTransactions).values({
+        userId: parseInt(userId),
+        transactionType: 'consultation',
+        amount: (-amount).toString(),
+        description,
+        createdAt: new Date()
+      });
+
+      // Update user credits
+      await db.update(userCredits)
+        .set({
+          creditsBalance: (currentBalance - amount).toString(),
+          totalUsed: (currentUsed + amount).toString(),
+          updatedAt: new Date()
+        })
+        .where(eq(userCredits.userId, userId));
+
+      return { success: true, newBalance: currentBalance - amount };
+    } catch (error) {
+      console.error('Error deducting credits:', error);
+      return { success: false, error: 'Failed to deduct credits' };
+    }
+  }
+
+  // Get user credit balance
+  async getUserBalance(userId: string) {
+    try {
+      const [credits] = await db.select()
+        .from(userCredits)
+        .where(eq(userCredits.userId, userId))
+        .limit(1);
+
+      return {
+        balance: credits ? parseFloat(credits.creditsBalance || '0') : 0,
+        totalPurchased: credits ? parseFloat(credits.totalPurchased || '0') : 0,
+        totalUsed: credits ? parseFloat(credits.totalUsed || '0') : 0
+      };
+    } catch (error) {
+      console.error('Error getting user balance:', error);
+      return { balance: 0, totalPurchased: 0, totalUsed: 0 };
+    }
+  }
+
+  // Get credit transaction history
+  async getTransactionHistory(userId: string, limit: number = 20) {
+    try {
+      const transactions = await db.select()
+        .from(creditTransactions)
+        .where(eq(creditTransactions.userId, parseInt(userId)))
+        .orderBy(desc(creditTransactions.createdAt))
+        .limit(limit);
+
+      return transactions.map(t => ({
+        id: t.id,
+        type: t.transactionType,
+        amount: parseFloat(t.amount || '0'),
+        description: t.description,
+        date: t.createdAt
+      }));
+    } catch (error) {
+      console.error('Error getting transaction history:', error);
+      return [];
+    }
+  }
+
+  // Process consultation payment per minute
+  async processConsultationMinute(roomId: string, clientId: string, creditsPerMinute: number) {
+    try {
+      // Check if room is active
+      const [room] = await db.select()
+        .from(consultationRooms)
+        .where(and(
+          eq(consultationRooms.roomId, roomId),
+          eq(consultationRooms.isActive, true)
+        ))
+        .limit(1);
+
+      if (!room) {
+        return { success: false, error: 'Room not found or inactive' };
+      }
+
+      // Deduct credits for this minute
+      const result = await this.deductCredits(
+        clientId,
+        creditsPerMinute,
+        roomId,
+        `Consulta - 1 minuto (${creditsPerMinute} créditos)`
+      );
+
+      if (!result.success) {
+        // If insufficient credits, end the consultation
+        await db.update(consultationRooms)
+          .set({
+            isActive: false,
+            endedAt: new Date(),
+            connectionStatus: 'ended_insufficient_credits'
+          })
+          .where(eq(consultationRooms.roomId, roomId));
+
+        return { success: false, error: 'Insufficient credits - consultation ended' };
+      }
+
+      // Update room total credits used
+      const currentTotal = parseFloat(room.totalCreditsUsed || '0');
+      await db.update(consultationRooms)
+        .set({
+          totalCreditsUsed: (currentTotal + creditsPerMinute).toString()
+        })
+        .where(eq(consultationRooms.roomId, roomId));
+
+      return { success: true, remainingBalance: result.newBalance };
+    } catch (error) {
+      console.error('Error processing consultation minute:', error);
+      return { success: false, error: 'Failed to process payment' };
+    }
+  }
+
+  // Check if user has enough credits for consultation
+  async canStartConsultation(userId: string, creditsPerMinute: number, minimumMinutes: number = 5) {
+    const balance = await this.getUserBalance(userId);
+    const requiredCredits = creditsPerMinute * minimumMinutes;
+    
+    return {
+      canStart: balance.balance >= requiredCredits,
+      currentBalance: balance.balance,
+      requiredCredits,
+      estimatedMinutes: Math.floor(balance.balance / creditsPerMinute)
+    };
+  }
+
+  // Get credit analytics for admin dashboard
+  async getCreditAnalytics() {
+    try {
+      // Total credits purchased
+      const totalPurchased = await db.select({
+        total: sum(userCredits.totalPurchased)
+      }).from(userCredits);
+
+      // Total credits used
+      const totalUsed = await db.select({
+        total: sum(userCredits.totalUsed)
+      }).from(userCredits);
+
+      // Active users with credits
+      const activeUsers = await db.select()
+        .from(userCredits)
+        .where(gte(userCredits.creditsBalance, '1'));
+
+      // Recent transactions
+      const recentTransactions = await db.select()
+        .from(creditTransactions)
+        .orderBy(desc(creditTransactions.createdAt))
+        .limit(10);
+
+      return {
+        totalCreditsPurchased: parseFloat(totalPurchased[0]?.total || '0'),
+        totalCreditsUsed: parseFloat(totalUsed[0]?.total || '0'),
+        activeUsersWithCredits: activeUsers.length,
+        recentTransactions: recentTransactions.map(t => ({
+          userId: t.userId,
+          type: t.transactionType,
+          amount: parseFloat(t.amount || '0'),
+          description: t.description,
+          date: t.createdAt
+        }))
+      };
+    } catch (error) {
+      console.error('Error getting credit analytics:', error);
+      return {
+        totalCreditsPurchased: 0,
+        totalCreditsUsed: 0,
+        activeUsersWithCredits: 0,
+        recentTransactions: []
+      };
+    }
+  }
+
+  // Auto-credit system for first purchase bonus
+  async processFirstPurchaseBonus(userId: string, purchaseAmount: number) {
+    try {
+      // Check if user already received first purchase bonus
+      const [user] = await db.select()
+        .from(users)
+        .where(eq(users.id, parseInt(userId)))
+        .limit(1);
+
+      if (!user || user.firstPurchaseCompleted) {
+        return { success: false, message: 'Bonus already received' };
+      }
+
+      // Calculate bonus (10 minutes = varies by package)
+      const bonusCredits = Math.min(purchaseAmount * 0.1, 50); // 10% bonus, max 50 credits
+
+      // Add bonus credits
+      await this.addCredits(
+        userId,
+        bonusCredits,
+        'bonus',
+        `Bônus primeira compra - ${bonusCredits} créditos grátis`
+      );
+
+      // Mark user as having completed first purchase
+      await db.update(users)
+        .set({ firstPurchaseCompleted: true })
+        .where(eq(users.id, parseInt(userId)));
+
+      return { success: true, bonusCredits };
+    } catch (error) {
+      console.error('Error processing first purchase bonus:', error);
+      return { success: false, error: 'Failed to process bonus' };
+    }
+  }
+}
+
+export const creditManager = new CreditManager();

@@ -1,0 +1,282 @@
+import { WebSocketServer, WebSocket } from 'ws';
+import type { Server } from 'http';
+import { db } from './db';
+import { consultationMessages, consultationRooms, users } from '@shared/schema';
+import { eq, and } from 'drizzle-orm';
+
+interface ExtendedWebSocket extends WebSocket {
+  userId?: string;
+  userType?: 'client' | 'consultant';
+  roomId?: string;
+  consultantId?: number;
+}
+
+interface ConsultationMessage {
+  type: 'join' | 'message' | 'typing' | 'stop_typing' | 'end_session';
+  roomId: string;
+  userId: string;
+  userType: 'client' | 'consultant';
+  content?: string;
+  messageType?: 'text' | 'image' | 'file';
+}
+
+export class ConsultationWebSocketServer {
+  private wss: WebSocketServer;
+  private rooms: Map<string, Set<ExtendedWebSocket>> = new Map();
+
+  constructor(server: Server) {
+    this.wss = new WebSocketServer({ 
+      server, 
+      path: '/ws/consultation',
+      verifyClient: (info) => {
+        // Add authentication verification here if needed
+        return true;
+      }
+    });
+
+    this.wss.on('connection', this.handleConnection.bind(this));
+  }
+
+  private handleConnection(ws: ExtendedWebSocket, request: any) {
+    console.log('New consultation WebSocket connection');
+
+    ws.on('message', async (data: Buffer) => {
+      try {
+        const message: ConsultationMessage = JSON.parse(data.toString());
+        await this.handleMessage(ws, message);
+      } catch (error) {
+        console.error('Error handling WebSocket message:', error);
+        ws.send(JSON.stringify({ type: 'error', message: 'Invalid message format' }));
+      }
+    });
+
+    ws.on('close', () => {
+      this.handleDisconnection(ws);
+    });
+
+    ws.on('error', (error) => {
+      console.error('WebSocket error:', error);
+    });
+  }
+
+  private async handleMessage(ws: ExtendedWebSocket, message: ConsultationMessage) {
+    switch (message.type) {
+      case 'join':
+        await this.handleJoinRoom(ws, message);
+        break;
+      case 'message':
+        await this.handleChatMessage(ws, message);
+        break;
+      case 'typing':
+        this.handleTyping(ws, message, true);
+        break;
+      case 'stop_typing':
+        this.handleTyping(ws, message, false);
+        break;
+      case 'end_session':
+        await this.handleEndSession(ws, message);
+        break;
+    }
+  }
+
+  private async handleJoinRoom(ws: ExtendedWebSocket, message: ConsultationMessage) {
+    const { roomId, userId, userType } = message;
+
+    // Verify user has access to this room
+    const room = await db.select()
+      .from(consultationRooms)
+      .where(eq(consultationRooms.roomId, roomId))
+      .limit(1);
+
+    if (room.length === 0) {
+      ws.send(JSON.stringify({ type: 'error', message: 'Room not found' }));
+      return;
+    }
+
+    const roomData = room[0];
+    const hasAccess = (userType === 'client' && roomData.clientId === userId) ||
+                     (userType === 'consultant' && roomData.consultantId.toString() === userId);
+
+    if (!hasAccess) {
+      ws.send(JSON.stringify({ type: 'error', message: 'Access denied' }));
+      return;
+    }
+
+    // Remove from previous room if exists
+    this.handleDisconnection(ws);
+
+    // Add to new room
+    ws.userId = userId;
+    ws.userType = userType;
+    ws.roomId = roomId;
+
+    if (!this.rooms.has(roomId)) {
+      this.rooms.set(roomId, new Set());
+    }
+    this.rooms.get(roomId)!.add(ws);
+
+    // Send confirmation
+    ws.send(JSON.stringify({ type: 'joined', roomId }));
+
+    // Notify others in room
+    this.broadcastToRoom(roomId, {
+      type: 'user_joined',
+      userId,
+      userType
+    }, ws);
+
+    // Send recent messages
+    await this.sendRecentMessages(ws, roomId);
+  }
+
+  private async handleChatMessage(ws: ExtendedWebSocket, message: ConsultationMessage) {
+    if (!ws.roomId || !ws.userId || !ws.userType) {
+      ws.send(JSON.stringify({ type: 'error', message: 'Not in a room' }));
+      return;
+    }
+
+    // Find session ID for this room
+    const session = await db.select()
+      .from(consultationSessions)
+      .where(eq(consultationSessions.roomId, ws.roomId))
+      .limit(1);
+
+    if (session.length === 0) {
+      ws.send(JSON.stringify({ type: 'error', message: 'Session not found' }));
+      return;
+    }
+
+    // Save message to database
+    const [savedMessage] = await db.insert(consultationMessages).values({
+      sessionId: session[0].id,
+      senderId: parseInt(ws.userId),
+      senderType: ws.userType,
+      messageType: message.messageType || 'text',
+      content: message.content || '',
+      timestamp: new Date(),
+      isRead: false
+    }).returning();
+
+    // Broadcast to room
+    this.broadcastToRoom(ws.roomId, {
+      type: 'new_message',
+      messageId: savedMessage.id,
+      senderId: ws.userId,
+      senderType: ws.userType,
+      content: message.content,
+      messageType: message.messageType || 'text',
+      timestamp: savedMessage.timestamp
+    });
+  }
+
+  private handleTyping(ws: ExtendedWebSocket, message: ConsultationMessage, isTyping: boolean) {
+    if (!ws.roomId || !ws.userId) return;
+
+    this.broadcastToRoom(ws.roomId, {
+      type: isTyping ? 'user_typing' : 'user_stop_typing',
+      userId: ws.userId,
+      userType: ws.userType
+    }, ws);
+  }
+
+  private async handleEndSession(ws: ExtendedWebSocket, message: ConsultationMessage) {
+    if (!ws.roomId) return;
+
+    // Update session status in database
+    await db.update(consultationSessions)
+      .set({ 
+        status: 'completed',
+        endedAt: new Date()
+      })
+      .where(eq(consultationSessions.roomId, ws.roomId));
+
+    // Notify all users in room
+    this.broadcastToRoom(ws.roomId, {
+      type: 'session_ended',
+      endedBy: ws.userId
+    });
+
+    // Close all connections in this room
+    const room = this.rooms.get(ws.roomId);
+    if (room) {
+      room.forEach(client => {
+        if (client.readyState === WebSocket.OPEN) {
+          client.close();
+        }
+      });
+      this.rooms.delete(ws.roomId);
+    }
+  }
+
+  private async sendRecentMessages(ws: ExtendedWebSocket, roomId: string) {
+    const session = await db.select()
+      .from(consultationSessions)
+      .where(eq(consultationSessions.roomId, roomId))
+      .limit(1);
+
+    if (session.length === 0) return;
+
+    const messages = await db.select()
+      .from(consultationMessages)
+      .where(eq(consultationMessages.sessionId, session[0].id))
+      .orderBy(consultationMessages.timestamp)
+      .limit(50);
+
+    ws.send(JSON.stringify({
+      type: 'message_history',
+      messages: messages.map(msg => ({
+        id: msg.id,
+        senderId: msg.senderId,
+        senderType: msg.senderType,
+        content: msg.content,
+        messageType: msg.messageType,
+        timestamp: msg.timestamp
+      }))
+    }));
+  }
+
+  private broadcastToRoom(roomId: string, data: any, excludeWs?: ExtendedWebSocket) {
+    const room = this.rooms.get(roomId);
+    if (!room) return;
+
+    const message = JSON.stringify(data);
+    room.forEach(client => {
+      if (client !== excludeWs && client.readyState === WebSocket.OPEN) {
+        client.send(message);
+      }
+    });
+  }
+
+  private handleDisconnection(ws: ExtendedWebSocket) {
+    if (ws.roomId) {
+      const room = this.rooms.get(ws.roomId);
+      if (room) {
+        room.delete(ws);
+        if (room.size === 0) {
+          this.rooms.delete(ws.roomId);
+        } else {
+          // Notify others that user left
+          this.broadcastToRoom(ws.roomId, {
+            type: 'user_left',
+            userId: ws.userId,
+            userType: ws.userType
+          }, ws);
+        }
+      }
+    }
+  }
+
+  public getRoomUsers(roomId: string): Array<{userId: string, userType: string}> {
+    const room = this.rooms.get(roomId);
+    if (!room) return [];
+
+    return Array.from(room).map(ws => ({
+      userId: ws.userId || '',
+      userType: ws.userType || ''
+    }));
+  }
+
+  public getActiveRooms(): string[] {
+    return Array.from(this.rooms.keys());
+  }
+}

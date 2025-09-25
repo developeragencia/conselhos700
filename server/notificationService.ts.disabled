@@ -1,0 +1,317 @@
+import { db } from "./db";
+import { eq, and, desc, gte, lte } from "drizzle-orm";
+import { notifications, notificationTemplates, notificationPreferences } from "@shared/schema";
+
+export interface NotificationData {
+  recipientId: string;
+  recipientType: 'client' | 'consultant' | 'admin';
+  type: string;
+  data?: Record<string, any>;
+  actionUrl?: string;
+  actionText?: string;
+}
+
+export interface SmartNotificationFilters {
+  userId?: string;
+  isRead?: boolean;
+  isUrgent?: boolean;
+  type?: string;
+  limit?: number;
+  offset?: number;
+}
+
+export class NotificationService {
+  
+  // Create notification from template
+  async createNotification(notificationData: NotificationData): Promise<any> {
+    try {
+      // Get template
+      const template = await db.select()
+        .from(notificationTemplates)
+        .where(eq(notificationTemplates.type, notificationData.type))
+        .limit(1);
+
+      if (!template.length) {
+        throw new Error(`Template not found for type: ${notificationData.type}`);
+      }
+
+      const templateData = template[0];
+      
+      // Replace placeholders in title and message
+      let title = templateData.titleTemplate;
+      let message = templateData.messageTemplate;
+      
+      if (notificationData.data) {
+        Object.keys(notificationData.data).forEach(key => {
+          const value = notificationData.data![key];
+          title = title.replace(`{${key}}`, value);
+          message = message.replace(`{${key}}`, value);
+        });
+      }
+
+      // Calculate expiration date
+      const expiresAt = new Date();
+      expiresAt.setHours(expiresAt.getHours() + (templateData.autoExpireHours || 168));
+
+      // Create notification
+      const [notification] = await db.insert(notifications).values({
+        recipientId: notificationData.recipientId,
+        recipientType: notificationData.recipientType,
+        type: notificationData.type,
+        title,
+        message,
+        data: notificationData.data || {},
+        isUrgent: templateData.isUrgent,
+        actionUrl: notificationData.actionUrl,
+        actionText: notificationData.actionText,
+        expiresAt
+      }).returning();
+
+      // Send real-time notification if needed
+      await this.sendRealTimeNotification(notification);
+
+      return notification;
+    } catch (error) {
+      console.error('Error creating notification:', error);
+      throw error;
+    }
+  }
+
+  // Get notifications for user with smart filtering
+  async getNotifications(filters: SmartNotificationFilters): Promise<any[]> {
+    try {
+      let query = db.select().from(notifications);
+      
+      const conditions = [];
+      
+      if (filters.userId) {
+        conditions.push(eq(notifications.recipientId, filters.userId));
+      }
+      
+      if (filters.isRead !== undefined) {
+        conditions.push(eq(notifications.isRead, filters.isRead));
+      }
+      
+      if (filters.isUrgent !== undefined) {
+        conditions.push(eq(notifications.isUrgent, filters.isUrgent));
+      }
+      
+      if (filters.type) {
+        conditions.push(eq(notifications.type, filters.type));
+      }
+
+      // Only show non-expired notifications
+      conditions.push(gte(notifications.expiresAt, new Date()));
+
+      if (conditions.length > 0) {
+        query = query.where(and(...conditions));
+      }
+
+      query = query.orderBy(desc(notifications.createdAt));
+
+      if (filters.limit) {
+        query = query.limit(filters.limit);
+      }
+
+      if (filters.offset) {
+        query = query.offset(filters.offset);
+      }
+
+      return await query;
+    } catch (error) {
+      console.error('Error getting notifications:', error);
+      return [];
+    }
+  }
+
+  // Mark notification as read
+  async markAsRead(notificationId: number, userId: string): Promise<boolean> {
+    try {
+      const result = await db.update(notifications)
+        .set({ isRead: true })
+        .where(and(
+          eq(notifications.id, notificationId),
+          eq(notifications.recipientId, userId)
+        ));
+
+      return true;
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+      return false;
+    }
+  }
+
+  // Mark all notifications as read for user
+  async markAllAsRead(userId: string): Promise<boolean> {
+    try {
+      await db.update(notifications)
+        .set({ isRead: true })
+        .where(and(
+          eq(notifications.recipientId, userId),
+          eq(notifications.isRead, false)
+        ));
+
+      return true;
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error);
+      return false;
+    }
+  }
+
+  // Get notification counts for user
+  async getNotificationCounts(userId: string): Promise<any> {
+    try {
+      const allNotifications = await this.getNotifications({ userId });
+      const unreadNotifications = await this.getNotifications({ userId, isRead: false });
+      const urgentNotifications = await this.getNotifications({ userId, isUrgent: true, isRead: false });
+
+      return {
+        total: allNotifications.length,
+        unread: unreadNotifications.length,
+        urgent: urgentNotifications.length
+      };
+    } catch (error) {
+      console.error('Error getting notification counts:', error);
+      return { total: 0, unread: 0, urgent: 0 };
+    }
+  }
+
+  // Delete old notifications
+  async cleanupExpiredNotifications(): Promise<number> {
+    try {
+      const result = await db.delete(notifications)
+        .where(lte(notifications.expiresAt, new Date()));
+
+      return result.rowCount || 0;
+    } catch (error) {
+      console.error('Error cleaning up notifications:', error);
+      return 0;
+    }
+  }
+
+  // Send real-time notification (placeholder for WebSocket/SSE implementation)
+  private async sendRealTimeNotification(notification: any): Promise<void> {
+    // This would integrate with WebSocket or Server-Sent Events
+    // For now, we'll just log it
+    console.log(`Real-time notification sent to ${notification.recipientId}:`, notification.title);
+  }
+
+  // Smart notification suggestions based on user behavior
+  async getSmartSuggestions(userId: string): Promise<any[]> {
+    try {
+      const suggestions = [];
+      
+      // Check if user has unread urgent notifications
+      const urgentCount = await this.getNotifications({ 
+        userId, 
+        isUrgent: true, 
+        isRead: false 
+      });
+
+      if (urgentCount.length > 0) {
+        suggestions.push({
+          type: 'urgent_notifications',
+          title: 'Você tem notificações urgentes!',
+          message: `${urgentCount.length} notificação(ões) urgente(s) precisam da sua atenção.`,
+          actionUrl: '/notifications',
+          actionText: 'Ver agora'
+        });
+      }
+
+      // Add more smart suggestions based on user patterns
+      // This could include consultation reminders, credit warnings, etc.
+
+      return suggestions;
+    } catch (error) {
+      console.error('Error getting smart suggestions:', error);
+      return [];
+    }
+  }
+
+  // Bulk create notifications (for system announcements)
+  async createBulkNotifications(
+    userIds: string[], 
+    notificationData: Omit<NotificationData, 'recipientId'>
+  ): Promise<number> {
+    try {
+      let createdCount = 0;
+      
+      for (const userId of userIds) {
+        await this.createNotification({
+          ...notificationData,
+          recipientId: userId
+        });
+        createdCount++;
+      }
+
+      return createdCount;
+    } catch (error) {
+      console.error('Error creating bulk notifications:', error);
+      return 0;
+    }
+  }
+
+  // Trigger smart notifications based on events
+  async triggerEventNotification(event: string, data: Record<string, any>): Promise<void> {
+    try {
+      switch (event) {
+        case 'consultation_booked':
+          // Notify both client and consultant
+          await this.createNotification({
+            recipientId: data.clientId,
+            recipientType: 'client',
+            type: 'consultation_booked',
+            data: {
+              date: data.date,
+              time: data.time,
+              consultant_name: data.consultantName
+            },
+            actionUrl: `/consultations/${data.consultationId}`,
+            actionText: 'Ver consulta'
+          });
+
+          await this.createNotification({
+            recipientId: data.consultantId,
+            recipientType: 'consultant',
+            type: 'consultation_booked',
+            data: {
+              date: data.date,
+              time: data.time,
+              client_name: data.clientName
+            },
+            actionUrl: `/consultant/consultations/${data.consultationId}`,
+            actionText: 'Ver consulta'
+          });
+          break;
+
+        case 'payment_received':
+          await this.createNotification({
+            recipientId: data.userId,
+            recipientType: data.userType,
+            type: 'payment_received',
+            data: { amount: data.amount },
+            actionUrl: '/payments',
+            actionText: 'Ver pagamentos'
+          });
+          break;
+
+        case 'low_credits':
+          await this.createNotification({
+            recipientId: data.userId,
+            recipientType: 'client',
+            type: 'low_credits',
+            data: { amount: data.amount },
+            actionUrl: '/credits/recharge',
+            actionText: 'Recarregar'
+          });
+          break;
+
+        // Add more event types as needed
+      }
+    } catch (error) {
+      console.error('Error triggering event notification:', error);
+    }
+  }
+}
+
+export const notificationService = new NotificationService();

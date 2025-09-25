@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Limpeza de Cache</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #1a1a2e; color: white; }
+        .container { max-width: 600px; margin: 0 auto; }
+        .button { background: #6c5ce7; color: white; padding: 15px 30px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; margin: 10px; }
+        .button:hover { background: #5a4fcf; }
+        .status { margin: 20px 0; padding: 15px; background: #0f0f23; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧹 LIMPEZA FORÇADA DE CACHE</h1>
+        <div class="status" id="status">Preparando limpeza...</div>
+        
+        <button class="button" onclick="clearEverything()">LIMPAR TUDO E RECARREGAR</button>
+        <button class="button" onclick="goToDashboard()">IR PARA DASHBOARD</button>
+        
+        <div style="margin-top: 30px;">
+            <h3>Cache atual:</h3>
+            <div id="cache-info"></div>
+        </div>
+    </div>
+
+    <script>
+        function updateStatus(message) {
+            document.getElementById('status').innerHTML = message;
+        }
+        
+        function showCacheInfo() {
+            const info = document.getElementById('cache-info');
+            info.innerHTML = `
+                <p>LocalStorage: ${localStorage.length} itens</p>
+                <p>SessionStorage: ${sessionStorage.length} itens</p>
+                <p>UserAgent: ${navigator.userAgent.substring(0, 50)}...</p>
+            `;
+        }
+        
+        function clearEverything() {
+            updateStatus('🧹 Limpando localStorage...');
+            localStorage.clear();
+            
+            updateStatus('🧹 Limpando sessionStorage...');
+            sessionStorage.clear();
+            
+            updateStatus('🧹 Limpando cookies...');
+            document.cookie.split(";").forEach(function(c) {
+                document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+            });
+            
+            updateStatus('🧹 Forçando reload sem cache...');
+            setTimeout(() => {
+                window.location.reload(true);
+            }, 1000);
+        }
+        
+        function goToDashboard() {
+            localStorage.clear();
+            sessionStorage.clear();
+            updateStatus('✅ Cache limpo! Redirecionando para dashboard...');
+            setTimeout(() => {
+                window.location.href = '/client-dashboard?nocache=' + Date.now();
+            }, 1000);
+        }
+        
+        // Atualizar info do cache ao carregar
+        showCacheInfo();
+        updateStatus('Pronto para limpeza!');
+    </script>
+</body>
+</html>

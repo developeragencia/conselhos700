@@ -1,0 +1,41 @@
+import { db } from "./db";
+
+async function fixDatabase() {
+  try {
+    console.log('Corrigindo banco de dados...');
+
+    // Criar usuário admin se não existir
+    await db.execute(`
+      INSERT INTO users (id, email, first_name, last_name, user_type, created_at, updated_at) 
+      VALUES ('admin-001', 'admin@conselhosesotericos.com', 'Administrador', 'Sistema', 'admin', NOW(), NOW())
+      ON CONFLICT (id) DO NOTHING;
+    `);
+
+    // Verificar e criar consultores se não existirem
+    const result = await db.execute(`
+      SELECT COUNT(*) as count FROM consultants;
+    `);
+
+    if (result.rows[0].count === '0') {
+      console.log('Criando consultores...');
+      
+      await db.execute(`
+        INSERT INTO consultants (user_id, specialty, experience_years, rating, total_consultations, total_revenue, status, bio, services, price_per_hour, whatsapp_number, is_online, is_featured, created_at, updated_at) 
+        VALUES 
+          ('maria-luz-001', 'Tarot do Amor', 15, 4.9, 347, 24500.00, 'approved', 'Especialista em tarot com 15 anos de experiência.', ARRAY['tarot', 'amor'], 180.00, '+5511999887766', true, true, NOW(), NOW()),
+          ('joao-vidente-002', 'Astrologia', 12, 4.8, 289, 31200.00, 'approved', 'Astrólogo formado com certificação internacional.', ARRAY['astrologia', 'numerologia'], 210.00, '+5511888776655', true, true, NOW(), NOW()),
+          ('ana-espiritual-003', 'Mediunidade', 18, 4.7, 156, 28900.00, 'approved', 'Médium natural desde criança.', ARRAY['mediunidade', 'terapia'], 240.00, '+5511777665544', true, true, NOW(), NOW()),
+          ('carlos-astrologo-004', 'Astrologia Védica', 10, 4.6, 98, 15600.00, 'approved', 'Estudioso da astrologia védica.', ARRAY['astrologia vedica'], 195.00, '+5511666554433', true, false, NOW(), NOW());
+      `);
+    }
+
+    console.log('✅ Banco de dados corrigido com sucesso!');
+    return true;
+
+  } catch (error) {
+    console.error('Erro ao corrigir banco:', error);
+    return false;
+  }
+}
+
+export { fixDatabase };
