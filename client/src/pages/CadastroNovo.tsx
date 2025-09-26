@@ -259,9 +259,12 @@ export default function CadastroNovo() {
         <Button 
           onClick={async () => {
             await searchCPF();
-            if (userData && !error) {
-              setStep(3);
-            }
+            // Aguarda atualização do estado antes de avançar
+            setTimeout(() => {
+              if (userData && !error) {
+                setStep(3);
+              }
+            }, 100);
           }} 
           disabled={loading || cpf.replace(/\D/g, '').length !== 11}
           className="w-full bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600"
