@@ -64,8 +64,9 @@ export default function CadastroNovo() {
           situacao: data.status
         });
         setFormData(prev => ({ ...prev, name: data.nome }));
-        setStep(3);
+        setError('');
       } else {
+        setUserData(null);
         setError(data.error || data.message || 'CPF não encontrado ou inválido');
       }
     } catch (err) {
@@ -256,7 +257,12 @@ export default function CadastroNovo() {
         )}
 
         <Button 
-          onClick={searchCPF} 
+          onClick={async () => {
+            await searchCPF();
+            if (userData && !error) {
+              setStep(3);
+            }
+          }} 
           disabled={loading || cpf.replace(/\D/g, '').length !== 11}
           className="w-full bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600"
           size="lg"
