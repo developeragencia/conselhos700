@@ -47,7 +47,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(express.static(path.join(__dirname, 'dist/public')));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Storage
 let db;
@@ -808,7 +808,7 @@ app.get('/api/blog/recent', (req, res) => {
 
 // Frontend
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'dist/public/index.html'));
+  res.sendFile(path.join(__dirname, 'public/index.html'));
 });
 
 // Start
