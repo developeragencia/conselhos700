@@ -127,34 +127,33 @@ const Login = () => {
 
             {/* Seleção de Tipo de Usuário */}
             <div className="space-y-3">
-              <Label className="text-base font-semibold text-gray-700 dark:text-gray-200">
+              <Label className="text-lg font-bold text-gray-700 dark:text-gray-200 mb-2 block">
                 Tipo de Acesso
               </Label>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="flex justify-center gap-6 mb-2">
                 {Object.entries(roleConfig).map(([role, config]) => {
                   const IconComponent = config.icon;
                   const isSelected = selectedRole === role;
-                  
                   return (
                     <button
                       key={role}
                       onClick={() => setSelectedRole(role)}
-                      className={`p-4 rounded-2xl border-2 text-center transition-all duration-200 shadow-sm ${
+                      className={`flex flex-col items-center justify-center px-6 py-4 rounded-2xl border-2 transition-all duration-200 shadow-md focus:outline-none ${
                         isSelected
-                          ? `${config.color} text-white ${config.borderColor} scale-105`
+                          ? `${config.color} text-white ${config.borderColor} scale-105 shadow-lg`
                           : `bg-white text-gray-600 border-gray-200 hover:border-gray-300 ${config.hoverColor} hover:text-white hover:scale-105`
                       }`}
-                      style={{ boxShadow: isSelected ? '0 4px 16px 0 rgba(156, 39, 176, 0.10)' : undefined }}
+                      style={{ minWidth: 120, boxShadow: isSelected ? '0 4px 16px 0 rgba(156, 39, 176, 0.10)' : undefined }}
                     >
-                      <IconComponent className="w-7 h-7 mx-auto mb-2 animate-fade-in" />
-                      <div className="text-sm font-bold">{config.title}</div>
+                      <IconComponent className="w-8 h-8 mb-2 animate-fade-in" />
+                      <span className="text-base font-bold mb-1">{config.title}</span>
+                      <span className="text-xs text-gray-100 dark:text-gray-200 opacity-80 font-normal">
+                        {config.description}
+                      </span>
                     </button>
                   );
                 })}
               </div>
-              <p className="text-xs text-gray-500 text-center">
-                {roleConfig[selectedRole as keyof typeof roleConfig].description}
-              </p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-5">

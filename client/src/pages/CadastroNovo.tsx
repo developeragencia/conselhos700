@@ -63,6 +63,7 @@ export default function CadastroNovo() {
           nascimento: data.nascimento,
           situacao: data.status
         });
+        setFormData(prev => ({ ...prev, name: data.nome }));
         setStep(3);
       } else {
         setError(data.error || data.message || 'CPF não encontrado ou inválido');
@@ -91,7 +92,7 @@ export default function CadastroNovo() {
 
     try {
       const registerData = {
-        name: userData?.nome || 'Nome não encontrado',
+        name: formData.name || userData?.nome || 'Nome não encontrado',
         email: formData.email,
         password: formData.password,
         role: accountType,
