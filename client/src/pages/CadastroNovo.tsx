@@ -51,7 +51,7 @@ export default function CadastroNovo() {
       console.log('🔍 Buscando dados do CPF:', cpf);
       
       // Usar API pública da Receita Federal ou serviço similar
-      const response = await fetch(`/api/cpf/consulta`, {
+  const response = await fetch(`/.netlify/functions/cpf-consulta`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ cpf: cpf.replace(/\D/g, '') })
