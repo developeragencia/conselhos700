@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Eye, EyeOff, User, Crown, Shield } from 'lucide-react';
-import logoImage from "@assets/CONSELHOS_20250521_110746_0000_1754078656294.png";
+import logoImage from "@assets/CONSELHOS_20250521_110746_0000_1753966138984.png";
 
 const Login = () => {
   const [, setLocation] = useLocation();
