@@ -64,7 +64,11 @@ export default function CadastroNovo() {
         setError('');
       } else {
         setUserData(null);
-        setError(data.error || data.message || 'CPF não encontrado ou inválido');
+        if (data.error === 'CPF inválido.') {
+          setError('CPF inválido.');
+        } else {
+          setError('CPF não encontrado ou inválido');
+        }
       }
     } catch (err) {
       console.error('Erro na consulta:', err);
