@@ -25,24 +25,37 @@ exports.handler = async (event) => {
   try {
     const body = JSON.parse(event.body);
     const { cpf } = body;
-    // Mock de dados para CPF
-    if (cpf === '051.478.054-19') {
+    // Validação simples de CPF (formato e dígitos)
+    const isValidCPF = (cpf) => {
+      cpf = cpf.replace(/\D/g, '');
+      if (cpf.length !== 11 || /^([0-9])\1+$/.test(cpf)) return false;
+      let sum = 0, rest;
+      for (let i = 1; i <= 9; i++) sum += parseInt(cpf.substring(i-1, i)) * (11 - i);
+      rest = (sum * 10) % 11;
+      if ((rest === 10) || (rest === 11)) rest = 0;
+      if (rest !== parseInt(cpf.substring(9, 10))) return false;
+      sum = 0;
+      for (let i = 1; i <= 10; i++) sum += parseInt(cpf.substring(i-1, i)) * (12 - i);
+      rest = (sum * 10) % 11;
+      if ((rest === 10) || (rest === 11)) rest = 0;
+      if (rest !== parseInt(cpf.substring(10, 11))) return false;
+      return true;
+    };
+
+    if (isValidCPF(cpf)) {
       return {
         statusCode: 200,
         headers,
         body: JSON.stringify({
-          nome: 'Alex Silva',
-          nascimento: '1990-05-21',
-          sexo: 'M',
           status: 'Regular',
-          mensagem: 'Dados encontrados com sucesso.'
+          mensagem: 'CPF validado com sucesso.'
         })
       };
     } else {
       return {
-        statusCode: 404,
+        statusCode: 400,
         headers,
-        body: JSON.stringify({ error: 'CPF não encontrado.' })
+        body: JSON.stringify({ error: 'CPF inválido.' })
       };
     }
   } catch (error) {
