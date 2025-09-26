@@ -56,14 +56,11 @@ export default function CadastroNovo() {
       });
 
       const data = await response.json();
-      if (response.ok && data.nome) {
+      if (response.ok && !data.error) {
         setUserData({
-          nome: data.nome,
           cpf: cpf,
-          nascimento: data.nascimento,
-          situacao: data.status
+          status: data.status || 'Regular'
         });
-        setFormData(prev => ({ ...prev, name: data.nome }));
         setError('');
       } else {
         setUserData(null);
@@ -307,14 +304,24 @@ export default function CadastroNovo() {
           <Alert>
             <Check className="w-4 h-4" />
             <AlertDescription>
-              <strong>Dados encontrados:</strong> {userData.nome}
-              <br />
-              <strong>CPF:</strong> {formatCPF(userData.cpf)}
+              <strong>CPF validado:</strong> {formatCPF(userData.cpf)}
             </AlertDescription>
           </Alert>
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="name">Nome Completo *</Label>
+            <Input
+              id="name"
+              type="text"
+              value={formData.name || ''}
+              onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+              placeholder="Digite seu nome completo"
+              required
+            />
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="email">Email *</Label>
             <Input
@@ -323,6 +330,7 @@ export default function CadastroNovo() {
               value={formData.email}
               onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
               placeholder="seu@email.com"
+              required
             />
           </div>
 
@@ -334,6 +342,7 @@ export default function CadastroNovo() {
               value={formData.phone}
               onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
               placeholder="(11) 99999-9999"
+              required
             />
           </div>
 
@@ -345,6 +354,7 @@ export default function CadastroNovo() {
               value={formData.password}
               onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
               placeholder="Mínimo 6 caracteres"
+              required
             />
           </div>
 
@@ -356,6 +366,7 @@ export default function CadastroNovo() {
               value={formData.confirmPassword}
               onChange={(e) => setFormData(prev => ({ ...prev, confirmPassword: e.target.value }))}
               placeholder="Repita a senha"
+              required
             />
           </div>
         </div>
