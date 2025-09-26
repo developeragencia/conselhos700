@@ -95,31 +95,31 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-amber-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-100 via-purple-100 to-amber-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <Card className="shadow-xl border-0">
+        <div className="rounded-3xl shadow-2xl border-0 backdrop-blur-lg bg-white/80 dark:bg-gray-900/80 p-8 transition-all duration-300" style={{ boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.15)' }}>
           <CardHeader className="text-center space-y-4">
             <div className="mx-auto w-32 h-24 flex items-center justify-center">
               <img 
                 src={logoImage} 
                 alt="Conselhos Esotéricos" 
-                className="h-24 w-auto"
+                className="h-24 w-auto drop-shadow-lg animate-fade-in"
               />
             </div>
             <div>
-              <CardTitle className="text-2xl font-bold text-gray-800">
+              <CardTitle className="text-3xl font-extrabold text-purple-800 dark:text-purple-300 tracking-tight">
                 Conselhos Esotéricos
               </CardTitle>
-              <CardDescription className="text-gray-600">
+              <CardDescription className="text-lg text-gray-600 dark:text-gray-400">
                 Bem-vindo de volta! Faça login na sua conta
               </CardDescription>
             </div>
           </CardHeader>
 
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-8">
             {error && (
-              <Alert className="border-red-200 bg-red-50">
-                <AlertDescription className="text-red-800">
+              <Alert className="border-red-200 bg-red-50 dark:bg-red-900/30 animate-shake">
+                <AlertDescription className="text-red-800 dark:text-red-300">
                   {error}
                 </AlertDescription>
               </Alert>
@@ -127,10 +127,10 @@ const Login = () => {
 
             {/* Seleção de Tipo de Usuário */}
             <div className="space-y-3">
-              <Label className="text-sm font-medium text-gray-700">
+              <Label className="text-base font-semibold text-gray-700 dark:text-gray-200">
                 Tipo de Acesso
               </Label>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 gap-3">
                 {Object.entries(roleConfig).map(([role, config]) => {
                   const IconComponent = config.icon;
                   const isSelected = selectedRole === role;
@@ -139,14 +139,15 @@ const Login = () => {
                     <button
                       key={role}
                       onClick={() => setSelectedRole(role)}
-                      className={`p-3 rounded-xl border-2 text-center transition-all duration-200 ${
+                      className={`p-4 rounded-2xl border-2 text-center transition-all duration-200 shadow-sm ${
                         isSelected
-                          ? `${config.color} text-white ${config.borderColor}`
-                          : `bg-white text-gray-600 border-gray-200 hover:border-gray-300 ${config.hoverColor} hover:text-white`
+                          ? `${config.color} text-white ${config.borderColor} scale-105`
+                          : `bg-white text-gray-600 border-gray-200 hover:border-gray-300 ${config.hoverColor} hover:text-white hover:scale-105`
                       }`}
+                      style={{ boxShadow: isSelected ? '0 4px 16px 0 rgba(156, 39, 176, 0.10)' : undefined }}
                     >
-                      <IconComponent className="w-6 h-6 mx-auto mb-1" />
-                      <div className="text-xs font-medium">{config.title}</div>
+                      <IconComponent className="w-7 h-7 mx-auto mb-2 animate-fade-in" />
+                      <div className="text-sm font-bold">{config.title}</div>
                     </button>
                   );
                 })}
@@ -156,9 +157,9 @@ const Login = () => {
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-5">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email" className="text-base font-semibold">Email</Label>
                 <Input
                   id="email"
                   type="email"
@@ -166,12 +167,12 @@ const Login = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="seu@email.com"
                   required
-                  className="h-11"
+                  className="h-12 text-lg px-4"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password">Senha</Label>
+                <Label htmlFor="password" className="text-base font-semibold">Senha</Label>
                 <div className="relative">
                   <Input
                     id="password"
@@ -180,14 +181,14 @@ const Login = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Sua senha"
                     required
-                    className="h-11 pr-10"
+                    className="h-12 pr-12 text-lg px-4"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-purple-600"
                   >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
               </div>
@@ -195,28 +196,28 @@ const Login = () => {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className={`w-full h-11 font-semibold ${roleConfig[selectedRole as keyof typeof roleConfig].color} ${roleConfig[selectedRole as keyof typeof roleConfig].hoverColor} text-white`}
+                className={`w-full h-12 text-lg font-bold rounded-xl shadow-md ${roleConfig[selectedRole as keyof typeof roleConfig].color} ${roleConfig[selectedRole as keyof typeof roleConfig].hoverColor} text-white transition-all duration-200`}
               >
                 {isLoading ? 'Entrando...' : `Entrar como ${roleConfig[selectedRole as keyof typeof roleConfig].title}`}
               </Button>
             </form>
 
-            <div className="text-center space-y-2">
-              <button className="text-sm text-gray-500 hover:text-gray-700">
+            <div className="text-center space-y-2 mt-4">
+              <button className="text-sm text-purple-600 hover:text-purple-800 font-medium transition-all duration-200">
                 Esqueceu sua senha?
               </button>
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-gray-600 dark:text-gray-400">
                 Não tem uma conta?{' '}
                 <button
                   onClick={() => setLocation('/cadastro')}
-                  className="text-amber-600 font-medium hover:underline"
+                  className="text-amber-600 font-bold hover:underline"
                 >
                   Cadastre-se
                 </button>
               </div>
             </div>
           </CardContent>
-        </Card>
+        </div>
       </div>
     </div>
   );

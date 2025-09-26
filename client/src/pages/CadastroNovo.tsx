@@ -431,54 +431,57 @@ export default function CadastroNovo() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-orange-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-8 px-4">
-      <div className="container mx-auto">
-        <div className="text-center mb-8">
-          <Link href="/">
-            <img 
-              src="/logo.png" 
-              alt="Conselhos Esotéricos" 
-              className="h-16 mx-auto mb-4"
-            />
-          </Link>
-          <h1 className="text-3xl font-bold text-purple-800 dark:text-purple-300">
-            Criar Nova Conta
-          </h1>
-          
-          <div className="flex justify-center mt-6">
-            <div className="flex items-center space-x-4">
-              {[1, 2, 3, 4].map((stepNum) => (
-                <div key={stepNum} className="flex items-center">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                    stepNum <= step 
-                      ? 'bg-purple-600 text-white' 
-                      : 'bg-gray-200 text-gray-600'
-                  }`}>
-                    {stepNum < step ? <Check className="w-4 h-4" /> : stepNum}
+    <div className="min-h-screen bg-gradient-to-br from-purple-100 via-white to-orange-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-8 px-4 flex items-center justify-center">
+      <div className="w-full max-w-3xl mx-auto">
+        <div className="rounded-3xl shadow-2xl border-0 backdrop-blur-lg bg-white/80 dark:bg-gray-900/80 p-8 transition-all duration-300" style={{ boxShadow: '0 8px 32px 0 rgba(156, 39, 176, 0.15)' }}>
+          <div className="text-center mb-8">
+            <Link href="/">
+              <img 
+                src="/logo.png" 
+                alt="Conselhos Esotéricos" 
+                className="h-20 mx-auto mb-4 drop-shadow-lg animate-fade-in"
+              />
+            </Link>
+            <h1 className="text-4xl font-extrabold text-purple-800 dark:text-purple-300 tracking-tight mb-2">
+              Criar Nova Conta
+            </h1>
+            <div className="flex justify-center mt-6">
+              <div className="flex items-center space-x-4">
+                {[1, 2, 3, 4].map((stepNum) => (
+                  <div key={stepNum} className="flex items-center">
+                    <div className={`w-9 h-9 rounded-full flex items-center justify-center text-base font-bold ${
+                      stepNum <= step 
+                        ? 'bg-purple-600 text-white shadow-md' 
+                        : 'bg-gray-200 text-gray-600'
+                    }`}>
+                      {stepNum < step ? <Check className="w-5 h-5" /> : stepNum}
+                    </div>
+                    {stepNum < 4 && (
+                      <div className={`w-14 h-1 mx-2 ${
+                        stepNum < step ? 'bg-purple-600' : 'bg-gray-200'
+                      }`} />
+                    )}
                   </div>
-                  {stepNum < 4 && (
-                    <div className={`w-12 h-1 mx-2 ${
-                      stepNum < step ? 'bg-purple-600' : 'bg-gray-200'
-                    }`} />
-                  )}
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
-        </div>
 
-        {step === 1 && renderStep1()}
-        {step === 2 && renderStep2()}
-        {step === 3 && renderStep3()}
-        {step === 4 && renderStep4()}
+          <div className="py-2">
+            {step === 1 && renderStep1()}
+            {step === 2 && renderStep2()}
+            {step === 3 && renderStep3()}
+            {step === 4 && renderStep4()}
+          </div>
 
-        <div className="text-center mt-8">
-          <p className="text-gray-600 dark:text-gray-400">
-            Já tem uma conta?{' '}
-            <Link href="/login" className="text-purple-600 hover:underline">
-              Fazer Login
-            </Link>
-          </p>
+          <div className="text-center mt-8">
+            <p className="text-gray-600 dark:text-gray-400 text-lg">
+              Já tem uma conta?{' '}
+              <Link href="/login" className="text-purple-600 font-bold hover:underline">
+                Fazer Login
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
     </div>
