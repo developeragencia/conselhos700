@@ -1,0 +1,1 @@
+import{r as s,_ as u,$ as e}from"./index-DOubVUE4.js";var c=e[" useId ".trim().toString()]||(()=>{}),f=0;function d(t){const[a,r]=s.useState(c());return u(()=>{t||r(o=>o??String(f++))},[t]),t||(a?`radix-${a}`:"")}export{d as u};

@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="400" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4a148c" />
+      <stop offset="100%" stop-color="#7b1fa2" />
+    </linearGradient>
+    <radialGradient id="lightGradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="80%" stop-color="#f5f5f5" />
+      <stop offset="100%" stop-color="#e0e0e0" />
+    </radialGradient>
+    <radialGradient id="crystalGradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+      <stop offset="0%" stop-color="#b39ddb" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#7e57c2" stop-opacity="0.4" />
+    </radialGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="5" />
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="400" height="400" fill="url(#bgGradient)" rx="20" ry="20" />
+  
+  <!-- Mystical background elements -->
+  <g opacity="0.2">
+    <circle cx="80" cy="80" r="50" fill="#b39ddb" />
+    <circle cx="320" cy="320" r="50" fill="#b39ddb" />
+    <circle cx="80" cy="320" r="30" fill="#b39ddb" />
+    <circle cx="320" cy="80" r="30" fill="#b39ddb" />
+  </g>
+  
+  <!-- Small stars scattered across the image -->
+  <g fill="#ffffff" opacity="0.6">
+    <path d="M50 50 L53 55 L58 55 L54 59 L56 64 L50 61 L44 64 L46 59 L42 55 L47 55 Z" />
+    <path d="M350 50 L353 55 L358 55 L354 59 L356 64 L350 61 L344 64 L346 59 L342 55 L347 55 Z" />
+    <path d="M50 350 L53 355 L58 355 L54 359 L56 364 L50 361 L44 364 L46 359 L42 355 L47 355 Z" />
+    <path d="M350 350 L353 355 L358 355 L354 359 L356 364 L350 361 L344 364 L346 359 L342 355 L347 355 Z" />
+    <path d="M200 30 L202 35 L207 35 L203 39 L205 44 L200 41 L195 44 L197 39 L193 35 L198 35 Z" />
+    <path d="M30 200 L32 205 L37 205 L33 209 L35 214 L30 211 L25 214 L27 209 L23 205 L28 205 Z" />
+    <path d="M370 200 L372 205 L377 205 L373 209 L375 214 L370 211 L365 214 L367 209 L363 205 L368 205 Z" />
+    <path d="M200 370 L202 375 L207 375 L203 379 L205 384 L200 381 L195 384 L197 379 L193 375 L198 375 Z" />
+  </g>
+  
+  <!-- Oracle Table -->
+  <g transform="translate(120, 180)">
+    <!-- Table surface -->
+    <ellipse cx="80" cy="30" rx="100" ry="40" fill="#4a148c" stroke="#7e57c2" stroke-width="2" />
+    
+    <!-- Table legs -->
+    <rect x="30" y="30" width="10" height="90" fill="#7e57c2" rx="2" />
+    <rect x="120" y="30" width="10" height="90" fill="#7e57c2" rx="2" />
+  </g>
+  
+  <!-- Crystal ball -->
+  <g transform="translate(150, 80)">
+    <!-- Ball stand -->
+    <path d="M50 130 C30 130, 20 120, 20 110 C20 100, 80 100, 80 110 C80 120, 70 130, 50 130 Z" fill="#7e57c2" />
+    
+    <!-- Ball -->
+    <circle cx="50" cy="80" r="50" fill="url(#crystalGradient)" stroke="#ffffff" stroke-width="1" opacity="0.9" />
+    
+    <!-- Light reflections -->
+    <circle cx="35" cy="65" r="15" fill="#ffffff" opacity="0.3" />
+    <circle cx="60" cy="90" r="10" fill="#ffffff" opacity="0.2" />
+    
+    <!-- Glowing center -->
+    <circle cx="50" cy="80" r="20" fill="#ffffff" opacity="0.5" filter="url(#glow)" />
+    
+    <!-- Vision within the ball - mystical symbols -->
+    <g transform="translate(50, 80) scale(0.5)">
+      <g opacity="0.8" stroke="#ffffff" stroke-width="1" fill="none">
+        <circle cx="0" cy="0" r="15" />
+        <path d="M-20 0 L20 0 M0 -20 L0 20" />
+        <path d="M-15 -15 L15 15 M-15 15 L15 -15" />
+      </g>
+    </g>
+  </g>
+  
+  <!-- Oracle Cards -->
+  <g transform="translate(50, 170)">
+    <!-- Card 1 -->
+    <g transform="rotate(-10)">
+      <rect width="60" height="90" rx="3" fill="#e0e0e0" stroke="#b39ddb" stroke-width="2" />
+      <rect x="5" y="5" width="50" height="80" rx="2" fill="#9c27b0" opacity="0.6" />
+      <text x="30" y="50" fill="#ffffff" font-size="10" text-anchor="middle">☿</text>
+    </g>
+  </g>
+  
+  <g transform="translate(280, 160)">
+    <!-- Card 2 -->
+    <g transform="rotate(15)">
+      <rect width="60" height="90" rx="3" fill="#e0e0e0" stroke="#b39ddb" stroke-width="2" />
+      <rect x="5" y="5" width="50" height="80" rx="2" fill="#9c27b0" opacity="0.6" />
+      <text x="30" y="50" fill="#ffffff" font-size="10" text-anchor="middle">☽</text>
+    </g>
+  </g>
+  
+  <g transform="translate(100, 250)">
+    <!-- Card 3 -->
+    <g transform="rotate(-5)">
+      <rect width="60" height="90" rx="3" fill="#e0e0e0" stroke="#b39ddb" stroke-width="2" />
+      <rect x="5" y="5" width="50" height="80" rx="2" fill="#9c27b0" opacity="0.6" />
+      <text x="30" y="50" fill="#ffffff" font-size="10" text-anchor="middle">♃</text>
+    </g>
+  </g>
+  
+  <g transform="translate(240, 240)">
+    <!-- Card 4 -->
+    <g transform="rotate(5)">
+      <rect width="60" height="90" rx="3" fill="#e0e0e0" stroke="#b39ddb" stroke-width="2" />
+      <rect x="5" y="5" width="50" height="80" rx="2" fill="#9c27b0" opacity="0.6" />
+      <text x="30" y="50" fill="#ffffff" font-size="10" text-anchor="middle">♀</text>
+    </g>
+  </g>
+  
+  <!-- Oracle Runes -->
+  <g transform="translate(60, 350)">
+    <path d="M0 0 L15 -25 L30 0 Z" fill="#e0e0e0" stroke="#b39ddb" stroke-width="1" />
+    <path d="M10 -5 L20 -5 L15 -20 Z" fill="#9c27b0" opacity="0.6" />
+  </g>
+  
+  <g transform="translate(320, 330)">
+    <path d="M0 0 L15 -25 L30 0 Z" fill="#e0e0e0" stroke="#b39ddb" stroke-width="1" />
+    <path d="M10 -5 L20 -5 L15 -20 Z" fill="#9c27b0" opacity="0.6" />
+  </g>
+  
+  <!-- Light beams from crystal ball -->
+  <g stroke="#ffffff" stroke-width="1" opacity="0.4">
+    <line x1="150" y1="140" x2="80" y2="200" />
+    <line x1="200" y1="140" x2="250" y2="200" />
+    <line x1="175" y1="160" x2="175" y2="220" />
+  </g>
+  
+  <!-- Mystical smoke -->
+  <g fill="none" stroke="#ffffff" stroke-width="1" opacity="0.3">
+    <path d="M130 180 Q150 160, 170 180 Q190 200, 210 180 Q230 160, 250 180" />
+    <path d="M140 190 Q160 170, 180 190 Q200 210, 220 190 Q240 170, 260 190" />
+    <path d="M150 200 Q170 180, 190 200 Q210 220, 230 200 Q250 180, 270 200" />
+  </g>
+</svg>
