@@ -49,25 +49,23 @@ export default function CadastroNovo() {
 
     try {
       console.log('🔍 Buscando dados do CPF:', cpf);
-      
-      // Usar API pública da Receita Federal ou serviço similar
-  const response = await fetch(`/.netlify/functions/cpf-consulta`, {
+      const response = await fetch('/.netlify/functions/cpf-consulta', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cpf: cpf.replace(/\D/g, '') })
+        body: JSON.stringify({ cpf: cpf })
       });
 
-      if (!response.ok) {
-        throw new Error('Erro ao consultar CPF');
-      }
-
       const data = await response.json();
-      
-      if (data.success) {
-        setUserData(data.data);
+      if (response.ok && data.nome) {
+        setUserData({
+          nome: data.nome,
+          cpf: cpf,
+          nascimento: data.nascimento,
+          situacao: data.status
+        });
         setStep(3);
       } else {
-        setError(data.message || 'CPF não encontrado ou inválido');
+        setError(data.error || data.message || 'CPF não encontrado ou inválido');
       }
     } catch (err) {
       console.error('Erro na consulta:', err);
@@ -97,7 +95,7 @@ export default function CadastroNovo() {
         email: formData.email,
         password: formData.password,
         role: accountType,
-        cpf: cpf.replace(/\D/g, ''),
+        cpf: cpf,
         phone: formData.phone,
         ...(accountType === 'consultor' && {
           specialties: formData.specialties,
@@ -106,8 +104,8 @@ export default function CadastroNovo() {
         })
       };
 
-      console.log('🚀 CADASTRO ENVIANDO PARA:', '/api/auth/register');
-      const response = await fetch('/api/auth/register', {
+      console.log('🚀 CADASTRO ENVIANDO PARA:', '/.netlify/functions/register-zod');
+      const response = await fetch('/.netlify/functions/register-zod', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(registerData)
@@ -118,7 +116,7 @@ export default function CadastroNovo() {
       if (response.ok && result.success) {
         setStep(4);
       } else {
-        throw new Error(result.message || 'Erro no cadastro');
+        throw new Error(result.error || result.message || 'Erro no cadastro');
       }
     } catch (err: any) {
       console.error('Erro no cadastro:', err);
