@@ -2,7 +2,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'conselhos_secret_2025';
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // Simulação de armazenamento em memória
 const memory = { users: new Map() };
