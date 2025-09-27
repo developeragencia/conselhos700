@@ -1,0 +1,1645 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conselhos Esotéricos - Consultas Online de Tarot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f5f3ff',
+                            100: '#ede9fe',
+                            200: '#ddd6fe',
+                            300: '#c4b5fd',
+                            400: '#a78bfa',
+                            500: '#8b5cf6',
+                            600: '#7c3aed',
+                            700: '#6d28d9',
+                            800: '#5b21b6',
+                            900: '#4c1d95',
+                            950: '#2d1b69'
+                        },
+                        mystic: {
+                            900: '#0f0f23',
+                            800: '#1e1b31',
+                            700: '#2a2447',
+                            600: '#3d3564'
+                        },
+                        gold: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706'
+                        }
+                    },
+                    fontFamily: {
+                        'cinzel': ['Cinzel', 'serif'],
+                        'dancing': ['Dancing Script', 'cursive']
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Dancing+Script:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-mystic-900 text-gray-100 font-sans">
+
+    <!-- @COMPONENT: NavigationHeader -->
+    <header class="bg-mystic-800 shadow-lg sticky top-0 z-50">
+        <nav class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA2MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTMwIDIwTDIwIDEwSDQwTDMwIDIwWiIgZmlsbD0iIzhCNUNGNiIvPgo8cGF0aCBkPSJNMzAgMjBMMjAgMzBINDBMMzAgMjBaIiBmaWxsPSIjRjU5RTBCIi8+Cjx0ZXh0IHg9IjMwIiB5PSIzNSIgZm9udC1mYW1pbHk9IkNpbnplbCIgZm9udC1zaXplPSI4IiBmaWxsPSIjRjNGNEY2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5DRTwvdGV4dD4KPHN2Zz4K" alt="Conselhos Esotéricos" class="h-10 w-auto">
+                    <div>
+                        <h1 class="font-cinzel font-bold text-xl text-primary-300">Conselhos</h1>
+                        <p class="text-gold-400 text-sm font-dancing">Esotéricos</p>
+                    </div>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="#home" class="nav-link text-gray-200 hover:text-primary-300 transition-colors">Início</a>
+                    <a href="#consultores" class="nav-link text-gray-200 hover:text-primary-300 transition-colors">Consultores</a>
+                    <a href="#servicos" class="nav-link text-gray-200 hover:text-primary-300 transition-colors">Serviços</a>
+                    <a href="#tarot-gratis" class="nav-link text-gray-200 hover:text-primary-300 transition-colors">Tarot Grátis</a>
+                    <a href="#horoscopo" class="nav-link text-gray-200 hover:text-primary-300 transition-colors">Horóscopo</a>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                    <button id="loginBtn" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg transition-colors">
+                        <i class="fas fa-sign-in-alt mr-2"></i>Entrar
+                    </button>
+                    <button id="registerBtn" class="bg-gold-500 hover:bg-gold-600 text-mystic-900 px-4 py-2 rounded-lg font-semibold transition-colors">
+                        Cadastrar
+                    </button>
+                    <button class="md:hidden text-gray-200" id="mobileMenuBtn">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <!-- @END_COMPONENT: NavigationHeader -->
+
+    <!-- @COMPONENT: MobileMenu -->
+    <div id="mobileMenu" class="hidden md:hidden bg-mystic-800 border-t border-mystic-700">
+        <div class="container mx-auto px-4 py-4 space-y-3">
+            <a href="#home" class="block text-gray-200 hover:text-primary-300 py-2">Início</a>
+            <a href="#consultores" class="block text-gray-200 hover:text-primary-300 py-2">Consultores</a>
+            <a href="#servicos" class="block text-gray-200 hover:text-primary-300 py-2">Serviços</a>
+            <a href="#tarot-gratis" class="block text-gray-200 hover:text-primary-300 py-2">Tarot Grátis</a>
+            <a href="#horoscopo" class="block text-gray-200 hover:text-primary-300 py-2">Horóscopo</a>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: MobileMenu -->
+
+    <!-- @COMPONENT: HeroCarousel -->
+    <section id="home" class="relative h-96 md:h-[500px] overflow-hidden">
+        <div class="carousel-container relative w-full h-full">
+            <!-- Slide 1 -->
+            <div class="carousel-slide absolute inset-0 transition-opacity duration-1000 opacity-100" data-slide="0">
+                <!-- Mystical background with crystals and candles -->
+                <div class="absolute inset-0 bg-gradient-to-r from-primary-950 via-primary-900 to-mystic-900" 
+                     style="background-image: url('https://pixabay.com/get/gc64d8de3ec089a3496702de43938c80c8551fdd7019229606d7f89ee71fda44d9b6f163fbe44a7392d2cc77c9e6f959d5114c18b9ac5d625f18e71e47eff2a43_1280.jpg'); background-size: cover; background-position: center; background-blend-mode: overlay;"></div>
+                <div class="absolute inset-0 bg-black bg-opacity-40"></div>
+                <div class="relative z-10 container mx-auto px-4 h-full flex items-center">
+                    <div class="max-w-2xl">
+                        <h2 data-mock="true" class="font-cinzel text-3xl md:text-5xl font-bold mb-4 text-white">
+                            Bem vindo ao nosso site
+                        </h2>
+                        <p data-mock="true" class="text-lg md:text-xl mb-6 text-gray-200">
+                            Profissionais comprometidos com você<br>
+                            com total sigilo e segurança
+                        </p>
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <button class="bg-gold-500 hover:bg-gold-600 text-mystic-900 px-6 py-3 rounded-lg font-semibold transition-colors">
+                                Saiba Mais
+                            </button>
+                            <button class="bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-lg transition-colors border border-primary-500">
+                                Criar Conta
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 2 -->
+            <div class="carousel-slide absolute inset-0 transition-opacity duration-1000 opacity-0" data-slide="1">
+                <!-- Tarot cards spread -->
+                <div class="absolute inset-0 bg-gradient-to-l from-primary-950 via-primary-900 to-mystic-900" 
+                     style="background-image: url('https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&h=1080'); background-size: cover; background-position: center; background-blend-mode: overlay;"></div>
+                <div class="absolute inset-0 bg-black bg-opacity-40"></div>
+                <div class="relative z-10 container mx-auto px-4 h-full flex items-center">
+                    <div class="max-w-2xl">
+                        <h2 data-mock="true" class="font-cinzel text-3xl md:text-5xl font-bold mb-4 text-white">
+                            A tua vida está um pouco bagunçada?
+                        </h2>
+                        <p data-mock="true" class="text-lg md:text-xl mb-6 text-gray-200">
+                            Podemos te ajudar a encontrar o caminho<br>
+                            e desfrutar do equilíbrio, da paz, o amor e a tranquilidade
+                        </p>
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <button class="bg-gold-500 hover:bg-gold-600 text-mystic-900 px-6 py-3 rounded-lg font-semibold transition-colors">
+                                Saiba Mais
+                            </button>
+                            <button class="bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-lg transition-colors border border-primary-500">
+                                Criar Conta
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 3 -->
+            <div class="carousel-slide absolute inset-0 transition-opacity duration-1000 opacity-0" data-slide="2">
+                <!-- Professional spiritual consultant -->
+                <div class="absolute inset-0 bg-gradient-to-r from-primary-950 via-primary-900 to-mystic-900" 
+                     style="background-image: url('https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&h=1080'); background-size: cover; background-position: center; background-blend-mode: overlay;"></div>
+                <div class="absolute inset-0 bg-black bg-opacity-40"></div>
+                <div class="relative z-10 container mx-auto px-4 h-full flex items-center">
+                    <div class="max-w-2xl">
+                        <h2 data-mock="true" class="font-cinzel text-3xl md:text-5xl font-bold mb-4 text-white">
+                            Nossos especialistas trabalham com seriedade
+                        </h2>
+                        <p data-mock="true" class="text-lg md:text-xl mb-6 text-gray-200">
+                            Amoroso - Profissional - Financeiro e outros<br>
+                            apenas você precisa se permitir ser ajudada(o)
+                        </p>
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <button class="bg-gold-500 hover:bg-gold-600 text-mystic-900 px-6 py-3 rounded-lg font-semibold transition-colors">
+                                Saiba Mais
+                            </button>
+                            <button class="bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-lg transition-colors border border-primary-500">
+                                Criar Conta
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 4 -->
+            <div class="carousel-slide absolute inset-0 transition-opacity duration-1000 opacity-0" data-slide="3">
+                <!-- Spiritual guidance and meditation -->
+                <div class="absolute inset-0 bg-gradient-to-l from-primary-950 via-primary-900 to-mystic-900" 
+                     style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&h=1080'); background-size: cover; background-position: center; background-blend-mode: overlay;"></div>
+                <div class="absolute inset-0 bg-black bg-opacity-40"></div>
+                <div class="relative z-10 container mx-auto px-4 h-full flex items-center">
+                    <div class="max-w-2xl">
+                        <h2 data-mock="true" class="font-cinzel text-3xl md:text-5xl font-bold mb-4 text-white">
+                            Se Você está Perdido(a) e não sabe qual caminho seguir
+                        </h2>
+                        <p data-mock="true" class="text-lg md:text-xl mb-6 text-gray-200">
+                            Os nossos profissionais estão esperando você<br>
+                            e ajudarão a encontrar a melhor saída para teu problema
+                        </p>
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <button class="bg-gold-500 hover:bg-gold-600 text-mystic-900 px-6 py-3 rounded-lg font-semibold transition-colors">
+                                Saiba Mais
+                            </button>
+                            <button class="bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-lg transition-colors border border-primary-500">
+                                Criar Conta
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Carousel Controls -->
+        <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+            <button class="carousel-dot w-3 h-3 rounded-full bg-white bg-opacity-50 hover:bg-opacity-75 transition-colors" data-slide="0"></button>
+            <button class="carousel-dot w-3 h-3 rounded-full bg-white bg-opacity-30 hover:bg-opacity-75 transition-colors" data-slide="1"></button>
+            <button class="carousel-dot w-3 h-3 rounded-full bg-white bg-opacity-30 hover:bg-opacity-75 transition-colors" data-slide="2"></button>
+            <button class="carousel-dot w-3 h-3 rounded-full bg-white bg-opacity-30 hover:bg-opacity-75 transition-colors" data-slide="3"></button>
+        </div>
+
+        <!-- Navigation Arrows -->
+        <button class="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-75 text-white p-2 rounded-full transition-colors" id="carouselPrev">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        <button class="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-75 text-white p-2 rounded-full transition-colors" id="carouselNext">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+    </section>
+    <!-- @END_COMPONENT: HeroCarousel -->
+
+    <!-- @COMPONENT: ServiceCards -->
+    <section class="py-16 bg-mystic-800">
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-mystic-700 p-6 rounded-xl text-center border border-primary-800 hover:border-primary-600 transition-colors">
+                    <div class="w-16 h-16 bg-primary-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-comments text-2xl text-white"></i>
+                    </div>
+                    <h3 data-mock="true" class="font-cinzel text-xl font-bold mb-3 text-primary-300">Consultas OnLine</h3>
+                    <p data-mock="true" class="text-gray-300 mb-4">Tarólogos, Videntes, Cartomantes, Terapeutas, Numerólogos e Outros. Faça suas previsões com um de nossos profissionais no sigilo!</p>
+                    <button class="bg-gold-500 hover:bg-gold-600 text-mystic-900 px-4 py-2 rounded-lg font-semibold transition-colors">
+                        Saiba mais
+                    </button>
+                </div>
+
+                <div class="bg-mystic-700 p-6 rounded-xl text-center border border-primary-800 hover:border-primary-600 transition-colors">
+                    <div class="w-16 h-16 bg-primary-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-magic text-2xl text-white"></i>
+                    </div>
+                    <h3 data-mock="true" class="font-cinzel text-xl font-bold mb-3 text-primary-300">Tarot Grátis</h3>
+                    <p data-mock="true" class="text-gray-300 mb-4">Faça uma Consulta de Tarot Grátis e veja o que as cartas podem dizer para você. Se precisar de algo mais detalhado, chame nossos consultores!</p>
+                    <button class="bg-gold-500 hover:bg-gold-600 text-mystic-900 px-4 py-2 rounded-lg font-semibold transition-colors">
+                        Saiba mais
+                    </button>
+                </div>
+
+                <div class="bg-mystic-700 p-6 rounded-xl text-center border border-primary-800 hover:border-primary-600 transition-colors">
+                    <div class="w-16 h-16 bg-primary-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-star text-2xl text-white"></i>
+                    </div>
+                    <h3 data-mock="true" class="font-cinzel text-xl font-bold mb-3 text-primary-300">Horoscopo Grátis</h3>
+                    <p data-mock="true" class="text-gray-300 mb-4">Consulte seu horóscopo gratuitamente e com segurança e receba respostas e conselhos agora mesmo...</p>
+                    <button class="bg-gold-500 hover:bg-gold-600 text-mystic-900 px-4 py-2 rounded-lg font-semibold transition-colors">
+                        Saiba mais
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- @END_COMPONENT: ServiceCards -->
+
+    <!-- @COMPONENT: ConsultantsSection -->
+    <section id="consultores" class="py-16 bg-mystic-900">
+        <div class="container mx-auto px-4">
+            <h2 class="font-cinzel text-3xl md:text-4xl font-bold text-center mb-12 text-primary-300">Nossos Tarólogos</h2>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <!-- @MAP: consultants.map(consultant => ( -->
+                <div class="bg-mystic-700 rounded-xl overflow-hidden border border-primary-800 hover:border-primary-600 transition-all hover:transform hover:scale-105">
+                    <!-- Professional spiritual consultant with tarot cards -->
+                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300" alt="Fabianna - Taróloga" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h4 data-bind="consultant.name" class="font-cinzel text-lg font-bold mb-2 text-primary-300">Fabianna</h4>
+                        <div class="mb-3">
+                            <span class="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-semibold">Em Atendimento</span>
+                        </div>
+                        <div class="space-y-2">
+                            <button class="w-full bg-primary-600 hover:bg-primary-700 text-white py-2 rounded-lg transition-colors font-semibold">
+                                Ver Perfil
+                            </button>
+                        </div>
+                        <p data-mock="true" class="text-xs text-gray-400 mt-2 text-center">Faça sua consulta e avalie este consultor! ☝☝☝</p>
+                    </div>
+                </div>
+
+                <div class="bg-mystic-700 rounded-xl overflow-hidden border border-primary-800 hover:border-primary-600 transition-all hover:transform hover:scale-105">
+                    <!-- Female mystical consultant -->
+                    <img src="https://pixabay.com/get/g7d7a3a298cc6caf8bd10120c6b4be067f99696071c3afed170bfb8ef315548cd212babc5baa0c359b03440f33b53fad87fc6f2e121a87fabecadd85bcd8ce63d_1280.jpg" alt="AnnaFreya - Vidente" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h4 data-bind="consultant.name" class="font-cinzel text-lg font-bold mb-2 text-primary-300">AnnaFreya</h4>
+                        <div class="mb-3">
+                            <span class="bg-green-600 text-white px-3 py-1 rounded-full text-sm font-semibold">Disponível</span>
+                        </div>
+                        <div class="space-y-2">
+                            <button class="w-full bg-gold-500 hover:bg-gold-600 text-mystic-900 py-2 rounded-lg transition-colors font-semibold">
+                                Iniciar Consulta
+                            </button>
+                            <button class="w-full bg-primary-600 hover:bg-primary-700 text-white py-2 rounded-lg transition-colors">
+                                Perfil Completo
+                            </button>
+                        </div>
+                        <p data-mock="true" class="text-xs text-gray-400 mt-2 text-center">Faça sua consulta e avalie este consultor! ☝☝☝</p>
+                    </div>
+                </div>
+
+                <div class="bg-mystic-700 rounded-xl overflow-hidden border border-primary-800 hover:border-primary-600 transition-all hover:transform hover:scale-105">
+                    <!-- Spiritual medium -->
+                    <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300" alt="Mistica - Cartomante" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h4 data-bind="consultant.name" class="font-cinzel text-lg font-bold mb-2 text-primary-300">Mistica</h4>
+                        <div class="mb-3">
+                            <span class="bg-green-600 text-white px-3 py-1 rounded-full text-sm font-semibold">Disponível</span>
+                        </div>
+                        <div class="space-y-2">
+                            <button class="w-full bg-gold-500 hover:bg-gold-600 text-mystic-900 py-2 rounded-lg transition-colors font-semibold">
+                                Iniciar Consulta
+                            </button>
+                            <button class="w-full bg-primary-600 hover:bg-primary-700 text-white py-2 rounded-lg transition-colors">
+                                Perfil Completo
+                            </button>
+                        </div>
+                        <p data-mock="true" class="text-xs text-gray-400 mt-2 text-center">Faça sua consulta e avalie este consultor! ☝☝☝</p>
+                    </div>
+                </div>
+
+                <div class="bg-mystic-700 rounded-xl overflow-hidden border border-primary-800 hover:border-primary-600 transition-all hover:transform hover:scale-105">
+                    <!-- Professional female consultant -->
+                    <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300" alt="Atena - Numeróloga" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h4 data-bind="consultant.name" class="font-cinzel text-lg font-bold mb-2 text-primary-300">Atena</h4>
+                        <div class="mb-3">
+                            <span class="bg-green-600 text-white px-3 py-1 rounded-full text-sm font-semibold">Disponível</span>
+                        </div>
+                        <div class="space-y-2">
+                            <button class="w-full bg-gold-500 hover:bg-gold-600 text-mystic-900 py-2 rounded-lg transition-colors font-semibold">
+                                Iniciar Consulta
+                            </button>
+                            <button class="w-full bg-primary-600 hover:bg-primary-700 text-white py-2 rounded-lg transition-colors">
+                                Perfil Completo
+                            </button>
+                        </div>
+                        <p data-mock="true" class="text-xs text-gray-400 mt-2 text-center">Faça sua consulta e avalie este consultor! ☝☝☝</p>
+                    </div>
+                </div>
+
+                <div class="bg-mystic-700 rounded-xl overflow-hidden border border-primary-800 hover:border-primary-600 transition-all hover:transform hover:scale-105">
+                    <!-- Young spiritual advisor -->
+                    <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300" alt="Samara - Terapeuta" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h4 data-bind="consultant.name" class="font-cinzel text-lg font-bold mb-2 text-primary-300">Samara</h4>
+                        <div class="mb-3">
+                            <span class="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-semibold">Em Atendimento</span>
+                        </div>
+                        <div class="space-y-2">
+                            <button class="w-full bg-primary-600 hover:bg-primary-700 text-white py-2 rounded-lg transition-colors font-semibold">
+                                Ver Perfil
+                            </button>
+                        </div>
+                        <p data-mock="true" class="text-xs text-gray-400 mt-2 text-center">Faça sua consulta e avalie este consultor! ☝☝☝</p>
+                    </div>
+                </div>
+
+                <div class="bg-mystic-700 rounded-xl overflow-hidden border border-primary-800 hover:border-primary-600 transition-all hover:transform hover:scale-105">
+                    <!-- Mature spiritual guide -->
+                    <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300" alt="CiganaEsmeralda - Cigana" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h4 data-bind="consultant.name" class="font-cinzel text-lg font-bold mb-2 text-primary-300">CiganaEsmeralda</h4>
+                        <div class="mb-3">
+                            <span class="bg-gray-600 text-white px-3 py-1 rounded-full text-sm font-semibold">Estou Ausente</span>
+                        </div>
+                        <div class="space-y-2">
+                            <button class="w-full bg-primary-600 hover:bg-primary-700 text-white py-2 rounded-lg transition-colors">
+                                Perfil Completo
+                            </button>
+                        </div>
+                        <p data-mock="true" class="text-xs text-gray-400 mt-2 text-center">Faça sua consulta e avalie este consultor! ☝☝☝</p>
+                    </div>
+                </div>
+
+                <div class="bg-mystic-700 rounded-xl overflow-hidden border border-primary-800 hover:border-primary-600 transition-all hover:transform hover:scale-105">
+                    <!-- Experienced female psychic -->
+                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300" alt="LumenaMedium - Médium" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h4 data-bind="consultant.name" class="font-cinzel text-lg font-bold mb-2 text-primary-300">LumenaMedium</h4>
+                        <div class="mb-3">
+                            <span class="bg-gray-600 text-white px-3 py-1 rounded-full text-sm font-semibold">Estou Ausente</span>
+                        </div>
+                        <div class="space-y-2">
+                            <button class="w-full bg-primary-600 hover:bg-primary-700 text-white py-2 rounded-lg transition-colors">
+                                Perfil Completo
+                            </button>
+                        </div>
+                        <p data-mock="true" class="text-xs text-gray-400 mt-2 text-center">Faça sua consulta e avalie este consultor! ☝☝☝</p>
+                    </div>
+                </div>
+
+                <div class="bg-mystic-700 rounded-xl overflow-hidden border border-primary-800 hover:border-primary-600 transition-all hover:transform hover:scale-105">
+                    <!-- Male spiritual guide -->
+                    <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300" alt="PaiKendi - Pai de Santo" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h4 data-bind="consultant.name" class="font-cinzel text-lg font-bold mb-2 text-primary-300">PaiKendi</h4>
+                        <div class="mb-3">
+                            <span class="bg-gray-600 text-white px-3 py-1 rounded-full text-sm font-semibold">Estou Ausente</span>
+                        </div>
+                        <div class="space-y-2">
+                            <button class="w-full bg-primary-600 hover:bg-primary-700 text-white py-2 rounded-lg transition-colors">
+                                Perfil Completo
+                            </button>
+                        </div>
+                        <p data-mock="true" class="text-xs text-gray-400 mt-2 text-center">Faça sua consulta e avalie este consultor! ☝☝☝</p>
+                    </div>
+                </div>
+                <!-- @END_MAP )) -->
+            </div>
+        </div>
+    </section>
+    <!-- @END_COMPONENT: ConsultantsSection -->
+
+    <!-- @COMPONENT: ProductsServices -->
+    <section id="servicos" class="py-16 bg-mystic-800">
+        <div class="container mx-auto px-4">
+            <h2 class="font-cinzel text-3xl md:text-4xl font-bold text-center mb-12 text-primary-300">Nossos Produtos & Serviços</h2>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <!-- @MAP: products.map(product => ( -->
+                <div class="bg-mystic-700 rounded-xl overflow-hidden border border-primary-800 hover:border-primary-600 transition-all hover:transform hover:scale-105">
+                    <!-- Psychology and therapy imagery -->
+                    <img src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=200" alt="Psicanálise" class="w-full h-32 object-cover">
+                    <div class="p-4">
+                        <h4 data-bind="product.name" class="font-cinzel text-lg font-bold mb-2 text-primary-300">Psicanálise</h4>
+                        <p data-bind="product.description" class="text-gray-300 text-sm mb-3">Uma abordagem para tratar os sintomas como: angústias, medos, fobias, e etc</p>
+                        <div class="flex justify-between items-center mb-3">
+                            <span data-bind="product.price" class="text-gold-400 font-bold text-lg">R$ 150,00</span>
+                        </div>
+                        <button class="w-full bg-gold-500 hover:bg-gold-600 text-mystic-900 py-2 rounded-lg font-semibold transition-colors">
+                            EU QUERO
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-mystic-700 rounded-xl overflow-hidden border border-primary-800 hover:border-primary-600 transition-all hover:transform hover:scale-105">
+                    <!-- Nordic runes and symbols -->
+                    <img src="https://pixabay.com/get/g3ce046e7b5e1e9824db9803c4c4670ca63ab9e034a63bc195e61904090383acd83a46fcf855e96c5a8ec02e9be626c9f93459e37c4d6bed480bfc0feb2e27d47_1280.jpg" alt="Sigilo Nórdico" class="w-full h-32 object-cover">
+                    <div class="p-4">
+                        <h4 data-bind="product.name" class="font-cinzel text-lg font-bold mb-2 text-primary-300">Sigilo Nórdico</h4>
+                        <p data-bind="product.description" class="text-gray-300 text-sm mb-3">O Sigilo Nórdico é um tratamento quântico, baseado na simbologia do alfabeto futhark</p>
+                        <div class="flex justify-between items-center mb-3">
+                            <span data-bind="product.price" class="text-gold-400 font-bold text-lg">R$ 180,00</span>
+                        </div>
+                        <button class="w-full bg-gold-500 hover:bg-gold-600 text-mystic-900 py-2 rounded-lg font-semibold transition-colors">
+                            EU QUERO
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-mystic-700 rounded-xl overflow-hidden border border-primary-800 hover:border-primary-600 transition-all hover:transform hover:scale-105">
+                    <!-- Bach flower remedies -->
+                    <img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=200" alt="Floral de Bach" class="w-full h-32 object-cover">
+                    <div class="p-4">
+                        <h4 data-bind="product.name" class="font-cinzel text-lg font-bold mb-2 text-primary-300">Floral de Bach 1</h4>
+                        <p data-bind="product.description" class="text-gray-300 text-sm mb-3">Floral de Bach, para tratamento comportamental em vários âmbitos: físicos e psicológicos</p>
+                        <div class="flex justify-between items-center mb-3">
+                            <span data-bind="product.price" class="text-gold-400 font-bold text-lg">R$ 90,00</span>
+                        </div>
+                        <button class="w-full bg-gold-500 hover:bg-gold-600 text-mystic-900 py-2 rounded-lg font-semibold transition-colors">
+                            EU QUERO
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-mystic-700 rounded-xl overflow-hidden border border-primary-800 hover:border-primary-600 transition-all hover:transform hover:scale-105">
+                    <!-- Astrology chart and celestial objects -->
+                    <img src="https://images.unsplash.com/photo-1532968961962-8a0cb3a2d4f5?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=200" alt="Mapa Astral" class="w-full h-32 object-cover">
+                    <div class="p-4">
+                        <h4 data-bind="product.name" class="font-cinzel text-lg font-bold mb-2 text-primary-300">Mapa Astral</h4>
+                        <p data-bind="product.description" class="text-gray-300 text-sm mb-3">O mapa astral se faz necessário para compreender suas potências básicas como personalidade</p>
+                        <div class="flex justify-between items-center mb-3">
+                            <span data-bind="product.price" class="text-gold-400 font-bold text-lg">R$ 90,00</span>
+                        </div>
+                        <button class="w-full bg-gold-500 hover:bg-gold-600 text-mystic-900 py-2 rounded-lg font-semibold transition-colors">
+                            EU QUERO
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-mystic-700 rounded-xl overflow-hidden border border-primary-800 hover:border-primary-600 transition-all hover:transform hover:scale-105">
+                    <!-- Spiritual cleansing kit with crystals and sage -->
+                    <img src="https://pixabay.com/get/g0a24d2f54483d97b1dc5d227d968a5a7b0081f974ca641afdd7ce9fa89185757d8f5212420e8b1f5490bb4fa992d42269378a0feb66bbb2a61d7ea3a469525d5_1280.jpg" alt="Kit Limpeza Espiritual" class="w-full h-32 object-cover">
+                    <div class="p-4">
+                        <h4 data-bind="product.name" class="font-cinzel text-lg font-bold mb-2 text-primary-300">Kit Limpeza Espiritual</h4>
+                        <p data-bind="product.description" class="text-gray-300 text-sm mb-3">Kit para limpeza espiritual, você conseguirá proteger, imantar e purificar ambiente e pessoas.</p>
+                        <div class="flex justify-between items-center mb-3">
+                            <span data-bind="product.price" class="text-gold-400 font-bold text-lg">R$ 50,00</span>
+                        </div>
+                        <button class="w-full bg-gold-500 hover:bg-gold-600 text-mystic-900 py-2 rounded-lg font-semibold transition-colors">
+                            EU QUERO
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-mystic-700 rounded-xl overflow-hidden border border-primary-800 hover:border-primary-600 transition-all hover:transform hover:scale-105">
+                    <!-- Numerology and sacred geometry -->
+                    <img src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=200" alt="Numerologia + Mandala" class="w-full h-32 object-cover">
+                    <div class="p-4">
+                        <h4 data-bind="product.name" class="font-cinzel text-lg font-bold mb-2 text-primary-300">Numerologia + Mandala</h4>
+                        <p data-bind="product.description" class="text-gray-300 text-sm mb-3">Consulta completa por email que incluir leitura, numerologia e mandala específica</p>
+                        <div class="flex justify-between items-center mb-3">
+                            <span data-bind="product.price" class="text-gold-400 font-bold text-lg">R$ 180,00</span>
+                        </div>
+                        <button class="w-full bg-gold-500 hover:bg-gold-600 text-mystic-900 py-2 rounded-lg font-semibold transition-colors">
+                            EU QUERO
+                        </button>
+                    </div>
+                </div>
+                <!-- @END_MAP )) -->
+            </div>
+
+            <div class="text-center mt-8">
+                <button class="bg-primary-600 hover:bg-primary-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors">
+                    MAIS PRODUTOS
+                </button>
+            </div>
+        </div>
+    </section>
+    <!-- @END_COMPONENT: ProductsServices -->
+
+    <!-- @COMPONENT: HowItWorks -->
+    <section class="py-16 bg-mystic-900">
+        <div class="container mx-auto px-4">
+            <h2 class="font-cinzel text-3xl md:text-4xl font-bold text-center mb-12 text-primary-300">COMO FUNCIONA</h2>
+            
+            <div class="max-w-4xl mx-auto text-center">
+                <p data-mock="true" class="text-lg text-gray-300 mb-8">Escolha o Profissional que deseja..Adquira créditos e utilize em minutos de atendimento por chat ou e-mail.</p>
+                
+                <!-- Process flow with mystical background -->
+                <div class="relative">
+                    <img src="https://pixabay.com/get/ga1c54008658e52d144565887954c5d6c4497c3652882e160ce80a090fdc419285c68ca021d5949c7a6fe877b5d826b6ebd1444eaee66a01bbd3180ea024fda66_1280.png" alt="Como Funciona - Processo de Consulta" class="w-full h-64 object-cover rounded-xl opacity-60">
+                    <div class="absolute inset-0 bg-mystic-900 bg-opacity-70 rounded-xl flex items-center justify-center">
+                        <div class="grid md:grid-cols-3 gap-8 text-center">
+                            <div>
+                                <div class="w-16 h-16 bg-gold-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <span class="text-2xl font-bold text-mystic-900">1</span>
+                                </div>
+                                <h4 class="font-semibold text-white mb-2">Escolha o Consultor</h4>
+                                <p class="text-sm text-gray-300">Veja perfis e escolha</p>
+                            </div>
+                            <div>
+                                <div class="w-16 h-16 bg-gold-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <span class="text-2xl font-bold text-mystic-900">2</span>
+                                </div>
+                                <h4 class="font-semibold text-white mb-2">Adquira Créditos</h4>
+                                <p class="text-sm text-gray-300">Compre créditos seguros</p>
+                            </div>
+                            <div>
+                                <div class="w-16 h-16 bg-gold-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <span class="text-2xl font-bold text-mystic-900">3</span>
+                                </div>
+                                <h4 class="font-semibold text-white mb-2">Inicie a Consulta</h4>
+                                <p class="text-sm text-gray-300">Chat ou e-mail</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- @END_COMPONENT: HowItWorks -->
+
+    <!-- @COMPONENT: WhyChooseUs -->
+    <section class="py-16 bg-mystic-800">
+        <div class="container mx-auto px-4">
+            <h2 class="font-cinzel text-3xl md:text-4xl font-bold text-center mb-8 text-primary-300">Por quê conselhosesotericos.com.br</h2>
+            <p data-mock="true" class="text-center text-gray-300 mb-12 max-w-3xl mx-auto">Esotéricos de qualidade que atuam com sigilo para te trazer a melhor experiência de uma consulta de tarot online. A melhor tecnologia para garantir sua segurança, sigilo e satisfação. milhares de atendimentos. Clientes 100% satisfeitos.</p>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="text-center">
+                    <div class="w-20 h-20 bg-primary-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-comments text-3xl text-white"></i>
+                    </div>
+                    <h4 class="font-cinzel text-xl font-bold mb-2 text-primary-300">Chat Seguro</h4>
+                    <p class="text-gray-300">Tecnologia de ponta para suas consultas</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="w-20 h-20 bg-primary-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-lock text-3xl text-white"></i>
+                    </div>
+                    <h4 class="font-cinzel text-xl font-bold mb-2 text-primary-300">Total Sigilo</h4>
+                    <p class="text-gray-300">Sua privacidade é nossa prioridade</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="w-20 h-20 bg-primary-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-thumbs-up text-3xl text-white"></i>
+                    </div>
+                    <h4 class="font-cinzel text-xl font-bold mb-2 text-primary-300">Satisfação</h4>
+                    <p class="text-gray-300">Milhares de clientes satisfeitos</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- @END_COMPONENT: WhyChooseUs -->
+
+    <!-- @COMPONENT: TestimonialsSection -->
+    <section class="py-16 bg-mystic-900">
+        <div class="container mx-auto px-4">
+            <h2 class="font-cinzel text-3xl md:text-4xl font-bold text-center mb-4 text-primary-300">O que as pessoas dizem</h2>
+            <h3 class="font-cinzel text-xl text-center mb-12 text-gold-400">Avaliações & Comentários</h3>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- @MAP: testimonials.map(testimonial => ( -->
+                <div class="bg-mystic-700 p-6 rounded-xl border border-primary-800">
+                    <div class="flex items-center mb-4">
+                        <div class="flex text-gold-400">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                    <p data-bind="testimonial.comment" class="text-gray-300 mb-4 italic">"Excelente ! Me ajudou muito e esclareceu minhas questões."</p>
+                    <p class="text-sm text-primary-300">Consultor(a): <span data-bind="testimonial.consultant" class="font-semibold">Palloma</span></p>
+                </div>
+
+                <div class="bg-mystic-700 p-6 rounded-xl border border-primary-800">
+                    <div class="flex items-center mb-4">
+                        <div class="flex text-gold-400">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                    <p data-bind="testimonial.comment" class="text-gray-300 mb-4 italic">"Parabéns Walentina!Obrigada !"</p>
+                    <p class="text-sm text-primary-300">Consultor(a): <span data-bind="testimonial.consultant" class="font-semibold">Walentina</span></p>
+                </div>
+
+                <div class="bg-mystic-700 p-6 rounded-xl border border-primary-800">
+                    <div class="flex items-center mb-4">
+                        <div class="flex text-gold-400">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                    <p data-bind="testimonial.comment" class="text-gray-300 mb-4 italic">"Pessoa mais importante na minha vida não existe, Amo muito! Melhor psicologa,melhor conselheira, previsões acertadissimas, conselhos valiosos. Não vivo sem."</p>
+                    <p class="text-sm text-primary-300">Consultor(a): <span data-bind="testimonial.consultant" class="font-semibold">Sarah</span></p>
+                </div>
+
+                <div class="bg-mystic-700 p-6 rounded-xl border border-primary-800">
+                    <div class="flex items-center mb-4">
+                        <div class="flex text-gold-400">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                    <p data-bind="testimonial.comment" class="text-gray-300 mb-4 italic">"Muito acertivo!!! Recomendo a todos!!!"</p>
+                    <p class="text-sm text-primary-300">Consultor(a): <span data-bind="testimonial.consultant" class="font-semibold">Pai_Claudio</span></p>
+                </div>
+
+                <div class="bg-mystic-700 p-6 rounded-xl border border-primary-800">
+                    <div class="flex items-center mb-4">
+                        <div class="flex text-gold-400">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                    <p data-bind="testimonial.comment" class="text-gray-300 mb-4 italic">"Simplesmente incrível!!! Maravilhosa!! Gratidao!!"</p>
+                    <p class="text-sm text-primary-300">Consultor(a): <span data-bind="testimonial.consultant" class="font-semibold">Lorena</span></p>
+                </div>
+
+                <div class="bg-mystic-700 p-6 rounded-xl border border-primary-800">
+                    <div class="flex items-center mb-4">
+                        <div class="flex text-gold-400">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                    <p data-bind="testimonial.comment" class="text-gray-300 mb-4 italic">"Tem o dom, vc é mto especial"</p>
+                    <p class="text-sm text-primary-300">Consultor(a): <span data-bind="testimonial.consultant" class="font-semibold">Brinker</span></p>
+                </div>
+                <!-- @END_MAP )) -->
+            </div>
+        </div>
+    </section>
+    <!-- @END_COMPONENT: TestimonialsSection -->
+
+    <!-- @COMPONENT: LoginModal -->
+    <div id="loginModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-mystic-800 rounded-xl p-6 w-full max-w-md border border-primary-700">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="font-cinzel text-2xl font-bold text-primary-300">Entrar</h3>
+                <button id="closeLoginModal" class="text-gray-400 hover:text-white">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <form class="space-y-4">
+                <div>
+                    <label class="block text-gray-300 mb-2">Email</label>
+                    <input type="email" class="w-full bg-mystic-700 border border-primary-700 rounded-lg px-4 py-3 text-white focus:border-primary-500 focus:outline-none" placeholder="seu@email.com" data-implementation="Should validate email format">
+                </div>
+                <div>
+                    <label class="block text-gray-300 mb-2">Senha</label>
+                    <input type="password" class="w-full bg-mystic-700 border border-primary-700 rounded-lg px-4 py-3 text-white focus:border-primary-500 focus:outline-none" placeholder="••••••••" data-implementation="Should validate password strength">
+                </div>
+                <div class="flex items-center justify-between">
+                    <label class="flex items-center text-gray-300">
+                        <input type="checkbox" class="mr-2 rounded">
+                        Lembrar-me
+                    </label>
+                    <a href="#" class="text-primary-400 hover:text-primary-300 text-sm">Esqueci minha senha</a>
+                </div>
+                <button type="submit" class="w-full bg-primary-600 hover:bg-primary-700 text-white py-3 rounded-lg font-semibold transition-colors" data-event="click:handleLogin">
+                    Entrar
+                </button>
+            </form>
+            
+            <div class="mt-6 text-center">
+                <p class="text-gray-400">Não tem conta? 
+                    <button id="showRegisterModal" class="text-gold-400 hover:text-gold-300">Cadastre-se</button>
+                </p>
+            </div>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: LoginModal -->
+
+    <!-- @COMPONENT: RegisterModal -->
+    <div id="registerModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-mystic-800 rounded-xl p-6 w-full max-w-md border border-primary-700">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="font-cinzel text-2xl font-bold text-primary-300">Cadastrar</h3>
+                <button id="closeRegisterModal" class="text-gray-400 hover:text-white">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <form class="space-y-4">
+                <div>
+                    <label class="block text-gray-300 mb-2">Nome Completo</label>
+                    <input type="text" class="w-full bg-mystic-700 border border-primary-700 rounded-lg px-4 py-3 text-white focus:border-primary-500 focus:outline-none" placeholder="Seu nome completo">
+                </div>
+                <div>
+                    <label class="block text-gray-300 mb-2">Email</label>
+                    <input type="email" class="w-full bg-mystic-700 border border-primary-700 rounded-lg px-4 py-3 text-white focus:border-primary-500 focus:outline-none" placeholder="seu@email.com">
+                </div>
+                <div>
+                    <label class="block text-gray-300 mb-2">Senha</label>
+                    <input type="password" class="w-full bg-mystic-700 border border-primary-700 rounded-lg px-4 py-3 text-white focus:border-primary-500 focus:outline-none" placeholder="••••••••">
+                </div>
+                <div>
+                    <label class="block text-gray-300 mb-2">Confirmar Senha</label>
+                    <input type="password" class="w-full bg-mystic-700 border border-primary-700 rounded-lg px-4 py-3 text-white focus:border-primary-500 focus:outline-none" placeholder="••••••••">
+                </div>
+                <div>
+                    <label class="block text-gray-300 mb-2">Tipo de Conta</label>
+                    <select class="w-full bg-mystic-700 border border-primary-700 rounded-lg px-4 py-3 text-white focus:border-primary-500 focus:outline-none">
+                        <option value="client">Cliente</option>
+                        <option value="consultant">Consultor</option>
+                    </select>
+                </div>
+                <div class="flex items-center">
+                    <input type="checkbox" class="mr-2 rounded" required>
+                    <label class="text-gray-300 text-sm">Aceito os <a href="#" class="text-primary-400">termos de uso</a></label>
+                </div>
+                <button type="submit" class="w-full bg-gold-500 hover:bg-gold-600 text-mystic-900 py-3 rounded-lg font-semibold transition-colors" data-event="click:handleRegister">
+                    Cadastrar
+                </button>
+            </form>
+            
+            <div class="mt-6 text-center">
+                <p class="text-gray-400">Já tem conta? 
+                    <button id="showLoginModal" class="text-primary-400 hover:text-primary-300">Entre</button>
+                </p>
+            </div>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: RegisterModal -->
+
+    <!-- @COMPONENT: AdminDashboard (Hidden by default) -->
+    <div id="adminDashboard" class="hidden">
+        <div class="container mx-auto px-4 py-8">
+            <div class="bg-mystic-800 rounded-xl p-6 border border-primary-700">
+                <h2 class="font-cinzel text-2xl font-bold mb-6 text-primary-300">Painel Administrativo</h2>
+                
+                <div class="grid md:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-mystic-700 p-4 rounded-lg text-center border border-primary-800">
+                        <div class="text-2xl font-bold text-gold-400" data-bind="stats.totalUsers">1,247</div>
+                        <div class="text-gray-300">Total Usuários</div>
+                    </div>
+                    <div class="bg-mystic-700 p-4 rounded-lg text-center border border-primary-800">
+                        <div class="text-2xl font-bold text-green-400" data-bind="stats.activeConsultants">23</div>
+                        <div class="text-gray-300">Consultores Ativos</div>
+                    </div>
+                    <div class="bg-mystic-700 p-4 rounded-lg text-center border border-primary-800">  
+                        <div class="text-2xl font-bold text-blue-400" data-bind="stats.consultationsToday">156</div>
+                        <div class="text-gray-300">Consultas Hoje</div>
+                    </div>
+                    <div class="bg-mystic-700 p-4 rounded-lg text-center border border-primary-800">
+                        <div class="text-2xl font-bold text-primary-400" data-bind="stats.revenue">R$ 15.840</div>
+                        <div class="text-gray-300">Receita Mensal</div>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-mystic-700 p-4 rounded-lg border border-primary-800">
+                        <h3 class="font-semibold text-primary-300 mb-4">Gerenciar Consultores</h3>
+                        <div class="space-y-2">
+                            <button class="w-full bg-primary-600 hover:bg-primary-700 text-white py-2 rounded-lg transition-colors">Aprovar Consultores</button>
+                            <button class="w-full bg-gold-500 hover:bg-gold-600 text-mystic-900 py-2 rounded-lg transition-colors">Gerenciar Perfis</button>
+                            <button class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg transition-colors">Relatórios</button>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-mystic-700 p-4 rounded-lg border border-primary-800">
+                        <h3 class="font-semibold text-primary-300 mb-4">Sistema</h3>
+                        <div class="space-y-2">
+                            <button class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg transition-colors">Gerenciar Usuários</button>
+                            <button class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition-colors">Configurações</button>
+                            <button class="w-full bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg transition-colors">Logs do Sistema</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: AdminDashboard -->
+
+    <!-- @COMPONENT: ClientDashboard (Hidden by default) -->
+    <div id="clientDashboard" class="hidden">
+        <div class="container mx-auto px-4 py-8">
+            <div class="bg-mystic-800 rounded-xl p-6 border border-primary-700">
+                <h2 class="font-cinzel text-2xl font-bold mb-6 text-primary-300">Meu Painel</h2>
+                
+                <div class="grid md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-mystic-700 p-4 rounded-lg text-center border border-primary-800">
+                        <div class="text-2xl font-bold text-gold-400" data-bind="client.credits">R$ 45,00</div>
+                        <div class="text-gray-300">Créditos Disponíveis</div>
+                        <button class="mt-2 bg-gold-500 hover:bg-Let me analyze the provided design request and files to create a complete clone of the Conselhos Esotéricos website.
+
+From the uploaded files, I can see two logo variants:
+1. A banner-style logo with "CONSELHOS ESOTÉRICOS" text, mystical elements (cards, shells, stars), and a purple/dark theme
+2. A circular logo with hands surrounding a central mystical symbol with radiating lines and stars
+
+From the web content, I can see this is a Brazilian esoteric consultation website with:
+- Hero carousel with 4 slides about spiritual guidance
+- Sections for online consultations, free tarot, free horoscope
+- Consultant profiles with status indicators (available, busy, offline)
+- Products/services catalog with Brazilian Real pricing
+- Testimonials section
+- Portuguese language throughout
+
+I need to create a complete replica with:
+1. Homepage with hero carousel
+2. Login/registration pages
+3. Admin panel
+4. Client dashboard
+5. Consultant dashboard
+
+Let me use a reference-based approach since this is an experience-focused website in the spiritual/mystical industry where visual appeal and emotional connection are crucial.
+
+I'll use the dark mystical theme with purple, gold, and dark tones as specified, and make it responsive.EvoKCkgIBhACGAIqQJrD5WRSSvwzbSTvy8Ylom87BhpzI0lX3eZeacibHdK0uT9BOF6gLWzhvS0OWBCGN8PN2Aq8WuZiE9g4uObip6kSDOAUUeZsBeob6bg87RoMGEMrmvIyYttQYu8MIjD9f1dJG7vLYJ30ajJ5/Byyk03Ckq3dsOD3Ny7HV+Ag1TfLbNhZHG6hqA93+cX4Jesq3wkemBwvwg2hodi83PX1Ku7TG/IX8p40Oby1ildeSrBSYEMY38VXdUy2C6DK1P3m+W+H8y7i37vedVtkqoDfjyRz7Yj7RE98vgUSUT/UKahKSl6e5XZuYNsOE0aevjVOdaEJxrFSdxHQG3T3ZmMCwPeoPv1AMS3k6iflrmwX5C1Qu0ygVIC3nJ7Ogwocca7il3bcS8U6najjms7m4hWZ7heefClxDxhGgbjwYoSvY0VNNnfgvNv3G2OBZU105UAfVrNCtW/0zmzfJ7LduFcHpioFuvObgHSqJagleP98bfku1+gYX3ttZ93q2uR4w5TkMv3m2hF5EW4NxhH9hkDezn4T6zgQqF3wAzhBboFk6rYTUItcQVXBHbLiA4DXoixVdf5xwPZfVCsqxXmcYDNY5dLLU5rAe7rpzuMqdy8UxRN4gcZ+ebbQqQFx/oAuC8UXFhxSwHrq3Bc4MTZWCTZ8LdA6j1WdjoPolUNaUW//cTYfJPdq634CVN2IvqPcei1STs8ttvVEjcnu5XOGy9fQR5dPdo4od6uhY00nqmWzTnUd04XQBaY3oV2NnqmEC0r12Y6cYeVorUwZJk+iN1Z+cNa4b0kTkRHRVjFa0e+fTAsfw5B1JVLj7PC1IBXUYKD7y1VbJBw8QWzATItJpw1ahV7mSYAkSVKfh65Qpkalx8dF6102cU2LTx17I9Crc3S7peFpQ/q87NbmjL0/G9PB2yiKPQ3+zef2F23nG1EsnKAqMXTOy5AduoCqD92tWRFZnyVQRt0nnbSYsHkEy7z/dQaqbbP9tKlYTgwbm+hYjWhOmmS19zFUTBJkbba+2+d8zUzEOb9wltb1vWByQA9k/rQCg2CIssT9KMXdP+YDSIX+2LCcW98oUEtV/8uifS4MDmtrGh/fYrTyboOnzhuc01pinFJTnIm2gjXBkwcjxHd5CdsDsw2SsqNjk5neX1B5CoQgM4WsTFsIq0I7UJJi6+KZhRvDNEhdgUa++rLg96AEUqYZIcX5N8pVETPrDZn3/5Lo4zrVwWT5/JBb9VXUhuFRex3N3CTfU0q13YdCkUatoocVCXbn/X5uDQiU1w6mKjcL3X1nAEUngtd6F0BAB83/7PUXw6UTyZ7KwUm7etcRZqPa/8iTAWk66adDmPyyhYuHe9WMylrHLBSvU/UjvrtgKRx+8P4FOGsAh0HsLZJx9YupppZZlc82aCCz36ghZprB7Cn/VyuC5jcpr/yCZ7GIlpFQiO/gD7PF0jUe+9avWHUmRM1TZcqMEh2/iVLQf8dECgtmHZHslQYbgprTNTC5/NgttiFn7/z6qlh7kviJe5CbGPj+OzLQ6azdh2wWeG45FCMFG5cNROLSSO6yXvf2YpAq2kctaQJP7tbk8Wvhn6mYc5vCQDwoX/w+T5cFXWcfnMfC6F7JqKjhOFK1hMGrGaS6ZVRFf1frORa7b5HtCEK1WD2PagZ4Zx7vr1Y7bcxUCuylfLBs5WKRPtb3qMvUq0K6+LiWP/RsPPaL0b4ThF51p98QCE3XbAakvsov1IJFCp5ziODjXFAg9pShLuJsPTiYOLaF6UCmPmyAbv4GkBOPfq+G0HKtRxTJtP3183IrzLUuFq7FL4zwSfUobqxwFWzODg6MO1H5Fk04RgcmR9s/o1wFBOQuUeLw/p0HJxgB# style
+
+**Design Approach**: Reference-based approach inspired by mystical/spiritual platforms with dark theme aesthetics. Drawing from the original Conselhos Esotéricos design patterns while ensuring modern responsive implementation.
+
+**Color Palette**:
+- Primary: #2D1B69 (Deep Purple)
+- Secondary: #8B5CF6 (Purple)
+- Accent: #F59E0B (Gold/Amber)
+- Background: #0F0F23 (Dark Navy)
+- Surface: #1E1B4B (Dark Purple)
+- Text: #F8FAFC (Light)
+- Muted: #64748B (Gray)
+
+**Typography**: Inter font family for clean readability with mystical aesthetic appeal
+
+**Layout**: Card-based design with grid systems, mystical backgrounds, carousel hero section, responsive mobile-first approach
+
+**Components**: Hero carousel, consultant cards with status indicators, product grids, authentication forms, dashboard layouts, mystical iconography
+
+# directory_structure
+```json
+[
+     {"path": "production_design_mockup.html", "status": "new"}
+]
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conselhos Esotéricos - Tarot Online, Vidência e Consultas Espirituais</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    primary: '#2D1B69',
+                    secondary: '#8B5CF6',
+                    accent: '#F59E0B',
+                    'dark-bg': '#0F0F23',
+                    'dark-surface': '#1E1B4B',
+                    'mystical-purple': '#4C1D95',
+                    'mystical-gold': '#FBBF24'
+                },
+                fontFamily: {
+                    'sans': ['Inter', 'sans-serif']
+                },
+                backgroundImage: {
+                    'mystical-gradient': 'linear-gradient(135deg, #0F0F23 0%, #2D1B69 50%, #1E1B4B 100%)',
+                    'card-gradient': 'linear-gradient(145deg, #1E1B4B, #2D1B69)',
+                    'hero-overlay': 'linear-gradient(rgba(15, 15, 35, 0.8), rgba(45, 27, 105, 0.6))'
+                }
+            }
+        }
+    };
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-dark-bg text-gray-100 font-sans">
+
+<!-- Navigation -->
+<nav class="bg-dark-surface border-b border-purple-800/30 sticky top-0 z-50 backdrop-blur-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+            <div class="flex items-center">
+                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjUwIiB2aWV3Qm94PSIwIDAgMTUwIDUwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxNTAiIGhlaWdodD0iNTAiIGZpbGw9IiMyRDFCNjkiLz48dGV4dCB4PSI3NSIgeT0iMzIiIGZvbnQtZmFtaWx5PSJJbnRlciIgZm9udC13ZWlnaHQ9IjcwMCIgZm9udC1zaXplPSIxNCIgZmlsbD0iI0Y4RkFGQyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+Q09OU0VMSE9TIEVTT1TDiVJJQ09TPC90ZXh0Pjwvc3ZnPg==" alt="Conselhos Esotéricos" class="h-8">
+            </div>
+            
+            <div class="hidden md:block">
+                <div class="ml-10 flex items-baseline space-x-8">
+                    <a href="#home" class="text-accent hover:text-mystical-gold transition-colors">Início</a>
+                    <a href="#consultores" class="text-gray-300 hover:text-accent transition-colors">Consultores</a>
+                    <a href="#produtos" class="text-gray-300 hover:text-accent transition-colors">Produtos</a>
+                    <a href="#tarot-gratis" class="text-gray-300 hover:text-accent transition-colors">Tarot Grátis</a>
+                    <a href="#horoscopo" class="text-gray-300 hover:text-accent transition-colors">Horóscopo</a>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <button onclick="showLoginModal()" class="bg-secondary hover:bg-purple-600 text-white px-4 py-2 rounded-lg transition-colors">Entrar</button>
+                <button onclick="showRegisterModal()" class="bg-accent hover:bg-amber-600 text-dark-bg px-4 py-2 rounded-lg font-semibold transition-colors">Criar Conta</button>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero Section with Carousel -->
+<section id="home" class="relative h-[600px] overflow-hidden">
+    <!-- Mystical starry background with cosmic nebula effect -->
+    <div class="absolute inset-0 bg-mystical-gradient"></div>
+    <div class="absolute inset-0" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1920&h=1080'); background-size: cover; background-position: center;"></div>
+    <div class="absolute inset-0 bg-hero-overlay"></div>
+    
+    <!-- Carousel Container -->
+    <div class="relative h-full">
+        <!-- Slide 1 -->
+        <div class="carousel-slide active flex items-center justify-center h-full text-center px-4">
+            <div class="max-w-4xl mx-auto">
+                <h1 class="text-4xl md:text-6xl font-bold mb-6 text-white">
+                    Bem vindo ao nosso site
+                </h1>
+                <p class="text-xl md:text-2xl mb-4 text-gray-200">
+                    Profissionais comprometidos com você
+                </p>
+                <p class="text-lg mb-8 text-gray-300">
+                    com total sigilo e segurança
+                </p>
+                <div class="space-x-4">
+                    <button onclick="scrollToSection('consultores')" class="bg-accent hover:bg-amber-600 text-dark-bg px-8 py-3 rounded-lg font-semibold transition-colors">Saiba Mais</button>
+                    <button onclick="showRegisterModal()" class="bg-transparent border-2 border-accent text-accent hover:bg-accent hover:text-dark-bg px-8 py-3 rounded-lg transition-all">Criar Conta</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Slide 2 -->
+        <div class="carousel-slide flex items-center justify-center h-full text-center px-4">
+            <div class="max-w-4xl mx-auto">
+                <h1 class="text-4xl md:text-6xl font-bold mb-6 text-white">
+                    A tua vida está um pouco bagunçada?
+                </h1>
+                <p class="text-xl md:text-2xl mb-4 text-gray-200">
+                    Podemos te ajudar a encontrar o caminho
+                </p>
+                <p class="text-lg mb-8 text-gray-300">
+                    e desfrutar do equilibrio, da paz, o amor e a tranquilidade
+                </p>
+                <div class="space-x-4">
+                    <button onclick="scrollToSection('consultores')" class="bg-accent hover:bg-amber-600 text-dark-bg px-8 py-3 rounded-lg font-semibold transition-colors">Saiba Mais</button>
+                    <button onclick="showRegisterModal()" class="bg-transparent border-2 border-accent text-accent hover:bg-accent hover:text-dark-bg px-8 py-3 rounded-lg transition-all">Criar Conta</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Slide 3 -->
+        <div class="carousel-slide flex items-center justify-center h-full text-center px-4">
+            <div class="max-w-4xl mx-auto">
+                <h1 class="text-4xl md:text-6xl font-bold mb-6 text-white">
+                    Nossos especialistas trabalham com seriedade
+                </h1>
+                <p class="text-xl md:text-2xl mb-4 text-gray-200">
+                    Amoroso - Profissional - Financeiro e outros
+                </p>
+                <p class="text-lg mb-8 text-gray-300">
+                    apenas você precisa se permitir ser ajudada(o)
+                </p>
+                <div class="space-x-4">
+                    <button onclick="scrollToSection('consultores')" class="bg-accent hover:bg-amber-600 text-dark-bg px-8 py-3 rounded-lg font-semibold transition-colors">Saiba Mais</button>
+                    <button onclick="showRegisterModal()" class="bg-transparent border-2 border-accent text-accent hover:bg-accent hover:text-dark-bg px-8 py-3 rounded-lg transition-all">Criar Conta</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Slide 4 -->
+        <div class="carousel-slide flex items-center justify-center h-full text-center px-4">
+            <div class="max-w-4xl mx-auto">
+                <h1 class="text-4xl md:text-6xl font-bold mb-6 text-white">
+                    Se Você está Perdido(a) e não sabe qual caminho seguir
+                </h1>
+                <p class="text-xl md:text-2xl mb-4 text-gray-200">
+                    Os nossos profissionais estão esperando você
+                </p>
+                <p class="text-lg mb-8 text-gray-300">
+                    e ajudarão a encontrará a melhor saída para teu problema
+                </p>
+                <div class="space-x-4">
+                    <button onclick="scrollToSection('consultores')" class="bg-accent hover:bg-amber-600 text-dark-bg px-8 py-3 rounded-lg font-semibold transition-colors">Saiba Mais</button>
+                    <button onclick="showRegisterModal()" class="bg-transparent border-2 border-accent text-accent hover:bg-accent hover:text-dark-bg px-8 py-3 rounded-lg transition-all">Criar Conta</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Carousel Navigation -->
+    <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-3">
+        <button onclick="goToSlide(0)" class="carousel-dot w-3 h-3 rounded-full bg-accent"></button>
+        <button onclick="goToSlide(1)" class="carousel-dot w-3 h-3 rounded-full bg-gray-400"></button>
+        <button onclick="goToSlide(2)" class="carousel-dot w-3 h-3 rounded-full bg-gray-400"></button>
+        <button onclick="goToSlide(3)" class="carousel-dot w-3 h-3 rounded-full bg-gray-400"></button>
+    </div>
+</section>
+
+<!-- Services Section -->
+<section class="py-16 bg-dark-surface">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid md:grid-cols-3 gap-8">
+            <!-- Consultas Online -->
+            <div class="bg-card-gradient p-8 rounded-2xl border border-purple-700/30 text-center">
+                <div class="w-16 h-16 bg-accent rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-comments text-2xl text-dark-bg"></i>
+                </div>
+                <h3 class="text-2xl font-bold mb-4 text-accent">Consultas OnLine</h3>
+                <p class="text-gray-300 mb-6">Tarólogos, Videntes, Cartomantes, Terapeutas, Numerólogos e Outros. Faça suas previsões com um de nossos profissionais no sigilo!</p>
+                <button onclick="scrollToSection('consultores')" class="bg-secondary hover:bg-purple-600 text-white px-6 py-3 rounded-lg transition-colors">Saiba mais</button>
+            </div>
+            
+            <!-- Tarot Grátis -->
+            <div class="bg-card-gradient p-8 rounded-2xl border border-purple-700/30 text-center">
+                <div class="w-16 h-16 bg-accent rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-magic text-2xl text-dark-bg"></i>
+                </div>
+                <h3 class="text-2xl font-bold mb-4 text-accent">Tarot Grátis</h3>
+                <p class="text-gray-300 mb-6">Faça uma Consulta de Tarot Grátis e veja o que as cartas podem dizer para você. Se precisar de algo mais detalhado, chame nossos consultores!</p>
+                <button onclick="showTarotModal()" class="bg-secondary hover:bg-purple-600 text-white px-6 py-3 rounded-lg transition-colors">Saiba mais</button>
+            </div>
+            
+            <!-- Horóscopo Grátis -->
+            <div class="bg-card-gradient p-8 rounded-2xl border border-purple-700/30 text-center">
+                <div class="w-16 h-16 bg-accent rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-star text-2xl text-dark-bg"></i>
+                </div>
+                <h3 class="text-2xl font-bold mb-4 text-accent">Horoscopo Grátis</h3>
+                <p class="text-gray-300 mb-6">Consulte seu horóscopo gratuitamente e com segurança e receba respostas e conselhos agora mesmo...</p>
+                <button onclick="showHoroscopeModal()" class="bg-secondary hover:bg-purple-600 text-white px-6 py-3 rounded-lg transition-colors">Saiba mais</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Consultores Section -->
+<section id="consultores" class="py-16 bg-dark-bg">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-4xl font-bold text-center mb-12 text-accent">Nossos Tarólogos</h2>
+        
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Consultant Card 1 -->
+            <div class="bg-dark-surface border border-purple-700/30 rounded-xl p-6 text-center">
+                <!-- Professional tarot reader with cards spread -->
+                <img src="https://images.unsplash.com/photo-1551836022-8b2858c9c69b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=400" alt="Fabianna" class="w-24 h-24 rounded-full mx-auto mb-4 object-cover border-2 border-accent">
+                <h4 class="text-xl font-semibold mb-2 text-white">Fabianna</h4>
+                <span class="inline-block bg-red-500 text-white px-3 py-1 rounded-full text-sm mb-4">Em Atendimento</span>
+                <button onclick="showConsultationModal('Fabianna')" class="w-full bg-accent hover:bg-amber-600 text-dark-bg py-2 rounded-lg font-semibold transition-colors mb-2">Perfil Completo</button>
+                <p class="text-sm text-gray-400">Faça sua consulta e avalie este consultor! ☝☝☝</p>
+            </div>
+            
+            <!-- Consultant Card 2 -->
+            <div class="bg-dark-surface border border-purple-700/30 rounded-xl p-6 text-center">
+                <!-- Mystical consultant with crystal ball -->
+                <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=400" alt="AnnaFreya" class="w-24 h-24 rounded-full mx-auto mb-4 object-cover border-2 border-accent">
+                <h4 class="text-xl font-semibold mb-2 text-white">AnnaFreya</h4>
+                <span class="inline-block bg-green-500 text-white px-3 py-1 rounded-full text-sm mb-4">Disponível</span>
+                <button onclick="showConsultationModal('AnnaFreya')" class="w-full bg-secondary hover:bg-purple-600 text-white py-2 rounded-lg font-semibold transition-colors mb-2">Iniciar Consulta</button>
+                <p class="text-sm text-gray-400">Faça sua consulta e avalie este consultor! ☝☝☝</p>
+            </div>
+            
+            <!-- Consultant Card 3 -->
+            <div class="bg-dark-surface border border-purple-700/30 rounded-xl p-6 text-center">
+                <!-- Spiritual guide with meditation pose -->
+                <img src="https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=400" alt="Mistica" class="w-24 h-24 rounded-full mx-auto mb-4 object-cover border-2 border-accent">
+                <h4 class="text-xl font-semibold mb-2 text-white">Mística</h4>
+                <span class="inline-block bg-green-500 text-white px-3 py-1 rounded-full text-sm mb-4">Disponível</span>
+                <button onclick="showConsultationModal('Mistica')" class="w-full bg-secondary hover:bg-purple-600 text-white py-2 rounded-lg font-semibold transition-colors mb-2">Iniciar Consulta</button>
+                <p class="text-sm text-gray-400">Faça sua consulta e avalie este consultor! ☝☝☝</p>
+            </div>
+            
+            <!-- Consultant Card 4 -->
+            <div class="bg-dark-surface border border-purple-700/30 rounded-xl p-6 text-center">
+                <!-- Wise spiritual counselor with serene expression -->
+                <img src="https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=400" alt="Atena" class="w-24 h-24 rounded-full mx-auto mb-4 object-cover border-2 border-accent">
+                <h4 class="text-xl font-semibold mb-2 text-white">Atena</h4>
+                <span class="inline-block bg-green-500 text-white px-3 py-1 rounded-full text-sm mb-4">Disponível</span>
+                <button onclick="showConsultationModal('Atena')" class="w-full bg-secondary hover:bg-purple-600 text-white py-2 rounded-lg font-semibold transition-colors mb-2">Iniciar Consulta</button>
+                <p class="text-sm text-gray-400">Faça sua consulta e avalie este consultor! ☝☝☝</p>
+            </div>
+        </div>
+        
+        <div class="text-center mt-8">
+            <button onclick="showAllConsultants()" class="bg-accent hover:bg-amber-600 text-dark-bg px-8 py-3 rounded-lg font-semibold transition-colors">Ver Todos os Consultores</button>
+        </div>
+    </div>
+</section>
+
+<!-- Products Section -->
+<section id="produtos" class="py-16 bg-dark-surface">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-4xl font-bold text-center mb-12 text-accent">Nossos Produtos & Serviços</h2>
+        
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Product 1 -->
+            <div class="bg-dark-bg border border-purple-700/30 rounded-xl overflow-hidden">
+                <!-- Psychoanalysis therapy session imagery -->
+                <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=300" alt="Psicanálise" class="w-full h-48 object-cover">
+                <div class="p-6">
+                    <h3 class="text-xl font-semibold mb-2 text-white">Psicanálise</h3>
+                    <p class="text-gray-400 mb-4 text-sm">Uma abordagem para tratar os sintomas como: angustias, medos, fobias, e etc</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-2xl font-bold text-accent">R$ 150.00</span>
+                        <button class="bg-accent hover:bg-amber-600 text-dark-bg px-4 py-2 rounded-lg font-semibold transition-colors">EU QUERO</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Product 2 -->
+            <div class="bg-dark-bg border border-purple-700/30 rounded-xl overflow-hidden">
+                <!-- Nordic mystical symbols and runes -->
+                <img src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=300" alt="Sigilo Nórdico" class="w-full h-48 object-cover">
+                <div class="p-6">
+                    <h3 class="text-xl font-semibold mb-2 text-white">Sigilo Nórdico</h3>
+                    <p class="text-gray-400 mb-4 text-sm">O Sigilo Nórdico é um tratamento quântico, baseado na simbologia do alfabeto futhark</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-2xl font-bold text-accent">R$ 180.00</span>
+                        <button class="bg-accent hover:bg-amber-600 text-dark-bg px-4 py-2 rounded-lg font-semibold transition-colors">EU QUERO</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Product 3 -->
+            <div class="bg-dark-bg border border-purple-700/30 rounded-xl overflow-hidden">
+                <!-- Bach flower essence bottles and flowers -->
+                <img src="https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=300" alt="Floral de Bach" class="w-full h-48 object-cover">
+                <div class="p-6">
+                    <h3 class="text-xl font-semibold mb-2 text-white">Floral de Bach 1</h3>
+                    <p class="text-gray-400 mb-4 text-sm">Floral de Bach, para tratamento comportamental em vários âmbitos: fisicos e psicologicos</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-2xl font-bold text-accent">R$ 90.00</span>
+                        <button class="bg-accent hover:bg-amber-600 text-dark-bg px-4 py-2 rounded-lg font-semibold transition-colors">EU QUERO</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Product 4 -->
+            <div class="bg-dark-bg border border-purple-700/30 rounded-xl overflow-hidden">
+                <!-- Astrological chart and celestial symbols -->
+                <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=300" alt="Mapa Astral" class="w-full h-48 object-cover">
+                <div class="p-6">
+                    <h3 class="text-xl font-semibold mb-2 text-white">Mapa Astral</h3>
+                    <p class="text-gray-400 mb-4 text-sm">O mapa astral se faz necessário para compreender suas pontecias básicas como personalidade</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-2xl font-bold text-accent">R$ 90.00</span>
+                        <button class="bg-accent hover:bg-amber-600 text-dark-bg px-4 py-2 rounded-lg font-semibold transition-colors">EU QUERO</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-8">
+            <button onclick="showAllProducts()" class="bg-accent hover:bg-amber-600 text-dark-bg px-8 py-3 rounded-lg font-semibold transition-colors">MAIS PRODUTOS</button>
+        </div>
+    </div>
+</section>
+
+<!-- How it Works Section -->
+<section class="py-16 bg-dark-bg">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-4xl font-bold text-center mb-12 text-accent">COMO FUNCIONA</h2>
+        <p class="text-xl text-center mb-12 text-gray-300">Escolha o Profissional que deseja..Adquira créditos e utilize em minutos de atendimento por chat ou e-mail.</p>
+        
+        <div class="grid md:grid-cols-3 gap-8 text-center">
+            <div>
+                <div class="w-20 h-20 bg-accent rounded-full flex items-center justify-center mx-auto mb-6">
+                    <span class="text-3xl font-bold text-dark-bg">1</span>
+                </div>
+                <h3 class="text-xl font-semibold mb-4 text-white">Escolha o Consultor</h3>
+                <p class="text-gray-400">Navegue pelos perfis dos nossos consultores e escolha aquele que mais se adequa ao seu problema</p>
+            </div>
+            
+            <div>
+                <div class="w-20 h-20 bg-accent rounded-full flex items-center justify-center mx-auto mb-6">
+                    <span class="text-3xl font-bold text-dark-bg">2</span>
+                </div>
+                <h3 class="text-xl font-semibold mb-4 text-white">Adquira Créditos</h3>
+                <p class="text-gray-400">Compre créditos de forma segura para utilizar nos atendimentos por chat ou email</p>
+            </div>
+            
+            <div>
+                <div class="w-20 h-20 bg-accent rounded-full flex items-center justify-center mx-auto mb-6">
+                    <span class="text-3xl font-bold text-dark-bg">3</span>
+                </div>
+                <h3 class="text-xl font-semibold mb-4 text-white">Inicie sua Consulta</h3>
+                <p class="text-gray-400">Comece sua consulta espiritual com total sigilo e segurança em nossa plataforma</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="py-16 bg-dark-surface">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-4xl font-bold text-center mb-4 text-accent">O que as pessoas dizem</h2>
+        <h3 class="text-2xl text-center mb-12 text-white">Avaliações & Comentários</h3>
+        
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="bg-dark-bg border border-purple-700/30 rounded-xl p-6">
+                <p class="text-gray-300 mb-4">"Excelente ! Me ajudou muito e esclareceu minhas questões."</p>
+                <p class="text-accent font-semibold">Consultor(a): Palloma</p>
+            </div>
+            
+            <div class="bg-dark-bg border border-purple-700/30 rounded-xl p-6">
+                <p class="text-gray-300 mb-4">"Parabéns Walentina!Obrigada !"</p>
+                <p class="text-accent font-semibold">Consultor(a): Walentina</p>
+            </div>
+            
+            <div class="bg-dark-bg border border-purple-700/30 rounded-xl p-6">
+                <p class="text-gray-300 mb-4">"Sempre muito bom conversar com ela ,previsoes acertadissimas sempre"</p>
+                <p class="text-accent font-semibold">Consultor(a): Sarah</p>
+            </div>
+            
+            <div class="bg-dark-bg border border-purple-700/30 rounded-xl p-6">
+                <p class="text-gray-300 mb-4">"Muito competente, obrigado"</p>
+                <p class="text-accent font-semibold">Consultor(a): Sarah</p>
+            </div>
+            
+            <div class="bg-dark-bg border border-purple-700/30 rounded-xl p-6">
+                <p class="text-gray-300 mb-4">"Recomendo pois ele é maravilhoso. Obrigada!!"</p>
+                <p class="text-accent font-semibold">Consultor(a): Pai_Claudio</p>
+            </div>
+            
+            <div class="bg-dark-bg border border-purple-700/30 rounded-xl p-6">
+                <p class="text-gray-300 mb-4">"Sempre atencioso!!! Muito obrigado!!!"</p>
+                <p class="text-accent font-semibold">Consultor(a): Pai_Claudio</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="bg-dark-bg border-t border-purple-800/30 py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid md:grid-cols-4 gap-8">
+            <div>
+                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjUwIiB2aWV3Qm94PSIwIDAgMTUwIDUwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxNTAiIGhlaWdodD0iNTAiIGZpbGw9IiMyRDFCNjkiLz48dGV4dCB4PSI3NSIgeT0iMzIiIGZvbnQtZmFtaWx5PSJJbnRlciIgZm9udC13ZWlnaHQ9IjcwMCIgZm9udC1zaXplPSIxNCIgZmlsbD0iI0Y4RkFGQyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+Q09OU0VMSE9TIEVTT1TDiVJJQ09TPC90ZXh0Pjwvc3ZnPg==" alt="Conselhos Esotéricos" class="h-8 mb-4">
+                <p class="text-gray-400">Plataforma de consultas espirituais online com os melhores tarólogos e videntes do Brasil.</p>
+            </div>
+            
+            <div>
+                <h4 class="text-lg font-semibold mb-4 text-accent">Serviços</h4>
+                <ul class="space-y-2 text-gray-400">
+                    <li><a href="#" class="hover:text-accent transition-colors">Consultas Online</a></li>
+                    <li><a href="#" class="hover:text-accent transition-colors">Tarot Grátis</a></li>
+                    <li><a href="#" class="hover:text-accent transition-colors">Horóscopo</a></li>
+                    <li><a href="#" class="hover:text-accent transition-colors">Produtos Esotéricos</a></li>
+                </ul>
+            </div>
+            
+            <div>
+                <h4 class="text-lg font-semibold mb-4 text-accent">Suporte</h4>
+                <ul class="space-y-2 text-gray-400">
+                    <li><a href="#" class="hover:text-accent transition-colors">Central de Ajuda</a></li>
+                    <li><a href="#" class="hover:text-accent transition-colors">Como Funciona</a></li>
+                    <li><a href="#" class="hover:text-accent transition-colors">Política de Privacidade</a></li>
+                    <li><a href="#" class="hover:text-accent transition-colors">Termos de Uso</a></li>
+                </ul>
+            </div>
+            
+            <div>
+                <h4 class="text-lg font-semibold mb-4 text-accent">Contato</h4>
+                <ul class="space-y-2 text-gray-400">
+                    <li><i class="fas fa-envelope mr-2"></i>contato@conselhosesotericos.com.br</li>
+                    <li><i class="fas fa-phone mr-2"></i>(11) 99999-9999</li>
+                    <li><i class="fas fa-clock mr-2"></i>24 horas por dia</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="border-t border-purple-800/30 mt-8 pt-8 text-center">
+            <p class="text-gray-400">&copy; 2024 Conselhos Esotéricos. Todos os direitos reservados.</p>
+        </div>
+    </div>
+</footer>
+
+<!-- Modals -->
+
+<!-- Login Modal -->
+<div id="loginModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-dark-surface rounded-2xl p-8 w-full max-w-md border border-purple-700/30">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-white">Entrar</h2>
+            <button onclick="closeModal('loginModal')" class="text-gray-400 hover:text-white">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        
+        <form data-mock="true">
+            <div class="mb-4">
+                <label class="block text-gray-300 mb-2">Email</label>
+                <input type="email" class="w-full bg-dark-bg border border-purple-700/30 rounded-lg px-4 py-3 text-white focus:border-accent focus:outline-none" placeholder="seu@email.com">
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-gray-300 mb-2">Senha</label>
+                <input type="password" class="w-full bg-dark-bg border border-purple-700/30 rounded-lg px-4 py-3 text-white focus:border-accent focus:outline-none" placeholder="Sua senha">
+            </div>
+            
+            <button type="submit" class="w-full bg-accent hover:bg-amber-600 text-dark-bg py-3 rounded-lg font-semibold transition-colors mb-4">Entrar</button>
+            
+            <div class="text-center space-y-2">
+                <a href="#" class="text-accent hover:text-amber-600 text-sm">Esqueci minha senha</a>
+                <p class="text-gray-400 text-sm">Não tem conta? <button onclick="switchToRegister()" class="text-accent hover:text-amber-600">Cadastre-se</button></p>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Register Modal -->
+<div id="registerModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-dark-surface rounded-2xl p-8 w-full max-w-md border border-purple-700/30">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-white">Criar Conta</h2>
+            <button onclick="closeModal('registerModal')" class="text-gray-400 hover:text-white">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        
+        <form data-mock="true">
+            <div class="mb-4">
+                <label class="block text-gray-300 mb-2">Nome Completo</label>
+                <input type="text" class="w-full bg-dark-bg border border-purple-700/30 rounded-lg px-4 py-3 text-white focus:border-accent focus:outline-none" placeholder="Seu nome completo">
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-gray-300 mb-2">Email</label>
+                <input type="email" class="w-full bg-dark-bg border border-purple-700/30 rounded-lg px-4 py-3 text-white focus:border-accent focus:outline-none" placeholder="seu@email.com">
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-gray-300 mb-2">Telefone</label>
+                <input type="tel" class="w-full bg-dark-bg border border-purple-700/30 rounded-lg px-4 py-3 text-white focus:border-accent focus:outline-none" placeholder="(11) 99999-9999">
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-gray-300 mb-2">Senha</label>
+                <input type="password" class="w-full bg-dark-bg border border-purple-700/30 rounded-lg px-4 py-3 text-white focus:border-accent focus:outline-none" placeholder="Sua senha">
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-gray-300 mb-2">Tipo de Conta</label>
+                <select class="w-full bg-dark-bg border border-purple-700/30 rounded-lg px-4 py-3 text-white focus:border-accent focus:outline-none">
+                    <option value="cliente">Cliente</option>
+                    <option value="consultor">Consultor/Tarólogo</option>
+                </select>
+            </div>
+            
+            <button type="submit" class="w-full bg-accent hover:bg-amber-600 text-dark-bg py-3 rounded-lg font-semibold transition-colors mb-4">Criar Conta</button>
+            
+            <p class="text-gray-400 text-sm text-center">Já tem conta? <button onclick="switchToLogin()" class="text-accent hover:text-amber-600">Faça login</button></p>
+        </form>
+    </div>
+</div>
+
+<!-- Admin Panel Modal (Mock) -->
+<div id="adminPanel" class="fixed inset-0 bg-dark-bg z-50 hidden">
+    <div class="h-full flex">
+        <!-- Sidebar -->
+        <div class="w-64 bg-dark-surface border-r border-purple-700/30 p-6">
+            <div class="flex items-center mb-8">
+                <i class="fas fa-cog text-accent text-2xl mr-3"></i>
+                <h2 class="text-xl font-bold text-white">Admin Panel</h2>
+            </div>
+            
+            <nav class="space-y-2">
+                <a href="#" class="block px-4 py-2 text-gray-300 hover:bg-primary hover:text-white rounded-lg transition-colors">Dashboard</a>
+                <a href="#" class="block px-4 py-2 text-gray-300 hover:bg-primary hover:text-white rounded-lg transition-colors">Usuários</a>
+                <a href="#" class="block px-4 py-2 text-gray-300 hover:bg-primary hover:text-white rounded-lg transition-colors">Consultores</a>
+                <a href="#" class="block px-4 py-2 text-gray-300 hover:bg-primary hover:text-white rounded-lg transition-colors">Produtos</a>
+                <a href="#" class="block px-4 py-2 text-gray-300 hover:bg-primary hover:text-white rounded-lg transition-colors">Financeiro</a>
+                <a href="#" class="block px-4 py-2 text-gray-300 hover:bg-primary hover:text-white rounded-lg transition-colors">Relatórios</a>
+                <button onclick="closeAdminPanel()" class="block w-full text-left px-4 py-2 text-gray-300 hover:bg-red-600 hover:text-white rounded-lg transition-colors">Sair</button>
+            </nav>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="flex-1 p-8 overflow-y-auto">
+            <h1 class="text-3xl font-bold text-white mb-8">Dashboard Administrativo</h1>
+            
+            <!-- Stats Cards -->
+            <div class="grid md:grid-cols-4 gap-6 mb-8">
+                <div class="bg-dark-surface border border-purple-700/30 rounded-xl p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-400">Total de Usuários</p>
+                            <p class="text-2xl font-bold text-white" data-mock="true">1,234</p>
+                        </div>
+                        <i class="fas fa-users text-accent text-3xl"></i>
+                    </div>
+                </div>
+                
+                <div class="bg-dark-surface border border-purple-700/30 rounded-xl p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-400">Consultores Ativos</p>
+                            <p class="text-2xl font-bold text-white" data-mock="true">45</p>
+                        </div>
+                        <i class="fas fa-star text-accent text-3xl"></i>
+                    </div>
+                </div>
+                
+                <div class="bg-dark-surface border border-purple-700/30 rounded-xl p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-400">Consultas Hoje</p>
+                            <p class="text-2xl font-bold text-white" data-mock="true">87</p>
+                        </div>
+                        <i class="fas fa-comments text-accent text-3xl"></i>
+                    </div>
+                </div>
+                
+                <div class="bg-dark-surface border border-purple-700/30 rounded-xl p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-400">Receita Mensal</p>
+                            <p class="text-2xl font-bold text-white" data-mock="true">R$ 12.450</p>
+                        </div>
+                        <i class="fas fa-chart-line text-accent text-3xl"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Activity -->
+            <div class="bg-dark-surface border border-purple-700/30 rounded-xl p-6">
+                <h3 class="text-xl font-bold text-white mb-4">Atividade Recente</h3>
+                <div class="space-y-4" data-mock="true">
+                    <div class="flex items-center justify-between py-3 border-b border-purple-700/30">
+                        <div>
+                            <p class="text-white">Nova consulta iniciada</p>
+                            <p class="text-gray-400 text-sm">Cliente: Maria Silva - Consultor: Fabianna</p>
+                        </div>
+                        <span class="text-gray-400 text-sm">há 2 min</span>
+                    </div>
+                    <div class="flex items-center justify-between py-3 border-b border-purple-700/30">
+                        <div>
+                            <p class="text-white">Novo cadastro de consultor</p>
+                            <p class="text-gray-400 text-sm">Consultor: Paulo Mendes aguarda aprovação</p>
+                        </div>
+                        <span class="text-gray-400 text-sm">há 15 min</span>
+                    </div>
+                    <div class="flex items-center justify-between py-3">
+                        <div>
+                            <p class="text-white">Pagamento processado</p>
+                            <p class="text-gray-400 text-sm">R$ 150,00 - Compra de créditos</p>
+                        </div>
+                        <span class="text-gray-400 text-sm">há 1 hora</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    // Carousel functionality
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.carousel-slide');
+    const dots = document.querySelectorAll('.carousel-dot');
+    
+    function showSlide(index) {
+        slides.forEach((slide, i) => {
+            slide.classList.toggle('active', i === index);
+            slide.style.display = i === index ? 'flex' : 'none';
+        });
+        
+        dots.forEach((dot, i) => {
+            dot.classList.toggle('bg-accent', i === index);
+            dot.classList.toggle('bg-gray-400', i !== index);
+        });
+    }
+    
+    window.goToSlide = function(index) {
+        currentSlide = index;
+        showSlide(currentSlide);
+    };
+    
+    // Auto-advance carousel
+    setInterval(() => {
+        currentSlide = (currentSlide + 1) % slides.length;
+        showSlide(currentSlide);
+    }, 5000);
+    
+    // Initialize carousel
+    showSlide(0);
+    
+    // Modal functions
+    window.showLoginModal = function() {
+        document.getElementById('loginModal').classList.remove('hidden');
+    };
+    
+    window.showRegisterModal = function() {
+        document.getElementById('registerModal').classList.remove('hidden');
+    };
+    
+    window.closeModal = function(modalId) {
+        document.getElementById(modalId).classList.add('hidden');
+    };
+    
+    window.switchToLogin = function() {
+        closeModal('registerModal');
+        showLoginModal();
+    };
+    
+    window.switchToRegister = function() {
+        closeModal('loginModal');
+        showRegisterModal();
+    };
+    
+    window.showAdminPanel = function() {
+        document.getElementById('adminPanel').classList.remove('hidden');
+    };
+    
+    window.closeAdminPanel = function() {
+        document.getElementById('adminPanel').classList.add('hidden');
+    };
+    
+    // Scroll to section
+    window.scrollToSection = function(sectionId) {
+        document.getElementById(sectionId).scrollIntoView({ behavior: 'smooth' });
+    };
+    
+    // Mock functions for demonstration
+    window.showConsultationModal = function(consultorName) {
+        alert(`Mock: Abrir perfil de ${consultorName} - Em uma implementação real, isso abriria um modal detalhado do consultor com opções de iniciar consulta.`);
+    };
+    
+    window.showTarotModal = function() {
+        alert('Mock: Abrir jogo de Tarot gratuito - Em uma implementação real, isso abriria uma interface interativa de cartas de tarot.');
+    };
+    
+    window.showHoroscopeModal = function() {
+        alert('Mock: Abrir horóscopo do dia - Em uma implementação real, isso abriria uma seção com signos e previsões astrológicas.');
+    };
+    
+    window.showAllConsultants = function() {
+        alert('Mock: Mostrar página completa de consultores - Em uma implementação real, isso levaria para uma página com filtros e busca avançada.');
+    };
+    
+    window.showAllProducts = function() {
+        alert('Mock: Mostrar loja completa - Em uma implementação real, isso levaria para o catálogo completo de produtos e serviços.');
+    };
+    
+    // Close modals when clicking outside
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('fixed') && e.target.classList.contains('inset-0')) {
+            const modals = ['loginModal', 'registerModal'];
+            modals.forEach(modal => {
+                if (!document.getElementById(modal).classList.contains('hidden')) {
+                    closeModal(modal);
+                }
+            });
+        }
+    });
+    
+    // Form submissions (mock)
+    document.addEventListener('submit', function(e) {
+        const form = e.target;
+        if (form.hasAttribute('data-mock')) {
+            e.preventDefault();
+            alert('Mock: Formulário enviado - Em uma implementação real, isso processaria o cadastro/login com validação backend.');
+        }
+    });
+    
+    // TODO: Implement real authentication system
+    // TODO: Implement real consultation booking system  
+    // TODO: Implement payment processing
+    // TODO: Implement real-time chat functionality
+    // TODO: Implement admin dashboard with real data
+    // TODO: Implement consultant availability management
+    // TODO: Implement tarot card reading interface
+    // TODO: Implement horoscope generation
+    // TODO: Implement product purchase system
+})();
+</script>
+
+</body>
+</html>

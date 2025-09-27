@@ -9,7 +9,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Eye, EyeOff, User, Crown, CheckCircle2 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import logoImage from "@assets/CONSELHOS_20250521_110746_0000_1753966138984.png";
+import logoImage from "@assets/CONSELHOS_20250521_110746_0000_1754078656294.png";
 
 const Cadastro = () => {
   const [, setLocation] = useLocation();
