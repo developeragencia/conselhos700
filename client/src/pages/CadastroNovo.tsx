@@ -31,261 +31,258 @@ export default function CadastroNovo() {
     specialties: [] as string[],
     description: '',
     hourlyRate: ''
-  });
 
-  const formatCPF = (value: string) => {
-    const numbers = value.replace(/\D/g, '');
-    return numbers.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
-  };
+  import React, { useState } from 'react';
+  import { Button } from '@/components/ui/button';
+  import { Input } from '@/components/ui/input';
+  import { Label } from '@/components/ui/label';
+  import { Alert, AlertDescription } from '@/components/ui/alert';
+  import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+  import { Badge } from '@/components/ui/badge';
+  import { User, Crown, Check, ArrowRight, Search } from 'lucide-react';
+  import { Link } from 'wouter';
 
-  const searchCPF = async () => {
-    if (cpf.replace(/\D/g, '').length !== 11) {
-      setError('CPF deve ter 11 dígitos');
-      return;
-    }
+  export default function CadastroNovo() {
+    const [step, setStep] = useState(1);
+    const [accountType, setAccountType] = useState<'cliente' | 'consultor'>('cliente');
+    const [cpf, setCpf] = useState('');
+    const [cpfValid, setCpfValid] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+    const [formData, setFormData] = useState({
+      name: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      phone: '',
+      specialties: [] as string[],
+      description: '',
+      hourlyRate: ''
+    });
 
-    setLoading(true);
-    setError('');
+    const formatCPF = (value: string) => {
+      const numbers = value.replace(/\D/g, '');
+      return numbers.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+    };
 
-    try {
-      console.log('🔍 Buscando dados do CPF:', cpf);
-      const response = await fetch('/.netlify/functions/cpf-consulta', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cpf: cpf })
-      });
-
-      const data = await response.json();
-      if (response.ok && !data.error) {
-        setUserData({
-          cpf: cpf,
-          status: data.status || 'Regular'
+    const validateCPF = async () => {
+      setLoading(true);
+      setError('');
+      setCpfValid(false);
+      try {
+        const response = await fetch('/.netlify/functions/cpf-consulta', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ cpf })
         });
-        setError('');
-      } else {
-        setUserData(null);
-        if (data.error === 'CPF inválido.') {
-          setError('CPF inválido.');
+        const data = await response.json();
+        if (response.ok && !data.error) {
+          setCpfValid(true);
+          setError('');
         } else {
-          setError('CPF não encontrado ou inválido');
+          setCpfValid(false);
+          setError(data.error || 'CPF inválido ou não encontrado');
         }
+      } catch (err) {
+        setCpfValid(false);
+        setError('Erro ao consultar CPF. Tente novamente.');
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.error('Erro na consulta:', err);
-      setError('Erro ao consultar dados. Tente novamente.');
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
 
-  const handleSubmit = async () => {
-    if (formData.password !== formData.confirmPassword) {
-      setError('Senhas não coincidem');
-      return;
-    }
-
-    if (!formData.email || !formData.password || !formData.phone) {
-      setError('Preencha todos os campos obrigatórios');
-      return;
-    }
-
-    setLoading(true);
-    setError('');
-
-    try {
-      const registerData = {
-        name: formData.name || userData?.nome || 'Nome não encontrado',
-        email: formData.email,
-        password: formData.password,
-        role: accountType,
-        cpf: cpf,
-        phone: formData.phone,
-        ...(accountType === 'consultor' && {
-          specialties: formData.specialties,
-          description: formData.description,
-          hourlyRate: parseFloat(formData.hourlyRate) || 0
-        })
-      };
-
-      console.log('🚀 CADASTRO ENVIANDO PARA:', '/.netlify/functions/register-zod');
-      const response = await fetch('/.netlify/functions/register-zod', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(registerData)
-      });
-
-      const result = await response.json();
-
-      if (response.ok && result.success) {
-        setStep(4);
-      } else {
-        throw new Error(result.error || result.message || 'Erro no cadastro');
+    const handleNextStep = () => {
+      if (step === 2 && !cpfValid) {
+        setError('Valide o CPF antes de prosseguir.');
+        return;
       }
-    } catch (err: any) {
-      console.error('Erro no cadastro:', err);
-      setError(err.message || 'Erro ao finalizar cadastro');
-    } finally {
-      setLoading(false);
-    }
-  };
+      setError('');
+      setStep(step + 1);
+    };
 
-  const renderStep1 = () => (
-    <Card className="w-full max-w-2xl mx-auto">
-      <CardHeader className="text-center">
-        <CardTitle className="text-2xl font-bold text-purple-800 dark:text-purple-300">
-          Escolha o Tipo de Conta
-        </CardTitle>
-        <CardDescription>
-          Selecione como você deseja usar nossa plataforma
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div
-            className={`border-2 rounded-lg p-6 cursor-pointer transition-all hover:shadow-lg ${
-              accountType === 'cliente'
-                ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20'
-                : 'border-gray-200 dark:border-gray-700 hover:border-orange-300'
-            }`}
-            onClick={() => setAccountType('cliente')}
-          >
-            <div className="text-center space-y-4">
-              <div className="mx-auto w-16 h-16 bg-orange-500 rounded-full flex items-center justify-center">
-                <User className="w-8 h-8 text-white" />
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold text-orange-600 dark:text-orange-400">Cliente</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-                  Acesso a consultas e serviços esotéricos
-                </p>
-              </div>
-              <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-green-500" />
-                  <span>Consultas por chat e vídeo</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-green-500" />
-                  <span>Créditos de bônus</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-green-500" />
-                  <span>Histórico de consultas</span>
+    const handleSubmit = async () => {
+      if (formData.password !== formData.confirmPassword) {
+        setError('Senhas não coincidem');
+        return;
+      }
+      if (!formData.name || !formData.email || !formData.password || !formData.phone) {
+        setError('Preencha todos os campos obrigatórios');
+        return;
+      }
+      setLoading(true);
+      setError('');
+      try {
+        const registerData = {
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+          role: accountType,
+          cpf: cpf,
+          phone: formData.phone,
+          ...(accountType === 'consultor' && {
+            specialties: formData.specialties,
+            description: formData.description,
+            hourlyRate: parseFloat(formData.hourlyRate) || 0
+          })
+        };
+        const response = await fetch('/.netlify/functions/register-zod', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(registerData)
+        });
+        const result = await response.json();
+        if (response.ok && result.success) {
+          setStep(4);
+        } else {
+          throw new Error(result.error || result.message || 'Erro no cadastro');
+        }
+      } catch (err: any) {
+        setError(err.message || 'Erro ao finalizar cadastro');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-100 via-white to-orange-100 py-8 px-4 flex items-center justify-center">
+        <div className="w-full max-w-3xl mx-auto">
+          <div className="rounded-3xl shadow-2xl border-0 backdrop-blur-lg bg-white/80 p-8">
+            <div className="text-center mb-8">
+              <Link href="/">
+                <img src="/logo.png" alt="Conselhos Esotéricos" className="h-20 mx-auto mb-4" />
+              </Link>
+              <h1 className="text-4xl font-extrabold text-purple-800 mb-2">Criar Nova Conta</h1>
+              <div className="flex justify-center mt-6">
+                <div className="flex items-center space-x-4">
+                  {[1, 2, 3, 4].map((stepNum) => (
+                    <div key={stepNum} className="flex items-center">
+                      <div className={`w-9 h-9 rounded-full flex items-center justify-center text-base font-bold ${stepNum <= step ? 'bg-purple-600 text-white shadow-md' : 'bg-gray-200 text-gray-600'}`}>{stepNum < step ? <Check className="w-5 h-5" /> : stepNum}</div>
+                      {stepNum < 4 && (<div className={`w-14 h-1 mx-2 ${stepNum < step ? 'bg-purple-600' : 'bg-gray-200'}`} />)}
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
-          </div>
-
-          <div
-            className={`border-2 rounded-lg p-6 cursor-pointer transition-all hover:shadow-lg ${
-              accountType === 'consultor'
-                ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20'
-                : 'border-gray-200 dark:border-gray-700 hover:border-purple-300'
-            }`}
-            onClick={() => setAccountType('consultor')}
-          >
-            <div className="text-center space-y-4">
-              <div className="mx-auto w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center">
-                <Crown className="w-8 h-8 text-white" />
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold text-purple-600 dark:text-purple-400">Consultor</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-                  Ofereça seus serviços esotéricos na plataforma
-                </p>
-              </div>
-              <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-green-500" />
-                  <span>Perfil profissional</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-green-500" />
-                  <span>Defina seus horários</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-green-500" />
-                  <span>Receba pagamentos</span>
-                </div>
-              </div>
+            <div className="py-2">
+              {step === 1 && (
+                <Card className="w-full max-w-2xl mx-auto">
+                  <CardHeader className="text-center">
+                    <CardTitle className="text-2xl font-bold text-purple-800">Escolha o Tipo de Conta</CardTitle>
+                    <CardDescription>Selecione como você deseja usar nossa plataforma</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className={`border-2 rounded-lg p-6 cursor-pointer transition-all hover:shadow-lg ${accountType === 'cliente' ? 'border-orange-500 bg-orange-50' : 'border-gray-200 hover:border-orange-300'}`} onClick={() => setAccountType('cliente')}>
+                        <div className="text-center space-y-4">
+                          <div className="mx-auto w-16 h-16 bg-orange-500 rounded-full flex items-center justify-center"><User className="w-8 h-8 text-white" /></div>
+                          <h3 className="text-xl font-semibold text-orange-600">Cliente</h3>
+                          <p className="text-sm text-gray-600 mt-2">Acesso a consultas e serviços esotéricos</p>
+                        </div>
+                      </div>
+                      <div className={`border-2 rounded-lg p-6 cursor-pointer transition-all hover:shadow-lg ${accountType === 'consultor' ? 'border-purple-500 bg-purple-50' : 'border-gray-200 hover:border-purple-300'}`} onClick={() => setAccountType('consultor')}>
+                        <div className="text-center space-y-4">
+                          <div className="mx-auto w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center"><Crown className="w-8 h-8 text-white" /></div>
+                          <h3 className="text-xl font-semibold text-purple-600">Consultor</h3>
+                          <p className="text-sm text-gray-600 mt-2">Ofereça seus serviços esotéricos na plataforma</p>
+                        </div>
+                      </div>
+                    </div>
+                    <Button onClick={handleNextStep} className="w-full bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600" size="lg">Continuar<ArrowRight className="w-4 h-4 ml-2" /></Button>
+                  </CardContent>
+                </Card>
+              )}
+              {step === 2 && (
+                <Card className="w-full max-w-md mx-auto">
+                  <CardHeader className="text-center">
+                    <CardTitle className="text-2xl font-bold text-purple-800">Consulta CPF</CardTitle>
+                    <CardDescription>Digite seu CPF para validar e liberar cadastro</CardDescription>
+                    <Badge variant="outline" className="mx-auto">{accountType === 'cliente' ? 'Cliente' : 'Consultor'}</Badge>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="cpf">CPF</Label>
+                      <Input id="cpf" type="text" placeholder="000.000.000-00" value={cpf} onChange={e => setCpf(formatCPF(e.target.value))} maxLength={14} className="text-center text-lg" />
+                    </div>
+                    {cpfValid && <Alert variant="success"><AlertDescription>CPF validado com sucesso!</AlertDescription></Alert>}
+                    {error && <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}
+                    <Button onClick={validateCPF} disabled={loading || cpf.replace(/\D/g, '').length !== 11} className="w-full bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600" size="lg">{loading ? (<><Search className="w-4 h-4 mr-2 animate-spin" />Validando...</>) : (<><Search className="w-4 h-4 mr-2" />Validar CPF</>)}</Button>
+                    <div className="text-center"><Button variant="ghost" onClick={() => setStep(1)}>Voltar</Button></div>
+                    {cpfValid && <Button onClick={handleNextStep} className="w-full mt-4 bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600">Prosseguir</Button>}
+                  </CardContent>
+                </Card>
+              )}
+              {step === 3 && (
+                <Card className="w-full max-w-2xl mx-auto">
+                  <CardHeader className="text-center">
+                    <CardTitle className="text-2xl font-bold text-purple-800">Finalizar Cadastro</CardTitle>
+                    <CardDescription>Complete seus dados para finalizar</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <Alert><Check className="w-4 h-4" /><AlertDescription><strong>CPF validado:</strong> {cpf}</AlertDescription></Alert>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="name">Nome Completo *</Label>
+                        <Input id="name" type="text" value={formData.name} onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))} placeholder="Digite seu nome completo" required />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="email">Email *</Label>
+                        <Input id="email" type="email" value={formData.email} onChange={e => setFormData(prev => ({ ...prev, email: e.target.value }))} placeholder="seu@email.com" required />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="phone">Telefone *</Label>
+                        <Input id="phone" type="tel" value={formData.phone} onChange={e => setFormData(prev => ({ ...prev, phone: e.target.value }))} placeholder="(11) 99999-9999" required />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="password">Senha *</Label>
+                        <Input id="password" type="password" value={formData.password} onChange={e => setFormData(prev => ({ ...prev, password: e.target.value }))} placeholder="Mínimo 6 caracteres" required />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="confirmPassword">Confirmar Senha *</Label>
+                        <Input id="confirmPassword" type="password" value={formData.confirmPassword} onChange={e => setFormData(prev => ({ ...prev, confirmPassword: e.target.value }))} placeholder="Repita a senha" required />
+                      </div>
+                    </div>
+                    {accountType === 'consultor' && (
+                      <div className="space-y-4 border-t pt-6">
+                        <h3 className="text-lg font-semibold text-purple-700">Dados Profissionais</h3>
+                        <div className="space-y-2">
+                          <Label htmlFor="description">Descrição Profissional</Label>
+                          <textarea id="description" className="w-full p-3 border border-gray-300 rounded-md bg-white" rows={3} value={formData.description} onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))} placeholder="Descreva sua experiência e especialidades..." />
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="hourlyRate">Valor por Hora (R$)</Label>
+                            <Input id="hourlyRate" type="number" min="0" step="0.01" value={formData.hourlyRate} onChange={e => setFormData(prev => ({ ...prev, hourlyRate: e.target.value }))} placeholder="50.00" />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    {error && (<Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>)}
+                    <div className="flex gap-4">
+                      <Button variant="outline" onClick={() => setStep(2)} className="flex-1">Voltar</Button>
+                      <Button onClick={handleSubmit} disabled={loading} className="flex-1 bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600">{loading ? 'Cadastrando...' : 'Finalizar Cadastro'}</Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+              {step === 4 && (
+                <Card className="w-full max-w-md mx-auto">
+                  <CardContent className="pt-6 text-center space-y-6">
+                    <div className="mx-auto w-16 h-16 bg-green-500 rounded-full flex items-center justify-center"><Check className="w-8 h-8 text-white" /></div>
+                    <h2 className="text-2xl font-bold text-green-600">Cadastro Realizado!</h2>
+                    <p className="text-gray-600 mt-2">Sua conta foi criada com sucesso</p>
+                    <Link href="/login"><Button className="w-full bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600">Fazer Login</Button></Link>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+            <div className="text-center mt-8">
+              <p className="text-gray-600 text-lg">Já tem uma conta? <Link href="/login" className="text-purple-600 font-bold hover:underline">Fazer Login</Link></p>
             </div>
           </div>
         </div>
-
-        <Button 
-          onClick={() => setStep(2)} 
-          className="w-full bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600"
-          size="lg"
-        >
-          Continuar
-          <ArrowRight className="w-4 h-4 ml-2" />
-        </Button>
-      </CardContent>
-    </Card>
-  );
-
-  const renderStep2 = () => (
-    <Card className="w-full max-w-md mx-auto">
-      <CardHeader className="text-center">
-        <CardTitle className="text-2xl font-bold text-purple-800 dark:text-purple-300">
-          Consulta CPF
-        </CardTitle>
-        <CardDescription>
-          Digite seu CPF para buscar seus dados automaticamente
-        </CardDescription>
-        <Badge variant="outline" className="mx-auto">
-          {accountType === 'cliente' ? 'Cliente' : 'Consultor'}
-        </Badge>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="space-y-2">
-          <Label htmlFor="cpf">CPF</Label>
-          <Input
-            id="cpf"
-            type="text"
-            placeholder="000.000.000-00"
-            value={cpf}
-            onChange={(e) => setCpf(formatCPF(e.target.value))}
-            maxLength={14}
-            className="text-center text-lg"
-          />
-        </div>
-
-        {error && (
-          <Alert variant="destructive">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-
-        <Button 
-          onClick={async () => {
-            await searchCPF();
-            // Aguarda atualização do estado antes de avançar
-            setTimeout(() => {
-              if (userData && !error) {
-                setStep(3);
-              }
-            }, 100);
-          }} 
-          disabled={loading || cpf.replace(/\D/g, '').length !== 11}
-          className="w-full bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600"
-          size="lg"
-        >
-          {loading ? (
-            <>
-              <Search className="w-4 h-4 mr-2 animate-spin" />
-              Consultando...
-            </>
-          ) : (
-            <>
-              <Search className="w-4 h-4 mr-2" />
-              Buscar Dados
-            </>
-          )}
-        </Button>
-
-        <div className="text-center">
-          <Button variant="ghost" onClick={() => setStep(1)}>
+      </div>
+    );
+  }
             Voltar
           </Button>
         </div>

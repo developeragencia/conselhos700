@@ -22,23 +22,7 @@ const Login = () => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
-
-
-    import React, { useState } from 'react';
-    import { useLocation } from 'wouter';
-    import { Button } from '@/components/ui/button';
-    import { Input } from '@/components/ui/input';
-    import { Label } from '@/components/ui/label';
-    import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-    import { Alert, AlertDescription } from '@/components/ui/alert';
-    import { Eye, EyeOff, User, Crown } from 'lucide-react';
-    import logoImage from "@assets/CONSELHOS_20250521_110746_0000_1753966138984.png";
-
-    const Login = () => {
-      const [, setLocation] = useLocation();
-      const [role, setRole] = useState<'cliente' | 'consultor'>('cliente');
-      const [email, setEmail] = useState('');
-      const [password, setPassword] = useState('');
+    // ...existing code...
       const [showPassword, setShowPassword] = useState(false);
       const [isLoading, setIsLoading] = useState(false);
       const [error, setError] = useState('');
