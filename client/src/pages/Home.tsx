@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { ConsultantCard } from "@/components/ConsultantCard";
 import { ServiceCard } from "@/components/ServiceCard";
 import { PromotionCard } from "@/components/PromotionCard";
-import { HeroBanner } from "@/components/HeroBanner";
+import { BasicBanner } from "@/components/BasicBanner";
 import NovosServicos from "@/components/NovosServicos";
 
 const Home = () => {
@@ -16,7 +16,7 @@ const Home = () => {
   return (
     <main className="flex flex-col min-h-screen">
       {/* 1 - Introdução - Banner Rotativo */}
-      <HeroBanner />
+      <BasicBanner />
 
       {/* 2 - Nossos Especialistas - PRIMEIRA SEÇÃO APÓS O BANNER */}
       <section className="py-20 bg-gradient-to-b from-purple-50 via-white to-blue-50 relative overflow-hidden">
