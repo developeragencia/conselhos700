@@ -2,46 +2,67 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'wouter';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-const bannerSlides = [
+const defaultBanners = [
   {
-    id: 1,
+    id: '1',
     title: "Conecte-se com o Espiritual",
     subtitle: "Portal de Consultas Místicas",
     description: "Orientação espiritual autêntica com nossos consultores especializados",
-    imageUrl: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1920&h=480&fit=crop",
-    buttonText: "Encontrar Consultor",
-    buttonLink: "/consultores"
+    image_url: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1920&h=480&fit=crop",
+    button_text: "Encontrar Consultor",
+    button_link: "/consultores"
   },
   {
-    id: 2,
+    id: '2',
     title: "Tarot Grátis Disponível",
     subtitle: "Leitura Online Imediata",
     description: "Descubra insights sobre seu futuro com nossa ferramenta de Tarot gratuita",
-    imageUrl: "https://images.unsplash.com/photo-1541963463532-d68292c34d19?w=1920&h=480&fit=crop",
-    buttonText: "Jogar Tarot",
-    buttonLink: "/tarot-gratis"
+    image_url: "https://images.unsplash.com/photo-1541963463532-d68292c34d19?w=1920&h=480&fit=crop",
+    button_text: "Jogar Tarot",
+    button_link: "/tarot-gratis"
   },
   {
-    id: 3,
+    id: '3',
     title: "Especialistas Certificados",
     subtitle: "Qualidade Garantida",
     description: "Consultores experientes prontos para guiar você em sua jornada espiritual",
-    imageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1920&h=480&fit=crop",
-    buttonText: "Ver Consultores",
-    buttonLink: "/consultores"
+    image_url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1920&h=480&fit=crop",
+    button_text: "Ver Consultores",
+    button_link: "/consultores"
   }
 ];
 
 export function BasicBanner() {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [bannerSlides, setBannerSlides] = useState(defaultBanners);
   const timestamp = Date.now(); // Force cache break
+
+  useEffect(() => {
+    // Buscar banners do banco de dados
+    const loadBanners = async () => {
+      try {
+        const res = await fetch('/api/banners');
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.length > 0) {
+            setBannerSlides(data);
+          }
+        }
+      } catch (error) {
+        console.error('Erro ao carregar banners:', error);
+        // Em caso de erro, continua com os banners padrão
+      }
+    };
+
+    loadBanners();
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % bannerSlides.length);
     }, 4000);
     return () => clearInterval(timer);
-  }, []);
+  }, [bannerSlides.length]);
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % bannerSlides.length);
@@ -57,7 +78,7 @@ export function BasicBanner() {
     <section className="relative h-[480px] overflow-hidden bg-gradient-to-r from-purple-900 to-blue-900" data-timestamp={timestamp}>
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-all duration-700 ease-in-out"
-        style={{ backgroundImage: `url(${currentBanner.imageUrl})` }}
+        style={{ backgroundImage: `url(${currentBanner.image_url})` }}
       />
       <div className="absolute inset-0 bg-black/50" />
       
@@ -76,9 +97,9 @@ export function BasicBanner() {
           </p>
           
           <div className="flex justify-center">
-            <Link href={currentBanner.buttonLink}>
+            <Link href={currentBanner.button_link}>
               <button className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-full text-base transition-all duration-300 hover:scale-105 shadow-lg">
-                {currentBanner.buttonText}
+                {currentBanner.button_text}
               </button>
             </Link>
           </div>
