@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
 import { 
   Shield, 
   Users, 
@@ -36,7 +38,8 @@ import {
   Phone,
   Mail,
   Globe,
-  Activity
+  Activity,
+  Image as ImageIcon
 } from "lucide-react";
 
 export default function AdminDashboard() {
@@ -151,10 +154,11 @@ export default function AdminDashboard() {
 
         {/* Tabs Principais */}
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="overview">Visão Geral</TabsTrigger>
             <TabsTrigger value="users">Usuários</TabsTrigger>
             <TabsTrigger value="consultants">Consultores</TabsTrigger>
+            <TabsTrigger value="content">Conteúdo</TabsTrigger>
             <TabsTrigger value="finances">Financeiro</TabsTrigger>
             <TabsTrigger value="reports">Relatórios</TabsTrigger>
             <TabsTrigger value="settings">Configurações</TabsTrigger>
@@ -718,6 +722,11 @@ export default function AdminDashboard() {
             </Card>
           </TabsContent>
 
+          {/* Conteúdo do Site */}
+          <TabsContent value="content" className="space-y-6">
+            <BannerManagement />
+          </TabsContent>
+
           {/* Configurações */}
           <TabsContent value="settings" className="space-y-6">
             <Card>
@@ -791,6 +800,329 @@ export default function AdminDashboard() {
           </TabsContent>
         </Tabs>
       </div>
+    </div>
+  );
+}
+
+// Componente de Gerenciamento de Banners
+function BannerManagement() {
+  const { toast } = useToast();
+  const [banners, setBanners] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [editingBanner, setEditingBanner] = useState<any>(null);
+  const [formData, setFormData] = useState({
+    title: '',
+    subtitle: '',
+    description: '',
+    image_url: '',
+    button_text: '',
+    button_link: '',
+    display_order: 0,
+    is_active: true
+  });
+
+  useEffect(() => {
+    loadBanners();
+  }, []);
+
+  const loadBanners = async () => {
+    try {
+      const res = await fetch('/api/banners/all');
+      if (res.ok) {
+        const data = await res.json();
+        setBanners(data);
+      }
+    } catch (error) {
+      console.error('Erro ao carregar banners:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    try {
+      const url = editingBanner ? `/api/banners/${editingBanner.id}` : '/api/banners';
+      const method = editingBanner ? 'PUT' : 'POST';
+      
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+
+      if (res.ok) {
+        toast({
+          title: editingBanner ? "Banner atualizado!" : "Banner criado!",
+          description: "As alterações foram salvas com sucesso.",
+        });
+        
+        resetForm();
+        loadBanners();
+      }
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description: "Não foi possível salvar o banner.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleEdit = (banner: any) => {
+    setEditingBanner(banner);
+    setFormData({
+      title: banner.title || '',
+      subtitle: banner.subtitle || '',
+      description: banner.description || '',
+      image_url: banner.image_url || '',
+      button_text: banner.button_text || '',
+      button_link: banner.button_link || '',
+      display_order: banner.display_order || 0,
+      is_active: banner.is_active !== false
+    });
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Tem certeza que deseja deletar este banner?')) return;
+    
+    try {
+      const res = await fetch(`/api/banners/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        toast({
+          title: "Banner deletado!",
+          description: "O banner foi removido com sucesso.",
+        });
+        loadBanners();
+      }
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description: "Não foi possível deletar o banner.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const resetForm = () => {
+    setEditingBanner(null);
+    setFormData({
+      title: '',
+      subtitle: '',
+      description: '',
+      image_url: '',
+      button_text: '',
+      button_link: '',
+      display_order: 0,
+      is_active: true
+    });
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Formulário de Criar/Editar Banner */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <ImageIcon className="w-5 h-5 mr-2" />
+            {editingBanner ? 'Editar Banner' : 'Criar Novo Banner'}
+          </CardTitle>
+          <CardDescription>
+            {editingBanner 
+              ? 'Atualize as informações do banner rotativo' 
+              : 'Adicione um novo banner ao carrossel da página inicial'}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="title">Título Principal *</Label>
+                <Input
+                  id="title"
+                  value={formData.title}
+                  onChange={(e) => setFormData({...formData, title: e.target.value})}
+                  placeholder="Ex: Conecte-se com o Espiritual"
+                  required
+                  data-testid="input-banner-title"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="subtitle">Subtítulo</Label>
+                <Input
+                  id="subtitle"
+                  value={formData.subtitle}
+                  onChange={(e) => setFormData({...formData, subtitle: e.target.value})}
+                  placeholder="Ex: Portal de Consultas Místicas"
+                  data-testid="input-banner-subtitle"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="description">Descrição</Label>
+              <Textarea
+                id="description"
+                value={formData.description}
+                onChange={(e) => setFormData({...formData, description: e.target.value})}
+                placeholder="Descrição do banner..."
+                rows={2}
+                data-testid="input-banner-description"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="image_url">URL da Imagem *</Label>
+              <Input
+                id="image_url"
+                value={formData.image_url}
+                onChange={(e) => setFormData({...formData, image_url: e.target.value})}
+                placeholder="https://..."
+                required
+                data-testid="input-banner-image"
+              />
+              <p className="text-xs text-gray-500">Recomendado: 1920x480px</p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="button_text">Texto do Botão *</Label>
+                <Input
+                  id="button_text"
+                  value={formData.button_text}
+                  onChange={(e) => setFormData({...formData, button_text: e.target.value})}
+                  placeholder="Ex: Encontrar Consultor"
+                  required
+                  data-testid="input-banner-button-text"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="button_link">Link do Botão *</Label>
+                <Input
+                  id="button_link"
+                  value={formData.button_link}
+                  onChange={(e) => setFormData({...formData, button_link: e.target.value})}
+                  placeholder="/consultores"
+                  required
+                  data-testid="input-banner-button-link"
+                />
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="display_order">Ordem de Exibição</Label>
+                <Input
+                  id="display_order"
+                  type="number"
+                  value={formData.display_order}
+                  onChange={(e) => setFormData({...formData, display_order: parseInt(e.target.value) || 0})}
+                  placeholder="0"
+                  data-testid="input-banner-order"
+                />
+                <p className="text-xs text-gray-500">Menor número aparece primeiro</p>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="is_active">Status</Label>
+                <div className="flex items-center space-x-2 pt-2">
+                  <Switch
+                    id="is_active"
+                    checked={formData.is_active}
+                    onCheckedChange={(checked) => setFormData({...formData, is_active: checked})}
+                    data-testid="switch-banner-active"
+                  />
+                  <Label htmlFor="is_active" className="cursor-pointer">
+                    {formData.is_active ? 'Ativo' : 'Inativo'}
+                  </Label>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <Button type="submit" data-testid="button-save-banner">
+                {editingBanner ? 'Atualizar Banner' : 'Criar Banner'}
+              </Button>
+              {editingBanner && (
+                <Button type="button" variant="outline" onClick={resetForm} data-testid="button-cancel-edit">
+                  Cancelar
+                </Button>
+              )}
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+
+      {/* Lista de Banners */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Banners Cadastrados ({banners.length})</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <p className="text-center py-4 text-gray-500">Carregando...</p>
+          ) : banners.length === 0 ? (
+            <p className="text-center py-4 text-gray-500">Nenhum banner cadastrado</p>
+          ) : (
+            <div className="space-y-4">
+              {banners.map((banner) => (
+                <div key={banner.id} className="border rounded-lg p-4 flex gap-4" data-testid={`banner-item-${banner.id}`}>
+                  <div className="w-32 h-20 bg-gray-200 rounded overflow-hidden flex-shrink-0">
+                    <img 
+                      src={banner.image_url} 
+                      alt={banner.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  
+                  <div className="flex-1">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h4 className="font-semibold text-lg">{banner.title}</h4>
+                        {banner.subtitle && (
+                          <p className="text-sm text-gray-600">{banner.subtitle}</p>
+                        )}
+                        {banner.description && (
+                          <p className="text-sm text-gray-500 mt-1">{banner.description}</p>
+                        )}
+                        <div className="flex gap-4 mt-2 text-xs text-gray-500">
+                          <span>Ordem: {banner.display_order}</span>
+                          <span>Botão: {banner.button_text}</span>
+                          <Badge variant={banner.is_active ? "default" : "secondary"}>
+                            {banner.is_active ? "Ativo" : "Inativo"}
+                          </Badge>
+                        </div>
+                      </div>
+                      
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleEdit(banner)}
+                          data-testid={`button-edit-banner-${banner.id}`}
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => handleDelete(banner.id)}
+                          data-testid={`button-delete-banner-${banner.id}`}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
