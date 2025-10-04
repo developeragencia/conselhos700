@@ -254,7 +254,7 @@ export const Header: React.FC = () => {
                 </motion.button>
               </div>
             ) : (
-              <div className="flex items-center space-x-3">
+              <div className="hidden md:flex items-center space-x-3">
                 <Link href="/cadastro">
                   <motion.button
                     className="px-4 py-2 text-purple-600 hover:text-purple-700 font-semibold border-2 border-purple-300 hover:border-purple-500 rounded-lg transition-all duration-300 hover:bg-purple-50"
