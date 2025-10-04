@@ -1043,6 +1043,75 @@ app.get('/api/blog/recent', (req, res) => {
   ]);
 });
 
+// === PUSH NOTIFICATIONS ===
+const pushSubscriptions = new Map();
+
+app.post('/api/push/subscribe', async (req, res) => {
+  try {
+    const subscription = req.body;
+    const endpoint = subscription.endpoint;
+    
+    pushSubscriptions.set(endpoint, subscription);
+    console.log('✅ Nova subscription de push:', endpoint);
+    
+    res.json({ success: true, message: 'Inscrito com sucesso' });
+  } catch (error) {
+    console.error('Erro ao inscrever push:', error);
+    res.status(500).json({ error: 'Erro ao inscrever' });
+  }
+});
+
+app.post('/api/push/unsubscribe', async (req, res) => {
+  try {
+    const { endpoint } = req.body;
+    
+    pushSubscriptions.delete(endpoint);
+    console.log('✅ Subscription removida:', endpoint);
+    
+    res.json({ success: true, message: 'Desinscrito com sucesso' });
+  } catch (error) {
+    console.error('Erro ao desinscrever push:', error);
+    res.status(500).json({ error: 'Erro ao desinscrever' });
+  }
+});
+
+// === OFFLINE SYNC ===
+app.post('/api/consultations/offline-sync', async (req, res) => {
+  try {
+    const data = req.body;
+    console.log('📥 Sincronizando consulta offline:', data);
+    
+    res.json({ success: true, message: 'Consulta sincronizada' });
+  } catch (error) {
+    console.error('Erro ao sincronizar consulta:', error);
+    res.status(500).json({ error: 'Erro ao sincronizar' });
+  }
+});
+
+app.post('/api/messages/offline-sync', async (req, res) => {
+  try {
+    const data = req.body;
+    console.log('📥 Sincronizando mensagem offline:', data);
+    
+    res.json({ success: true, message: 'Mensagem sincronizada' });
+  } catch (error) {
+    console.error('Erro ao sincronizar mensagem:', error);
+    res.status(500).json({ error: 'Erro ao sincronizar' });
+  }
+});
+
+// === SHARE TARGET ===
+app.post('/share-consultation', (req, res) => {
+  const { title, text, url } = req.body;
+  console.log('📤 Compartilhamento recebido:', { title, text, url });
+  
+  res.redirect('/consultores');
+});
+
+app.get('/share-consultation', (req, res) => {
+  res.redirect('/consultores');
+});
+
 // Frontend - different path in production vs development
 app.get('*', (req, res) => {
   const indexPath = process.env.NODE_ENV === 'production'

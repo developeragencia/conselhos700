@@ -4,7 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LoadingScreen } from "@/components/LoadingScreen";
-// PWA components removed - using simple registration in main.tsx
+import { PWAInstallButton } from "@/components/PWAInstallButton";
 import { useState, useEffect, Suspense, lazy } from "react";
 
 
@@ -220,10 +220,9 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
+        <PWAInstallButton />
         {isLoading && <LoadingScreen onComplete={handleLoadingComplete} />}
         {showContent && <Router />}
-        
-        {/* PWA functionality handled by Service Worker in main.tsx */}
       </TooltipProvider>
     </QueryClientProvider>
   );
