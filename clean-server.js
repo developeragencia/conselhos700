@@ -50,7 +50,12 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(express.static(path.join(__dirname, 'dist/public')));
+// Serve static files - different path in production vs development
+const publicPath = process.env.NODE_ENV === 'production' 
+  ? path.join(__dirname, 'public')  // In production, we're already in dist/
+  : path.join(__dirname, 'dist/public');  // In dev, need to go into dist/
+app.use(express.static(publicPath));
+console.log(`📁 Serving static files from: ${publicPath}`);
 
 // Storage
 let db;
@@ -910,9 +915,12 @@ app.get('/api/blog/recent', (req, res) => {
   ]);
 });
 
-// Frontend
+// Frontend - different path in production vs development
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'dist/public/index.html'));
+  const indexPath = process.env.NODE_ENV === 'production'
+    ? path.join(__dirname, 'public/index.html')  // In production, we're already in dist/
+    : path.join(__dirname, 'dist/public/index.html');  // In dev, need to go into dist/
+  res.sendFile(indexPath);
 });
 
 // Start
