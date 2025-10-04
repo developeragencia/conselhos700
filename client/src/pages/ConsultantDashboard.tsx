@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -36,6 +37,7 @@ import {
 
 export default function ConsultantDashboard() {
   const { user, logout } = useAuth();
+  const [, navigate] = useLocation();
   const [editMode, setEditMode] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
 
@@ -255,19 +257,35 @@ export default function ConsultantDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <Button className="h-20 flex-col bg-purple-500 hover:bg-purple-600">
+                  <Button 
+                    className="h-20 flex-col bg-purple-500 hover:bg-purple-600"
+                    onClick={() => navigate('/chat-room')}
+                    data-testid="button-chat-clientes"
+                  >
                     <MessageSquare className="w-6 h-6 mb-2" />
                     Chat com Clientes
                   </Button>
-                  <Button className="h-20 flex-col bg-green-500 hover:bg-green-600">
+                  <Button 
+                    className="h-20 flex-col bg-green-500 hover:bg-green-600"
+                    onClick={() => navigate('/consultor/configuracoes')}
+                    data-testid="button-definir-horarios"
+                  >
                     <Calendar className="w-6 h-6 mb-2" />
                     Definir Horários
                   </Button>
-                  <Button className="h-20 flex-col bg-blue-500 hover:bg-blue-600">
+                  <Button 
+                    className="h-20 flex-col bg-blue-500 hover:bg-blue-600"
+                    onClick={() => navigate('/consultor/configuracoes')}
+                    data-testid="button-definir-precos"
+                  >
                     <DollarSign className="w-6 h-6 mb-2" />
                     Definir Preços
                   </Button>
-                  <Button className="h-20 flex-col bg-orange-500 hover:bg-orange-600">
+                  <Button 
+                    className="h-20 flex-col bg-orange-500 hover:bg-orange-600"
+                    onClick={() => navigate('/avaliacoes')}
+                    data-testid="button-ver-conquistas"
+                  >
                     <Award className="w-6 h-6 mb-2" />
                     Ver Conquistas
                   </Button>
@@ -368,8 +386,19 @@ export default function ConsultantDashboard() {
                           </div>
                         </div>
                         <div className="flex space-x-2">
-                          <Button size="sm" variant="outline">Confirmar</Button>
-                          <Button size="sm" variant="outline" className="text-red-600">
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            data-testid="button-confirmar-consulta"
+                          >
+                            Confirmar
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="text-red-600"
+                            data-testid="button-cancelar-consulta"
+                          >
                             Cancelar
                           </Button>
                         </div>

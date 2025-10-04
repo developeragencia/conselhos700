@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -40,6 +41,7 @@ import {
 
 export default function AdminDashboard() {
   const { user, logout } = useAuth();
+  const [, navigate] = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
 
   if (!user || user.role !== 'admin') {
@@ -260,19 +262,35 @@ export default function AdminDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <Button className="h-20 flex-col bg-blue-500 hover:bg-blue-600">
+                  <Button 
+                    className="h-20 flex-col bg-blue-500 hover:bg-blue-600"
+                    onClick={() => navigate('/consultores')}
+                    data-testid="button-aprovar-consultores"
+                  >
                     <UserCheck className="w-6 h-6 mb-2" />
                     Aprovar Consultores
                   </Button>
-                  <Button className="h-20 flex-col bg-green-500 hover:bg-green-600">
+                  <Button 
+                    className="h-20 flex-col bg-green-500 hover:bg-green-600"
+                    onClick={() => navigate('/relatorios')}
+                    data-testid="button-processar-pagamentos"
+                  >
                     <DollarSign className="w-6 h-6 mb-2" />
                     Processar Pagamentos
                   </Button>
-                  <Button className="h-20 flex-col bg-purple-500 hover:bg-purple-600">
+                  <Button 
+                    className="h-20 flex-col bg-purple-500 hover:bg-purple-600"
+                    onClick={() => navigate('/relatorios')}
+                    data-testid="button-relatorios"
+                  >
                     <BarChart3 className="w-6 h-6 mb-2" />
                     Relatórios
                   </Button>
-                  <Button className="h-20 flex-col bg-orange-500 hover:bg-orange-600">
+                  <Button 
+                    className="h-20 flex-col bg-orange-500 hover:bg-orange-600"
+                    onClick={() => navigate('/admin-dashboard')}
+                    data-testid="button-configuracoes-admin"
+                  >
                     <Settings className="w-6 h-6 mb-2" />
                     Configurações
                   </Button>
@@ -327,11 +345,20 @@ export default function AdminDashboard() {
                     </div>
                     
                     <div className="flex justify-end space-x-2">
-                      <Button size="sm" variant="outline" className="text-red-600">
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="text-red-600"
+                        data-testid="button-rejeitar-consultor"
+                      >
                         <XCircle className="w-4 h-4 mr-1" />
                         Rejeitar
                       </Button>
-                      <Button size="sm" className="bg-green-600 hover:bg-green-700">
+                      <Button 
+                        size="sm" 
+                        className="bg-green-600 hover:bg-green-700"
+                        data-testid="button-aprovar-consultor"
+                      >
                         <CheckCircle className="w-4 h-4 mr-1" />
                         Aprovar
                       </Button>

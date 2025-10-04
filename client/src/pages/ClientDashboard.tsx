@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -31,6 +32,7 @@ import {
 
 export default function ClientDashboard() {
   const [editMode, setEditMode] = useState(false);
+  const [, navigate] = useLocation();
   
   // Mock user data for now since authentication is not fully implemented
   const user = {
@@ -236,19 +238,35 @@ export default function ClientDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <Button className="h-20 flex-col bg-blue-500 hover:bg-blue-600">
+                  <Button 
+                    className="h-20 flex-col bg-blue-500 hover:bg-blue-600"
+                    onClick={() => navigate('/agendar')}
+                    data-testid="button-agendar-consulta"
+                  >
                     <Calendar className="w-6 h-6 mb-2" />
                     Agendar Consulta
                   </Button>
-                  <Button className="h-20 flex-col bg-green-500 hover:bg-green-600">
+                  <Button 
+                    className="h-20 flex-col bg-green-500 hover:bg-green-600"
+                    onClick={() => navigate('/comprar/creditos')}
+                    data-testid="button-comprar-creditos"
+                  >
                     <CreditCard className="w-6 h-6 mb-2" />
                     Comprar Créditos
                   </Button>
-                  <Button className="h-20 flex-col bg-purple-500 hover:bg-purple-600">
+                  <Button 
+                    className="h-20 flex-col bg-purple-500 hover:bg-purple-600"
+                    onClick={() => navigate('/consultores')}
+                    data-testid="button-chat-direto"
+                  >
                     <MessageSquare className="w-6 h-6 mb-2" />
                     Chat Direto
                   </Button>
-                  <Button className="h-20 flex-col bg-orange-500 hover:bg-orange-600">
+                  <Button 
+                    className="h-20 flex-col bg-orange-500 hover:bg-orange-600"
+                    onClick={() => navigate('/consultores')}
+                    data-testid="button-videochamada"
+                  >
                     <Video className="w-6 h-6 mb-2" />
                     Videochamada
                   </Button>
@@ -310,13 +328,27 @@ export default function ClientDashboard() {
                         </div>
                         
                         <div className="flex justify-end space-x-2 mt-4">
-                          <Button variant="outline" size="sm">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => navigate('/agendar')}
+                            data-testid="button-reagendar"
+                          >
                             Reagendar
                           </Button>
-                          <Button variant="outline" size="sm" className="text-red-600">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="text-red-600"
+                            data-testid="button-cancelar"
+                          >
                             Cancelar
                           </Button>
-                          <Button size="sm">
+                          <Button 
+                            size="sm"
+                            onClick={() => navigate('/consultas-online')}
+                            data-testid="button-entrar-consulta"
+                          >
                             Entrar na Consulta
                           </Button>
                         </div>
@@ -355,7 +387,11 @@ export default function ClientDashboard() {
                     <Gift className="w-8 h-8 text-orange-500" />
                   </div>
                   
-                  <Button className="w-full">
+                  <Button 
+                    className="w-full"
+                    onClick={() => navigate('/comprar/creditos')}
+                    data-testid="button-comprar-mais-creditos"
+                  >
                     Comprar Mais Créditos
                   </Button>
                 </CardContent>
