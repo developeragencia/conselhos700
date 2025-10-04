@@ -23,7 +23,7 @@ const bannerSlides: BannerSlide[] = [
     subtitle: "Sua Jornada Espiritual Começa Aqui",
     description: "Descubra orientação autêntica com nossos consultores especializados em Tarot, Astrologia e Espiritualidade",
     icon: Sparkles,
-    gradient: "from-purple-600 via-blue-600 to-indigo-700",
+    gradient: "from-purple-900/80 via-blue-900/80 to-indigo-900/80",
     buttonText: "Começar Agora",
     buttonLink: "/cadastre-se",
     secondaryButtonText: "Ver Consultores",
@@ -35,7 +35,7 @@ const bannerSlides: BannerSlide[] = [
     subtitle: "Revelações Imediatas do Universo",
     description: "Descubra os segredos do seu futuro com nossa leitura de Tarot online gratuita",
     icon: Moon,
-    gradient: "from-indigo-600 via-purple-600 to-pink-600",
+    gradient: "from-indigo-900/80 via-purple-900/80 to-pink-900/80",
     buttonText: "Consultar Tarot",
     buttonLink: "/tarot-gratis",
     secondaryButtonText: "Explorar Serviços",
@@ -47,12 +47,18 @@ const bannerSlides: BannerSlide[] = [
     subtitle: "Experiência e Sabedoria",
     description: "Especialistas com anos de experiência prontos para iluminar seu caminho espiritual",
     icon: Star,
-    gradient: "from-blue-600 via-indigo-600 to-purple-700",
+    gradient: "from-blue-900/80 via-indigo-900/80 to-purple-900/80",
     buttonText: "Ver Especialistas",
     buttonLink: "/consultores",
     secondaryButtonText: "Conhecer Mais",
     secondaryButtonLink: "/quem-somos"
   }
+];
+
+const bannerImages = [
+  "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1920&q=80",
+  "https://images.unsplash.com/photo-1541963463532-d68292c34d19?w=1920&q=80", 
+  "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=1920&q=80"
 ];
 
 export const HeroBanner = () => {
@@ -80,10 +86,16 @@ export const HeroBanner = () => {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.8 }}
-          className={`absolute inset-0 bg-gradient-to-br ${slide.gradient}`}
+          className="absolute inset-0"
         >
-          {/* Padrão de Fundo Místico */}
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMC41IiBvcGFjaXR5PSIwLjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-30" />
+          {/* Imagem de Fundo */}
+          <div 
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{ backgroundImage: `url(${bannerImages[currentSlide]})` }}
+          />
+          
+          {/* Overlay Gradient */}
+          <div className={`absolute inset-0 bg-gradient-to-br ${slide.gradient}`} />
           
           {/* Efeitos de Luz Flutuantes */}
           <div className="absolute top-20 right-20 w-72 h-72 md:w-96 md:h-96 bg-yellow-400/20 rounded-full blur-3xl animate-pulse" />

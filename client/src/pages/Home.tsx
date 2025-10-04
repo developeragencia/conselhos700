@@ -5,7 +5,6 @@ import { motion } from "framer-motion";
 import { ConsultantCard } from "@/components/ConsultantCard";
 import { ServiceCard } from "@/components/ServiceCard";
 import { HowItWorks } from "@/components/HowItWorks";
-import { BlogCard } from "@/components/BlogCard";
 import { PromotionCard } from "@/components/PromotionCard";
 import { HeroBanner } from "@/components/HeroBanner";
 import NovosServicos from "@/components/NovosServicos";
@@ -13,10 +12,6 @@ import NovosServicos from "@/components/NovosServicos";
 const Home = () => {
   const { data: consultants, isLoading: consultantsLoading } = useQuery({
     queryKey: ["/api/consultants/featured"],
-  });
-
-  const { data: blogPosts, isLoading: blogLoading } = useQuery({
-    queryKey: ["/api/blog/recent"],
   });
 
   return (
@@ -150,67 +145,7 @@ const Home = () => {
         </div>
       </motion.section>
 
-      {/* 5 - Blog */}
-      <motion.section
-        className="py-16 bg-gray-50"
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        transition={{ duration: 0.8 }}
-        viewport={{ once: true }}
-      >
-        <div className="container mx-auto px-4">
-          <motion.div
-            className="text-center mb-12"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-4xl font-bold text-purple-900 mb-4">
-              Conteúdo Exclusivo
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Artigos, dicas e insights para sua jornada de autoconhecimento.
-            </p>
-          </motion.div>
-
-          <motion.div
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            transition={{ duration: 0.8, staggerChildren: 0.1 }}
-            viewport={{ once: true }}
-          >
-            {blogLoading ? (
-              [...Array(3)].map((_, i) => (
-                <div key={i} className="animate-pulse">
-                  <div className="bg-gray-300 h-48 rounded-lg mb-4"></div>
-                  <div className="h-4 bg-gray-300 rounded mb-2"></div>
-                  <div className="h-3 bg-gray-300 rounded w-3/4"></div>
-                </div>
-              ))
-            ) : (
-              blogPosts && Array.isArray(blogPosts) ? blogPosts.slice(0, 3).map((post: any) => (
-                <BlogCard key={post.id} post={post} />
-              )) : null
-            )}
-          </motion.div>
-
-          <div className="text-center">
-            <Link href="/blog">
-              <motion.button
-                className="bg-purple-600 text-white px-8 py-3 rounded-full font-semibold hover:bg-purple-700 transition-colors"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Explore o Blog
-              </motion.button>
-            </Link>
-          </div>
-        </div>
-      </motion.section>
-
-      {/* 6 - Call to Action Final */}
+      {/* 5 - Call to Action Final */}
       <motion.section
         className="py-20 bg-gradient-to-r from-purple-600 to-indigo-600 text-white"
         initial={{ opacity: 0 }}
