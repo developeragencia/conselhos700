@@ -1,12 +1,10 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Eye, EyeOff, User, Crown, CheckCircle2 } from 'lucide-react';
+import { Eye, EyeOff, User, Crown, CheckCircle2, Sparkles, Moon, Stars } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import logoImage from "@assets/CONSELHOS_20250521_110746_0000_1754078656294.png";
@@ -21,7 +19,6 @@ const Cadastro = () => {
     confirmPassword: '',
     cpf: '',
     phone: '',
-    // Campos específicos para consultores
     specialty: '',
     experience: '',
     description: '',
@@ -42,7 +39,6 @@ const Cadastro = () => {
     }));
   };
 
-  // Validar CPF quando o usuário terminar de digitar
   const validateCPF = async (cpf: string) => {
     const cpfNumbers = cpf.replace(/\D/g, '');
     if (cpfNumbers.length !== 11) {
@@ -66,7 +62,6 @@ const Cadastro = () => {
         message: data.message
       });
 
-      // Se CPF válido, verifica duplicidade
       if (data.valid) {
         checkDuplicates({ cpf: cpfNumbers });
       }
@@ -79,7 +74,6 @@ const Cadastro = () => {
     }
   };
 
-  // Verificar duplicidade
   const checkDuplicates = async (fields: { cpf?: string; email?: string; phone?: string }) => {
     try {
       const response = await fetch('/api/auth/check-duplicates', {
@@ -104,7 +98,6 @@ const Cadastro = () => {
     setError('');
     setSuccess('');
 
-    // Validações
     if (formData.password !== formData.confirmPassword) {
       setError('As senhas não coincidem');
       setIsLoading(false);
@@ -180,7 +173,6 @@ const Cadastro = () => {
 
     try {
       const API_URL = '/api/auth/register';
-      console.log('🚀 CADASTRO ENVIANDO PARA:', API_URL);
       const response = await fetch(API_URL, {
         method: 'POST',
         headers: {
@@ -190,10 +182,9 @@ const Cadastro = () => {
           name: formData.name,
           email: formData.email,
           password: formData.password,
-          cpf: formData.cpf.replace(/\D/g, ''), // Envia apenas números
-          phone: formData.phone.replace(/\D/g, ''), // Envia apenas números
+          cpf: formData.cpf.replace(/\D/g, ''),
+          phone: formData.phone.replace(/\D/g, ''),
           role: selectedRole,
-          // Dados específicos para consultores
           specialty: selectedRole === 'consultor' ? formData.specialty : undefined,
           experience: selectedRole === 'consultor' ? formData.experience : undefined,
           description: selectedRole === 'consultor' ? formData.description : undefined,
@@ -207,13 +198,11 @@ const Cadastro = () => {
         setSuccess(data.message);
         
         if (selectedRole === 'cliente') {
-          // Cliente pode fazer login imediatamente
           localStorage.setItem('authToken', data.token);
           setTimeout(() => {
             setLocation('/client-dashboard');
           }, 2000);
         } else {
-          // Consultor precisa aguardar aprovação
           setTimeout(() => {
             setLocation('/login');
           }, 3000);
@@ -231,9 +220,10 @@ const Cadastro = () => {
   const roleConfig = {
     cliente: {
       icon: User,
-      color: 'bg-amber-500',
-      hoverColor: 'hover:bg-amber-600',
+      color: 'bg-gradient-to-r from-amber-500 to-amber-600',
+      hoverColor: 'hover:from-amber-600 hover:to-amber-700',
       borderColor: 'border-amber-500',
+      ringColor: 'ring-amber-500/20',
       textColor: 'text-amber-600',
       title: 'Cliente',
       description: 'Acesso às consultas e serviços esotéricos',
@@ -241,9 +231,10 @@ const Cadastro = () => {
     },
     consultor: {
       icon: Crown,
-      color: 'bg-purple-600',
-      hoverColor: 'hover:bg-purple-700',
+      color: 'bg-gradient-to-r from-purple-600 to-purple-700',
+      hoverColor: 'hover:from-purple-700 hover:to-purple-800',
       borderColor: 'border-purple-600',
+      ringColor: 'ring-purple-500/20',
       textColor: 'text-purple-600',
       title: 'Consultor',
       description: 'Ofereça seus serviços esotéricos na plataforma',
@@ -254,51 +245,73 @@ const Cadastro = () => {
   const currentConfig = roleConfig[selectedRole as keyof typeof roleConfig];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-amber-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-lg">
-        <Card className="shadow-xl border-0">
-          <CardHeader className="text-center space-y-4">
-            <div className="mx-auto w-32 h-24 flex items-center justify-center">
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-indigo-950 via-purple-900 to-blue-950">
+      {/* Elementos decorativos de fundo */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-purple-500/30 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-amber-500/20 rounded-full blur-3xl"></div>
+        
+        <Sparkles className="absolute top-20 right-20 w-8 h-8 text-amber-400/40 animate-pulse" />
+        <Moon className="absolute bottom-32 left-20 w-12 h-12 text-purple-300/30 animate-pulse" />
+        <Stars className="absolute top-40 left-1/4 w-6 h-6 text-blue-300/40 animate-pulse" />
+      </div>
+
+      {/* Conteúdo principal */}
+      <div className="relative z-10 min-h-screen flex items-center justify-center p-4 py-12">
+        <div className="w-full max-w-2xl">
+          {/* Logo grande e visível */}
+          <div className="text-center mb-8">
+            <div className="inline-block bg-white/10 backdrop-blur-xl rounded-3xl p-6 mb-6 shadow-2xl border border-white/20">
               <img 
                 src={logoImage} 
                 alt="Conselhos Esotéricos" 
-                className="h-24 w-auto"
+                className="h-32 w-auto mx-auto"
+                data-testid="img-logo-cadastro"
               />
             </div>
-            <div>
-              <CardTitle className="text-2xl font-bold text-gray-800">
-                Conselhos Esotéricos
-              </CardTitle>
-              <CardDescription className="text-gray-600">
-                Junte-se à nossa comunidade espiritual
-              </CardDescription>
-            </div>
-          </CardHeader>
+            <h1 className="text-4xl font-bold text-white mb-2" data-testid="text-title-cadastro">
+              Conselhos Esotéricos
+            </h1>
+            <p className="text-purple-200/80 text-lg" data-testid="text-subtitle-cadastro">
+              Junte-se à nossa comunidade espiritual
+            </p>
+          </div>
 
-          <CardContent className="space-y-6">
+          {/* Card de Cadastro */}
+          <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 shadow-2xl p-8">
+            <div className="text-center mb-6">
+              <h2 className="text-2xl font-bold text-white mb-1" data-testid="text-welcome-register">
+                Criar sua conta
+              </h2>
+              <p className="text-purple-200/70" data-testid="text-register-instruction">
+                Preencha seus dados para começar
+              </p>
+            </div>
+
             {error && (
-              <Alert className="border-red-200 bg-red-50">
-                <AlertDescription className="text-red-800">
+              <Alert className="mb-6 bg-red-500/20 border-red-500/50 backdrop-blur-sm" data-testid="alert-error">
+                <AlertDescription className="text-red-200">
                   {error}
                 </AlertDescription>
               </Alert>
             )}
 
             {success && (
-              <Alert className="border-amber-200 bg-amber-50">
-                <CheckCircle2 className="w-4 h-4 text-amber-600" />
-                <AlertDescription className="text-amber-800">
+              <Alert className="mb-6 bg-green-500/20 border-green-500/50 backdrop-blur-sm" data-testid="alert-success">
+                <CheckCircle2 className="w-4 h-4 text-green-200" />
+                <AlertDescription className="text-green-200">
                   {success}
                 </AlertDescription>
               </Alert>
             )}
 
             {/* Seleção de Tipo de Conta */}
-            <div className="space-y-3">
-              <Label className="text-sm font-medium text-gray-700">
+            <div className="mb-6">
+              <Label className="text-sm font-medium text-purple-200 mb-3 block" data-testid="label-account-type">
                 Tipo de Conta
               </Label>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-4">
                 {Object.entries(roleConfig).map(([role, config]) => {
                   const IconComponent = config.icon;
                   const isSelected = selectedRole === role;
@@ -307,17 +320,16 @@ const Cadastro = () => {
                     <button
                       key={role}
                       onClick={() => setSelectedRole(role)}
-                      className={`p-4 rounded-xl border-2 text-center transition-all duration-200 ${
+                      data-testid={`button-role-${role}`}
+                      className={`p-5 rounded-xl border-2 text-center transition-all duration-300 transform hover:scale-105 ${
                         isSelected
-                          ? `${config.color} text-white ${config.borderColor}`
-                          : `bg-white text-gray-600 border-gray-200 hover:border-gray-300`
+                          ? `${config.color} text-white border-white/30 shadow-lg ring-4 ${config.ringColor}`
+                          : `bg-white/5 text-purple-200 border-white/20 hover:bg-white/10 hover:border-white/30`
                       }`}
                     >
-                      <IconComponent className="w-8 h-8 mx-auto mb-2" />
-                      <div className="font-medium">{config.title}</div>
-                      <div className="text-xs mt-1 opacity-90">
-                        {config.description}
-                      </div>
+                      <IconComponent className="w-10 h-10 mx-auto mb-3" />
+                      <div className="font-semibold text-lg mb-1">{config.title}</div>
+                      <div className="text-xs opacity-90">{config.description}</div>
                     </button>
                   );
                 })}
@@ -325,14 +337,15 @@ const Cadastro = () => {
             </div>
 
             {/* Benefícios do tipo selecionado */}
-            <div className={`p-4 rounded-lg border ${currentConfig.borderColor} bg-opacity-5 ${currentConfig.color}`}>
-              <h4 className={`font-medium ${currentConfig.textColor} mb-2`}>
+            <div className={`p-5 rounded-xl border-2 ${currentConfig.borderColor} bg-white/5 mb-6`}>
+              <h4 className="font-semibold text-white mb-3 flex items-center">
+                <CheckCircle2 className="w-5 h-5 mr-2" />
                 Benefícios como {currentConfig.title}:
               </h4>
-              <ul className="text-sm text-gray-600 space-y-1">
+              <ul className="text-sm text-purple-200/80 space-y-2">
                 {currentConfig.benefits.map((benefit, index) => (
                   <li key={index} className="flex items-center">
-                    <CheckCircle2 className={`w-3 h-3 mr-2 ${currentConfig.textColor}`} />
+                    <div className="w-1.5 h-1.5 bg-amber-400 rounded-full mr-3"></div>
                     {benefit}
                   </li>
                 ))}
@@ -340,261 +353,310 @@ const Cadastro = () => {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Nome Completo</Label>
-                <Input
-                  id="name"
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => handleInputChange('name', e.target.value)}
-                  placeholder="Seu nome completo"
-                  required
-                  className="h-11"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => {
-                    handleInputChange('email', e.target.value);
-                    setDuplicateCheck(prev => ({ ...prev, email: false }));
-                  }}
-                  onBlur={() => {
-                    if (formData.email) {
-                      checkDuplicates({ email: formData.email });
-                    }
-                  }}
-                  placeholder="seu@email.com"
-                  required
-                  className={`h-11 ${duplicateCheck.email ? 'border-red-500' : ''}`}
-                  data-testid="input-email"
-                />
-                {duplicateCheck.email && (
-                  <p className="text-xs text-red-600">
-                    Este e-mail já está cadastrado no sistema
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="cpf">CPF</Label>
-                <div className="relative">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="name" className="text-purple-200 mb-2 block" data-testid="label-name">
+                    Nome Completo
+                  </Label>
                   <Input
-                    id="cpf"
+                    id="name"
                     type="text"
-                    value={formData.cpf}
+                    value={formData.name}
+                    onChange={(e) => handleInputChange('name', e.target.value)}
+                    placeholder="Seu nome completo"
+                    required
+                    data-testid="input-name"
+                    className="h-11 bg-white/10 border-white/30 text-white placeholder:text-purple-200/50 focus:bg-white/20 focus:border-white/50 transition-all"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="email" className="text-purple-200 mb-2 block" data-testid="label-email">
+                    Email
+                  </Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={formData.email}
                     onChange={(e) => {
-                      const cpf = e.target.value.replace(/\D/g, '');
-                      const formattedCpf = cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
-                      handleInputChange('cpf', formattedCpf);
-                      setDuplicateCheck(prev => ({ ...prev, cpf: false }));
+                      handleInputChange('email', e.target.value);
+                      setDuplicateCheck(prev => ({ ...prev, email: false }));
                     }}
-                    onBlur={() => validateCPF(formData.cpf)}
-                    placeholder="000.000.000-00"
-                    maxLength={14}
+                    onBlur={() => {
+                      if (formData.email) {
+                        checkDuplicates({ email: formData.email });
+                      }
+                    }}
+                    placeholder="seu@email.com"
                     required
-                    className={`h-11 pr-10 ${
-                      cpfValidation.valid ? 'border-green-500' : 
-                      cpfValidation.message && !cpfValidation.valid && !cpfValidation.checking ? 'border-red-500' : ''
-                    } ${duplicateCheck.cpf ? 'border-red-500' : ''}`}
-                    data-testid="input-cpf"
+                    data-testid="input-email"
+                    className={`h-11 bg-white/10 border-white/30 text-white placeholder:text-purple-200/50 focus:bg-white/20 focus:border-white/50 transition-all ${
+                      duplicateCheck.email ? 'border-red-500' : ''
+                    }`}
                   />
-                  {cpfValidation.checking && (
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                      <div className="animate-spin w-4 h-4 border-2 border-purple-600 border-t-transparent rounded-full"></div>
-                    </div>
-                  )}
-                  {cpfValidation.valid && !duplicateCheck.cpf && (
-                    <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-green-500" />
+                  {duplicateCheck.email && (
+                    <p className="text-xs text-red-300 mt-1">
+                      Este e-mail já está cadastrado no sistema
+                    </p>
                   )}
                 </div>
-                {cpfValidation.message && (
-                  <p className={`text-xs ${cpfValidation.valid ? 'text-green-600' : 'text-red-600'}`}>
-                    {cpfValidation.message}
-                  </p>
-                )}
-                {duplicateCheck.cpf && (
-                  <p className="text-xs text-red-600">
-                    Este CPF já está cadastrado no sistema
-                  </p>
-                )}
-              </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="phone">Telefone</Label>
-                <Input
-                  id="phone"
-                  type="text"
-                  value={formData.phone}
-                  onChange={(e) => {
-                    const phone = e.target.value.replace(/\D/g, '');
-                    const formattedPhone = phone.replace(/(\d{2})(\d{4,5})(\d{4})/, '($1) $2-$3');
-                    handleInputChange('phone', formattedPhone);
-                    setDuplicateCheck(prev => ({ ...prev, phone: false }));
-                  }}
-                  onBlur={() => {
-                    const phoneNumbers = formData.phone.replace(/\D/g, '');
-                    if (phoneNumbers.length >= 10) {
-                      checkDuplicates({ phone: phoneNumbers });
-                    }
-                  }}
-                  placeholder="(11) 99999-9999"
-                  maxLength={15}
-                  required
-                  className={`h-11 ${duplicateCheck.phone ? 'border-red-500' : ''}`}
-                  data-testid="input-phone"
-                />
-                {duplicateCheck.phone && (
-                  <p className="text-xs text-red-600">
-                    Este telefone já está cadastrado no sistema
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="password">Senha</Label>
-                <div className="relative">
-                  <Input
-                    id="password"
-                    type={showPassword ? 'text' : 'password'}
-                    value={formData.password}
-                    onChange={(e) => handleInputChange('password', e.target.value)}
-                    placeholder="Crie uma senha forte"
-                    required
-                    className="h-11 pr-10"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                  >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
+                <div>
+                  <Label htmlFor="cpf" className="text-purple-200 mb-2 block" data-testid="label-cpf">
+                    CPF
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      id="cpf"
+                      type="text"
+                      value={formData.cpf}
+                      onChange={(e) => {
+                        const cpf = e.target.value.replace(/\D/g, '');
+                        const formattedCpf = cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+                        handleInputChange('cpf', formattedCpf);
+                        setDuplicateCheck(prev => ({ ...prev, cpf: false }));
+                      }}
+                      onBlur={() => validateCPF(formData.cpf)}
+                      placeholder="000.000.000-00"
+                      maxLength={14}
+                      required
+                      data-testid="input-cpf"
+                      className={`h-11 bg-white/10 border-white/30 text-white placeholder:text-purple-200/50 focus:bg-white/20 focus:border-white/50 pr-12 transition-all ${
+                        cpfValidation.valid ? 'border-green-500' : 
+                        cpfValidation.message && !cpfValidation.valid && !cpfValidation.checking ? 'border-red-500' : ''
+                      } ${duplicateCheck.cpf ? 'border-red-500' : ''}`}
+                    />
+                    {cpfValidation.checking && (
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                        <div className="animate-spin w-4 h-4 border-2 border-purple-300 border-t-transparent rounded-full"></div>
+                      </div>
+                    )}
+                    {cpfValidation.valid && !duplicateCheck.cpf && (
+                      <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-green-400" />
+                    )}
+                  </div>
+                  {cpfValidation.message && (
+                    <p className={`text-xs mt-1 ${cpfValidation.valid ? 'text-green-300' : 'text-red-300'}`}>
+                      {cpfValidation.message}
+                    </p>
+                  )}
+                  {duplicateCheck.cpf && (
+                    <p className="text-xs text-red-300 mt-1">
+                      Este CPF já está cadastrado no sistema
+                    </p>
+                  )}
                 </div>
-              </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirmar Senha</Label>
-                <div className="relative">
+                <div>
+                  <Label htmlFor="phone" className="text-purple-200 mb-2 block" data-testid="label-phone">
+                    Telefone
+                  </Label>
                   <Input
-                    id="confirmPassword"
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    value={formData.confirmPassword}
-                    onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-                    placeholder="Confirme sua senha"
+                    id="phone"
+                    type="text"
+                    value={formData.phone}
+                    onChange={(e) => {
+                      const phone = e.target.value.replace(/\D/g, '');
+                      const formattedPhone = phone.replace(/(\d{2})(\d{4,5})(\d{4})/, '($1) $2-$3');
+                      handleInputChange('phone', formattedPhone);
+                      setDuplicateCheck(prev => ({ ...prev, phone: false }));
+                    }}
+                    onBlur={() => {
+                      const phoneNumbers = formData.phone.replace(/\D/g, '');
+                      if (phoneNumbers.length >= 10) {
+                        checkDuplicates({ phone: phoneNumbers });
+                      }
+                    }}
+                    placeholder="(11) 99999-9999"
+                    maxLength={15}
                     required
-                    className="h-11 pr-10"
+                    data-testid="input-phone"
+                    className={`h-11 bg-white/10 border-white/30 text-white placeholder:text-purple-200/50 focus:bg-white/20 focus:border-white/50 transition-all ${
+                      duplicateCheck.phone ? 'border-red-500' : ''
+                    }`}
                   />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                  >
-                    {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
+                  {duplicateCheck.phone && (
+                    <p className="text-xs text-red-300 mt-1">
+                      Este telefone já está cadastrado no sistema
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <Label htmlFor="password" className="text-purple-200 mb-2 block" data-testid="label-password">
+                    Senha
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? 'text' : 'password'}
+                      value={formData.password}
+                      onChange={(e) => handleInputChange('password', e.target.value)}
+                      placeholder="Crie uma senha forte"
+                      required
+                      data-testid="input-password"
+                      className="h-11 bg-white/10 border-white/30 text-white placeholder:text-purple-200/50 focus:bg-white/20 focus:border-white/50 pr-12 transition-all"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      data-testid="button-toggle-password"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-purple-200/60 hover:text-white transition-colors"
+                    >
+                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="confirmPassword" className="text-purple-200 mb-2 block" data-testid="label-confirm-password">
+                    Confirmar Senha
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      id="confirmPassword"
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      value={formData.confirmPassword}
+                      onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
+                      placeholder="Confirme sua senha"
+                      required
+                      data-testid="input-confirm-password"
+                      className="h-11 bg-white/10 border-white/30 text-white placeholder:text-purple-200/50 focus:bg-white/20 focus:border-white/50 pr-12 transition-all"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      data-testid="button-toggle-confirm-password"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-purple-200/60 hover:text-white transition-colors"
+                    >
+                      {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
+                  </div>
                 </div>
               </div>
 
               {/* Campos específicos para consultores */}
               {selectedRole === 'consultor' && (
-                <>
-                  <div className="space-y-2">
-                    <Label htmlFor="specialty">Especialidade</Label>
-                    <Select value={formData.specialty} onValueChange={(value) => handleInputChange('specialty', value)}>
-                      <SelectTrigger className="h-11">
-                        <SelectValue placeholder="Selecione sua especialidade" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="tarot">Tarot</SelectItem>
-                        <SelectItem value="astrologia">Astrologia</SelectItem>
-                        <SelectItem value="numerologia">Numerologia</SelectItem>
-                        <SelectItem value="mediunidade">Mediunidade</SelectItem>
-                        <SelectItem value="runas">Runas</SelectItem>
-                        <SelectItem value="oraculos">Oráculos dos Anjos</SelectItem>
-                        <SelectItem value="cristaloterapia">Cristaloterapia</SelectItem>
-                        <SelectItem value="reiki">Reiki</SelectItem>
-                        <SelectItem value="terapia-holistico">Terapia Holística</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                <div className="space-y-4 pt-4 border-t border-white/20">
+                  <h3 className="text-lg font-semibold text-white flex items-center">
+                    <Crown className="w-5 h-5 mr-2" />
+                    Informações Profissionais
+                  </h3>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="specialty" className="text-purple-200 mb-2 block" data-testid="label-specialty">
+                        Especialidade
+                      </Label>
+                      <Select value={formData.specialty} onValueChange={(value) => handleInputChange('specialty', value)}>
+                        <SelectTrigger className="h-11 bg-white/10 border-white/30 text-white focus:bg-white/20 focus:border-white/50" data-testid="select-specialty">
+                          <SelectValue placeholder="Selecione sua especialidade" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="tarot">Tarot</SelectItem>
+                          <SelectItem value="astrologia">Astrologia</SelectItem>
+                          <SelectItem value="numerologia">Numerologia</SelectItem>
+                          <SelectItem value="mediunidade">Mediunidade</SelectItem>
+                          <SelectItem value="runas">Runas</SelectItem>
+                          <SelectItem value="oraculos">Oráculos dos Anjos</SelectItem>
+                          <SelectItem value="cristaloterapia">Cristaloterapia</SelectItem>
+                          <SelectItem value="reiki">Reiki</SelectItem>
+                          <SelectItem value="terapia-holistico">Terapia Holística</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="experience">Anos de Experiência</Label>
-                    <Select value={formData.experience} onValueChange={(value) => handleInputChange('experience', value)}>
-                      <SelectTrigger className="h-11">
-                        <SelectValue placeholder="Selecione sua experiência" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="1-2">1-2 anos</SelectItem>
-                        <SelectItem value="3-5">3-5 anos</SelectItem>
-                        <SelectItem value="6-10">6-10 anos</SelectItem>
-                        <SelectItem value="10+">Mais de 10 anos</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                    <div>
+                      <Label htmlFor="experience" className="text-purple-200 mb-2 block" data-testid="label-experience">
+                        Anos de Experiência
+                      </Label>
+                      <Select value={formData.experience} onValueChange={(value) => handleInputChange('experience', value)}>
+                        <SelectTrigger className="h-11 bg-white/10 border-white/30 text-white focus:bg-white/20 focus:border-white/50" data-testid="select-experience">
+                          <SelectValue placeholder="Selecione sua experiência" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="1-2">1-2 anos</SelectItem>
+                          <SelectItem value="3-5">3-5 anos</SelectItem>
+                          <SelectItem value="6-10">6-10 anos</SelectItem>
+                          <SelectItem value="10+">Mais de 10 anos</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="description">Descrição Profissional</Label>
-                    <Textarea
-                      id="description"
-                      value={formData.description}
-                      onChange={(e) => handleInputChange('description', e.target.value)}
-                      placeholder="Descreva sua experiência, métodos e abordagem..."
-                      rows={4}
-                      className="resize-none"
-                    />
-                  </div>
+                    <div className="md:col-span-2">
+                      <Label htmlFor="description" className="text-purple-200 mb-2 block" data-testid="label-description">
+                        Descrição Profissional
+                      </Label>
+                      <Textarea
+                        id="description"
+                        value={formData.description}
+                        onChange={(e) => handleInputChange('description', e.target.value)}
+                        placeholder="Descreva sua experiência, métodos e abordagem..."
+                        rows={4}
+                        data-testid="textarea-description"
+                        className="resize-none bg-white/10 border-white/30 text-white placeholder:text-purple-200/50 focus:bg-white/20 focus:border-white/50"
+                      />
+                    </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="pricePerMinute">Preço por Minuto (R$)</Label>
-                    <Input
-                      id="pricePerMinute"
-                      type="number"
-                      step="0.50"
-                      min="1.00"
-                      value={formData.pricePerMinute}
-                      onChange={(e) => handleInputChange('pricePerMinute', e.target.value)}
-                      placeholder="5.00"
-                      required
-                      className="h-11"
-                    />
+                    <div>
+                      <Label htmlFor="pricePerMinute" className="text-purple-200 mb-2 block" data-testid="label-price">
+                        Preço por Minuto (R$)
+                      </Label>
+                      <Input
+                        id="pricePerMinute"
+                        type="number"
+                        step="0.50"
+                        min="1.00"
+                        value={formData.pricePerMinute}
+                        onChange={(e) => handleInputChange('pricePerMinute', e.target.value)}
+                        placeholder="5.00"
+                        required
+                        data-testid="input-price"
+                        className="h-11 bg-white/10 border-white/30 text-white placeholder:text-purple-200/50 focus:bg-white/20 focus:border-white/50"
+                      />
+                    </div>
                   </div>
-                </>
+                </div>
               )}
 
               <Button
                 type="submit"
                 disabled={isLoading}
-                className={`w-full h-11 font-semibold ${currentConfig.color} ${currentConfig.hoverColor} text-white`}
+                data-testid="button-submit"
+                className={`w-full h-12 font-semibold text-white shadow-lg transform transition-all duration-300 hover:scale-105 ${currentConfig.color} ${currentConfig.hoverColor} mt-6`}
               >
                 {isLoading ? 'Criando conta...' : `Criar conta como ${currentConfig.title}`}
               </Button>
             </form>
 
             {selectedRole === 'consultor' && (
-              <div className="text-xs text-gray-500 bg-purple-50 p-3 rounded-lg border border-purple-200">
-                <strong>Importante:</strong> Contas de consultor passam por um processo de aprovação. 
+              <div className="mt-6 text-xs text-purple-200/70 bg-purple-500/20 p-4 rounded-lg border border-purple-500/30" data-testid="text-consultant-notice">
+                <strong className="text-white">Importante:</strong> Contas de consultor passam por um processo de aprovação. 
                 Você receberá um email quando sua conta for ativada.
               </div>
             )}
 
-            <div className="text-center">
-              <div className="text-sm text-gray-600">
+            <div className="mt-6 text-center">
+              <div className="text-sm text-purple-200/80">
                 Já tem uma conta?{' '}
                 <button
                   onClick={() => setLocation('/login')}
-                  className="text-blue-800 font-medium hover:underline"
+                  data-testid="link-login"
+                  className="text-amber-400 font-semibold hover:text-amber-300 transition-colors underline decoration-2 underline-offset-2"
                 >
-                  Faça login
+                  Fazer login
                 </button>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+
+          {/* Rodapé */}
+          <div className="text-center mt-6">
+            <p className="text-purple-200/50 text-sm" data-testid="text-footer">
+              © 2024 Conselhos Esotéricos. Todos os direitos reservados.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
