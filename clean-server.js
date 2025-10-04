@@ -22,7 +22,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const server = createServer(app);
 const PORT = process.env.PORT || 5000;
-const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-key-conselhos-esotericos-2025';
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || '').split(',').map(s => s.trim()).filter(Boolean);
 
 // WebSocket Server
@@ -340,7 +340,11 @@ app.post('/api/auth/register', async (req, res) => {
       message: `${role.charAt(0).toUpperCase() + role.slice(1)} registrado com sucesso!`
     });
   } catch (error) {
-    res.status(500).json({ error: 'Erro interno' });
+    console.error('❌ ERRO NO REGISTRO:', error);
+    res.status(500).json({ 
+      success: false,
+      error: 'Erro interno do servidor: ' + error.message 
+    });
   }
 });
 
