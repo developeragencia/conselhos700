@@ -251,7 +251,7 @@ const Cadastro = () => {
         <div className="w-full max-w-2xl">
           {/* Logo grande e visível */}
           <div className="text-center mb-8">
-            <div className="inline-block bg-white rounded-3xl p-6 mb-6 shadow-2xl border-0">
+            <div className="inline-block bg-transparent rounded-3xl p-6 mb-6 shadow-2xl border-transparent">
               <img 
                 src={logoImage} 
                 alt="Conselhos Esotéricos" 
