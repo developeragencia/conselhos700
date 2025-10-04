@@ -7,15 +7,37 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
 }
 
+// Detecta se é dispositivo móvel
+const isMobileDevice = () => {
+  const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
+  
+  // Verifica se é Android, iPhone, iPad, iPod ou Windows Phone
+  const isMobile = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase());
+  
+  // Verifica também pelo tamanho da tela (tablets e celulares geralmente têm menos de 1024px)
+  const isSmallScreen = window.innerWidth < 1024;
+  
+  // É mobile se detectar user agent mobile OU se a tela for pequena
+  return isMobile || isSmallScreen;
+};
+
 export function PWAInstallButton() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showPrompt, setShowPrompt] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    // Verifica se é mobile
+    setIsMobile(isMobileDevice());
+    
     const handler = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
-      setShowPrompt(true);
+      
+      // Só mostra o prompt se for mobile
+      if (isMobileDevice()) {
+        setShowPrompt(true);
+      }
     };
 
     window.addEventListener('beforeinstallprompt', handler);
@@ -47,6 +69,9 @@ export function PWAInstallButton() {
     }, 60000);
   };
 
+  // Não mostra nada se não for mobile
+  if (!isMobile) return null;
+  
   if (!showPrompt || !deferredPrompt) return null;
 
   return (
@@ -86,13 +111,20 @@ export function PWAInstallButton() {
 
 export function PWAInstallButtonHeader() {
   const [canInstall, setCanInstall] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    // Verifica se é mobile
+    setIsMobile(isMobileDevice());
+    
     const handler = (e: Event) => {
       e.preventDefault();
-      setCanInstall(true);
       
-      (window as any).deferredPrompt = e;
+      // Só permite instalação em mobile
+      if (isMobileDevice()) {
+        setCanInstall(true);
+        (window as any).deferredPrompt = e;
+      }
     };
 
     window.addEventListener('beforeinstallprompt', handler);
@@ -117,6 +149,9 @@ export function PWAInstallButtonHeader() {
     setCanInstall(false);
   };
 
+  // Não mostra nada se não for mobile
+  if (!isMobile) return null;
+  
   if (!canInstall) return null;
 
   return (
