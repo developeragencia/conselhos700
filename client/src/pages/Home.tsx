@@ -4,7 +4,6 @@ import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { ConsultantCard } from "@/components/ConsultantCard";
 import { ServiceCard } from "@/components/ServiceCard";
-import { HowItWorks } from "@/components/HowItWorks";
 import { PromotionCard } from "@/components/PromotionCard";
 import { HeroBanner } from "@/components/HeroBanner";
 import NovosServicos from "@/components/NovosServicos";
@@ -110,42 +109,7 @@ const Home = () => {
         <NovosServicos />
       </motion.section>
 
-      {/* 4 - Como Funciona */}
-      <motion.section
-        className="py-16 bg-gray-50"
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        transition={{ duration: 0.8 }}
-        viewport={{ once: true }}
-      >
-        <div className="container mx-auto px-4">
-          <motion.div
-            className="text-center mb-12"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-4xl font-bold text-purple-900 mb-4">
-              Como Funciona
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Simples, rápido e seguro. Conecte-se com seu consultor ideal em poucos passos.
-            </p>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-          >
-            <HowItWorks />
-          </motion.div>
-        </div>
-      </motion.section>
-
-      {/* 5 - Call to Action Final */}
+      {/* 4 - Call to Action Final */}
       <motion.section
         className="py-20 bg-gradient-to-r from-purple-600 to-indigo-600 text-white"
         initial={{ opacity: 0 }}
