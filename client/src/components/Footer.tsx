@@ -12,7 +12,7 @@ export const Footer: React.FC = () => {
               <img 
                 src="/logo.png" 
                 alt="Conselhos Esotéricos" 
-                className="h-16 w-auto mb-4"
+                className="h-20 w-auto mb-4"
               />
             </div>
             <p className="text-gray-600 mb-6">

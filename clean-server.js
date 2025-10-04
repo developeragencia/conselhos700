@@ -148,49 +148,105 @@ const init = async () => {
   }
 };
 
-// === CONSULTA CPF ===
-app.post('/api/cpf/consulta', async (req, res) => {
+// === VALIDAÇÃO CPF ===
+const validateCPF = (cpf) => {
+  if (!cpf || cpf.length !== 11) return false;
+  
+  // Verifica se todos os dígitos são iguais
+  if (/^(\d)\1{10}$/.test(cpf)) return false;
+  
+  // Calcula primeiro dígito verificador
+  let sum = 0;
+  for (let i = 0; i < 9; i++) {
+    sum += parseInt(cpf.charAt(i)) * (10 - i);
+  }
+  let digit = 11 - (sum % 11);
+  if (digit > 9) digit = 0;
+  if (digit !== parseInt(cpf.charAt(9))) return false;
+  
+  // Calcula segundo dígito verificador
+  sum = 0;
+  for (let i = 0; i < 10; i++) {
+    sum += parseInt(cpf.charAt(i)) * (11 - i);
+  }
+  digit = 11 - (sum % 11);
+  if (digit > 9) digit = 0;
+  if (digit !== parseInt(cpf.charAt(10))) return false;
+  
+  return true;
+};
+
+// === VALIDAÇÃO CPF ENDPOINT ===
+app.post('/api/cpf/validate', async (req, res) => {
   const { cpf } = req.body;
   
   if (!cpf || cpf.length !== 11) {
-    return res.status(400).json({
-      success: false,
+    return res.json({
+      valid: false,
       message: 'CPF deve ter 11 dígitos'
     });
   }
 
+  const isValid = validateCPF(cpf);
+  
+  return res.json({
+    valid: isValid,
+    message: isValid ? 'CPF válido' : 'CPF inválido'
+  });
+});
+
+// === VERIFICAR DUPLICIDADE ===
+app.post('/api/auth/check-duplicates', async (req, res) => {
   try {
-    console.log('🔍 Consultando CPF:', cpf);
+    const { cpf, email, phone } = req.body;
+    const duplicates = {};
     
-    // Simulação de dados baseados no CPF para desenvolvimento
-    const nomes = [
-      'João Silva Santos', 'Maria Oliveira Costa', 'José Pereira Lima',
-      'Ana Carolina Souza', 'Pedro Henrique Alves', 'Juliana Ferreira',
-      'Carlos Eduardo Rocha', 'Beatriz Almeida Nunes', 'Ricardo Martins',
-      'Fernanda Ribeiro Cruz'
-    ];
-    
-    const nome = nomes[parseInt(cpf.substr(0, 2)) % nomes.length];
-    
-    // Simula delay de consulta real
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    if (db) {
+      // Verifica CPF
+      if (cpf) {
+        const cpfCheck = await db.query('SELECT id FROM users WHERE cpf = $1', [cpf]);
+        if (cpfCheck.rows.length > 0) {
+          duplicates.cpf = true;
+        }
+      }
+      
+      // Verifica Email
+      if (email) {
+        const emailCheck = await db.query('SELECT id FROM users WHERE email = $1', [email.toLowerCase()]);
+        if (emailCheck.rows.length > 0) {
+          duplicates.email = true;
+        }
+      }
+      
+      // Verifica Telefone
+      if (phone) {
+        const phoneCheck = await db.query('SELECT id FROM users WHERE phone = $1', [phone]);
+        if (phoneCheck.rows.length > 0) {
+          duplicates.phone = true;
+        }
+      }
+    } else {
+      // Memory mode fallback
+      const allUsers = Array.from(users.values());
+      
+      if (cpf && allUsers.some(u => u.cpf === cpf)) {
+        duplicates.cpf = true;
+      }
+      if (email && allUsers.some(u => u.email === email.toLowerCase())) {
+        duplicates.email = true;
+      }
+      if (phone && allUsers.some(u => u.phone === phone)) {
+        duplicates.phone = true;
+      }
+    }
     
     return res.json({
-      success: true,
-      data: {
-        nome: nome,
-        cpf: cpf,
-        nascimento: '01/01/1990',
-        situacao: 'Regular'
-      }
+      duplicates,
+      hasDuplicates: Object.keys(duplicates).length > 0
     });
-    
   } catch (error) {
-    console.error('Erro na consulta CPF:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Erro interno do servidor'
-    });
+    console.error('Erro ao verificar duplicidade:', error);
+    res.status(500).json({ error: 'Erro ao verificar duplicidade' });
   }
 });
 
@@ -201,7 +257,47 @@ app.post('/api/auth/register', async (req, res) => {
 
     if (!email || !name || !password || !role || !cpf || !phone) {
       return res.status(400).json({ 
+        success: false,
         error: 'Campos obrigatórios: email, password, name, role, cpf, phone' 
+      });
+    }
+
+    // Valida CPF
+    if (!validateCPF(cpf)) {
+      return res.status(400).json({ 
+        success: false,
+        error: 'CPF inválido' 
+      });
+    }
+
+    // Verifica duplicidade
+    const duplicates = {};
+    if (db) {
+      const cpfCheck = await db.query('SELECT id FROM users WHERE cpf = $1', [cpf]);
+      if (cpfCheck.rows.length > 0) duplicates.cpf = true;
+      
+      const emailCheck = await db.query('SELECT id FROM users WHERE email = $1', [email.toLowerCase()]);
+      if (emailCheck.rows.length > 0) duplicates.email = true;
+      
+      const phoneCheck = await db.query('SELECT id FROM users WHERE phone = $1', [phone]);
+      if (phoneCheck.rows.length > 0) duplicates.phone = true;
+    } else {
+      const allUsers = Array.from(users.values());
+      if (allUsers.some(u => u.cpf === cpf)) duplicates.cpf = true;
+      if (allUsers.some(u => u.email === email.toLowerCase())) duplicates.email = true;
+      if (allUsers.some(u => u.phone === phone)) duplicates.phone = true;
+    }
+
+    if (Object.keys(duplicates).length > 0) {
+      const messages = [];
+      if (duplicates.cpf) messages.push('CPF');
+      if (duplicates.email) messages.push('E-mail');
+      if (duplicates.phone) messages.push('Telefone');
+      
+      return res.status(400).json({ 
+        success: false,
+        error: `${messages.join(', ')} já cadastrado${messages.length > 1 ? 's' : ''}`,
+        duplicates
       });
     }
 

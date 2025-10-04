@@ -32,12 +32,70 @@ const Cadastro = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [cpfValidation, setCpfValidation] = useState({ checking: false, valid: false, message: '' });
+  const [duplicateCheck, setDuplicateCheck] = useState({ cpf: false, email: false, phone: false });
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
     }));
+  };
+
+  // Validar CPF quando o usuário terminar de digitar
+  const validateCPF = async (cpf: string) => {
+    const cpfNumbers = cpf.replace(/\D/g, '');
+    if (cpfNumbers.length !== 11) {
+      setCpfValidation({ checking: false, valid: false, message: '' });
+      return;
+    }
+
+    setCpfValidation({ checking: true, valid: false, message: 'Verificando...' });
+
+    try {
+      const response = await fetch('/api/cpf/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cpf: cpfNumbers })
+      });
+
+      const data = await response.json();
+      setCpfValidation({
+        checking: false,
+        valid: data.valid,
+        message: data.message
+      });
+
+      // Se CPF válido, verifica duplicidade
+      if (data.valid) {
+        checkDuplicates({ cpf: cpfNumbers });
+      }
+    } catch (err) {
+      setCpfValidation({
+        checking: false,
+        valid: false,
+        message: 'Erro ao validar CPF'
+      });
+    }
+  };
+
+  // Verificar duplicidade
+  const checkDuplicates = async (fields: { cpf?: string; email?: string; phone?: string }) => {
+    try {
+      const response = await fetch('/api/auth/check-duplicates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(fields)
+      });
+
+      const data = await response.json();
+      setDuplicateCheck(prev => ({
+        ...prev,
+        ...data.duplicates
+      }));
+    } catch (err) {
+      console.error('Erro ao verificar duplicidade:', err);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -62,6 +120,30 @@ const Cadastro = () => {
     const cpfNumbers = formData.cpf.replace(/\D/g, '');
     if (!cpfNumbers || cpfNumbers.length !== 11) {
       setError('CPF é obrigatório e deve ter 11 dígitos');
+      setIsLoading(false);
+      return;
+    }
+
+    if (!cpfValidation.valid) {
+      setError('CPF inválido. Por favor, verifique o número digitado.');
+      setIsLoading(false);
+      return;
+    }
+
+    if (duplicateCheck.cpf) {
+      setError('Este CPF já está cadastrado no sistema');
+      setIsLoading(false);
+      return;
+    }
+
+    if (duplicateCheck.email) {
+      setError('Este e-mail já está cadastrado no sistema');
+      setIsLoading(false);
+      return;
+    }
+
+    if (duplicateCheck.phone) {
+      setError('Este telefone já está cadastrado no sistema');
       setIsLoading(false);
       return;
     }
@@ -277,29 +359,69 @@ const Cadastro = () => {
                   id="email"
                   type="email"
                   value={formData.email}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
+                  onChange={(e) => {
+                    handleInputChange('email', e.target.value);
+                    setDuplicateCheck(prev => ({ ...prev, email: false }));
+                  }}
+                  onBlur={() => {
+                    if (formData.email) {
+                      checkDuplicates({ email: formData.email });
+                    }
+                  }}
                   placeholder="seu@email.com"
                   required
-                  className="h-11"
+                  className={`h-11 ${duplicateCheck.email ? 'border-red-500' : ''}`}
+                  data-testid="input-email"
                 />
+                {duplicateCheck.email && (
+                  <p className="text-xs text-red-600">
+                    Este e-mail já está cadastrado no sistema
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="cpf">CPF</Label>
-                <Input
-                  id="cpf"
-                  type="text"
-                  value={formData.cpf}
-                  onChange={(e) => {
-                    const cpf = e.target.value.replace(/\D/g, '');
-                    const formattedCpf = cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
-                    handleInputChange('cpf', formattedCpf);
-                  }}
-                  placeholder="000.000.000-00"
-                  maxLength={14}
-                  required
-                  className="h-11"
-                />
+                <div className="relative">
+                  <Input
+                    id="cpf"
+                    type="text"
+                    value={formData.cpf}
+                    onChange={(e) => {
+                      const cpf = e.target.value.replace(/\D/g, '');
+                      const formattedCpf = cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+                      handleInputChange('cpf', formattedCpf);
+                      setDuplicateCheck(prev => ({ ...prev, cpf: false }));
+                    }}
+                    onBlur={() => validateCPF(formData.cpf)}
+                    placeholder="000.000.000-00"
+                    maxLength={14}
+                    required
+                    className={`h-11 pr-10 ${
+                      cpfValidation.valid ? 'border-green-500' : 
+                      cpfValidation.message && !cpfValidation.valid && !cpfValidation.checking ? 'border-red-500' : ''
+                    } ${duplicateCheck.cpf ? 'border-red-500' : ''}`}
+                    data-testid="input-cpf"
+                  />
+                  {cpfValidation.checking && (
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                      <div className="animate-spin w-4 h-4 border-2 border-purple-600 border-t-transparent rounded-full"></div>
+                    </div>
+                  )}
+                  {cpfValidation.valid && !duplicateCheck.cpf && (
+                    <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-green-500" />
+                  )}
+                </div>
+                {cpfValidation.message && (
+                  <p className={`text-xs ${cpfValidation.valid ? 'text-green-600' : 'text-red-600'}`}>
+                    {cpfValidation.message}
+                  </p>
+                )}
+                {duplicateCheck.cpf && (
+                  <p className="text-xs text-red-600">
+                    Este CPF já está cadastrado no sistema
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -312,12 +434,25 @@ const Cadastro = () => {
                     const phone = e.target.value.replace(/\D/g, '');
                     const formattedPhone = phone.replace(/(\d{2})(\d{4,5})(\d{4})/, '($1) $2-$3');
                     handleInputChange('phone', formattedPhone);
+                    setDuplicateCheck(prev => ({ ...prev, phone: false }));
+                  }}
+                  onBlur={() => {
+                    const phoneNumbers = formData.phone.replace(/\D/g, '');
+                    if (phoneNumbers.length >= 10) {
+                      checkDuplicates({ phone: phoneNumbers });
+                    }
                   }}
                   placeholder="(11) 99999-9999"
                   maxLength={15}
                   required
-                  className="h-11"
+                  className={`h-11 ${duplicateCheck.phone ? 'border-red-500' : ''}`}
+                  data-testid="input-phone"
                 />
+                {duplicateCheck.phone && (
+                  <p className="text-xs text-red-600">
+                    Este telefone já está cadastrado no sistema
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
