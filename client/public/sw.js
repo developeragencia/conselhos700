@@ -170,15 +170,138 @@ self.addEventListener('notificationclick', (event) => {
   }
 });
 
+// IndexedDB helpers
+const DB_NAME = 'conselhos-offline';
+const DB_VERSION = 1;
+
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME, DB_VERSION);
+    
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => resolve(request.result);
+    
+    request.onupgradeneeded = (event) => {
+      const db = event.target.result;
+      
+      if (!db.objectStoreNames.contains('pendingActions')) {
+        const store = db.createObjectStore('pendingActions', { keyPath: 'id', autoIncrement: true });
+        store.createIndex('type', 'type', { unique: false });
+        store.createIndex('timestamp', 'timestamp', { unique: false });
+      }
+    };
+  });
+}
+
+async function queueOfflineAction(type, data) {
+  const db = await openDB();
+  const tx = db.transaction('pendingActions', 'readwrite');
+  const store = tx.objectStore('pendingActions');
+  
+  await store.add({
+    type,
+    data,
+    timestamp: Date.now()
+  });
+  
+  // Try to register background sync
+  if ('sync' in self.registration) {
+    await self.registration.sync.register(`sync-${type}`);
+  }
+}
+
+async function getPendingActions(type) {
+  const db = await openDB();
+  const tx = db.transaction('pendingActions', 'readonly');
+  const store = tx.objectStore('pendingActions');
+  const index = store.index('type');
+  
+  return new Promise((resolve, reject) => {
+    const request = index.getAll(type);
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+async function removePendingAction(id) {
+  const db = await openDB();
+  const tx = db.transaction('pendingActions', 'readwrite');
+  const store = tx.objectStore('pendingActions');
+  await store.delete(id);
+}
+
 // Helper functions for background sync
 async function syncConsultations() {
   console.log('[SW] Syncing consultations...');
-  // Implementation for syncing offline consultations
-  return Promise.resolve();
+  
+  try {
+    const pendingActions = await getPendingActions('consultation');
+    
+    for (const action of pendingActions) {
+      try {
+        const response = await fetch('/api/consultations/offline-sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(action.data)
+        });
+        
+        if (response.ok) {
+          await removePendingAction(action.id);
+          console.log('[SW] Synced consultation:', action.id);
+        }
+      } catch (error) {
+        console.error('[SW] Failed to sync consultation:', error);
+      }
+    }
+    
+    return Promise.resolve();
+  } catch (error) {
+    console.error('[SW] Error syncing consultations:', error);
+    return Promise.reject(error);
+  }
 }
 
 async function syncMessages() {
   console.log('[SW] Syncing messages...');
-  // Implementation for syncing offline messages
-  return Promise.resolve();
+  
+  try {
+    const pendingActions = await getPendingActions('message');
+    
+    for (const action of pendingActions) {
+      try {
+        const response = await fetch('/api/messages/offline-sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(action.data)
+        });
+        
+        if (response.ok) {
+          await removePendingAction(action.id);
+          console.log('[SW] Synced message:', action.id);
+        }
+      } catch (error) {
+        console.error('[SW] Failed to sync message:', error);
+      }
+    }
+    
+    return Promise.resolve();
+  } catch (error) {
+    console.error('[SW] Error syncing messages:', error);
+    return Promise.reject(error);
+  }
 }
+
+// Expose queue function to clients
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'QUEUE_ACTION') {
+    event.waitUntil(
+      queueOfflineAction(event.data.actionType, event.data.actionData)
+        .then(() => {
+          event.ports[0].postMessage({ success: true });
+        })
+        .catch((error) => {
+          event.ports[0].postMessage({ success: false, error: error.message });
+        })
+    );
+  }
+});
