@@ -119,11 +119,12 @@ self.addEventListener('fetch', (event) => {
 self.addEventListener('sync', (event) => {
   console.log('[SW] Background sync:', event.tag);
   
-  if (event.tag === 'sync-consultations') {
+  // Support both formats: sync-consultation/sync-consultations, sync-message/sync-messages
+  if (event.tag === 'sync-consultation' || event.tag === 'sync-consultations') {
     event.waitUntil(syncConsultations());
   }
   
-  if (event.tag === 'sync-messages') {
+  if (event.tag === 'sync-message' || event.tag === 'sync-messages') {
     event.waitUntil(syncMessages());
   }
 });
