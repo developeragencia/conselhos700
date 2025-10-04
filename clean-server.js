@@ -9,11 +9,14 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { Pool } from '@neondatabase/serverless';
+import { Pool, neonConfig } from '@neondatabase/serverless';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import ws from 'ws';
 import { WebSocketServer } from 'ws';
 import { createServer } from 'http';
+
+neonConfig.webSocketConstructor = ws;
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -138,8 +141,9 @@ const init = async () => {
       console.log('Memory mode');
     }
   } catch (e) {
+    console.error('Database connection error:', e.message);
     console.log('Memory fallback');
-console.log('🚫 DEPLOYMENT MODE: No database migrations needed');
+    console.log('🚫 DEPLOYMENT MODE: No database migrations needed');
     db = null;
   }
 };
