@@ -1,168 +1,110 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight, Star, Users, Clock } from "lucide-react";
 import { Link } from "wouter";
+import { Sparkles, Star, Moon, Users, Clock, Award } from "lucide-react";
 
 interface BannerSlide {
   id: number;
   title: string;
   subtitle: string;
   description: string;
-  backgroundImage: string;
-  primaryButton: {
-    text: string;
-    link: string;
-    style: "primary" | "secondary";
-  };
-  secondaryButton: {
-    text: string;
-    link: string;
-    style: "primary" | "secondary";
-  };
-  stats: {
-    clients: string;
-    consultants: string;
-    availability: string;
-  };
+  icon: any;
+  gradient: string;
+  buttonText: string;
+  buttonLink: string;
+  secondaryButtonText: string;
+  secondaryButtonLink: string;
 }
 
 const bannerSlides: BannerSlide[] = [
   {
     id: 1,
-    title: "Descubra seu",
-    subtitle: "Caminho Espiritual",
-    description: "Conecte-se com nossos consultores espirituais para orientação em amor, carreira, saúde e muito mais. Receba insights que transformarão sua vida.",
-    backgroundImage: "https://pixabay.com/get/g5c6e4096553c680ef59ea1d37428b6e79aeade0af937ddc1dcde8d5ff56546aaaf2692113060ce457f73fdf627c5666cd8b4b2ee217aa2b84303fbb2d3a59efa_1280.jpg",
-    primaryButton: {
-      text: "Consultar Agora",
-      link: "/consultores",
-      style: "primary"
-    },
-    secondaryButton: {
-      text: "Tarot Grátis",
-      link: "/tarot-gratis",
-      style: "secondary"
-    },
-    stats: {
-      clients: "5.000+",
-      consultants: "50+",
-      availability: "24/7"
-    }
+    title: "Conecte-se com o Divino",
+    subtitle: "Sua Jornada Espiritual Começa Aqui",
+    description: "Descubra orientação autêntica com nossos consultores especializados em Tarot, Astrologia e Espiritualidade",
+    icon: Sparkles,
+    gradient: "from-purple-600 via-blue-600 to-indigo-700",
+    buttonText: "Começar Agora",
+    buttonLink: "/cadastre-se",
+    secondaryButtonText: "Ver Consultores",
+    secondaryButtonLink: "/consultores"
   },
   {
     id: 2,
-    title: "Transforme sua",
-    subtitle: "Vida Hoje",
-    description: "Nossos especialistas em tarô, astrologia e mediunidade estão prontos para guiá-lo. Encontre respostas para suas questões mais profundas.",
-    backgroundImage: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80",
-    primaryButton: {
-      text: "Ver Consultores",
-      link: "/consultores",
-      style: "primary"
-    },
-    secondaryButton: {
-      text: "Serviços",
-      link: "/servicos/tarot",
-      style: "secondary"
-    },
-    stats: {
-      clients: "5.000+",
-      consultants: "50+",
-      availability: "24/7"
-    }
+    title: "Tarot Grátis",
+    subtitle: "Revelações Imediatas do Universo",
+    description: "Descubra os segredos do seu futuro com nossa leitura de Tarot online gratuita",
+    icon: Moon,
+    gradient: "from-indigo-600 via-purple-600 to-pink-600",
+    buttonText: "Consultar Tarot",
+    buttonLink: "/tarot-gratis",
+    secondaryButtonText: "Explorar Serviços",
+    secondaryButtonLink: "/servicos/tarot"
   },
   {
     id: 3,
-    title: "Orientação",
-    subtitle: "Espiritual Completa",
-    description: "Desde leituras de tarô até terapias holísticas. Nossa plataforma oferece uma gama completa de serviços para seu crescimento espiritual.",
-    backgroundImage: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80",
-    primaryButton: {
-      text: "Começar Agora",
-      link: "/cadastre-se",
-      style: "primary"
-    },
-    secondaryButton: {
-      text: "Conhecer Mais",
-      link: "/quem-somos",
-      style: "secondary"
-    },
-    stats: {
-      clients: "5.000+",
-      consultants: "50+",
-      availability: "24/7"
-    }
+    title: "Consultores Certificados",
+    subtitle: "Experiência e Sabedoria",
+    description: "Especialistas com anos de experiência prontos para iluminar seu caminho espiritual",
+    icon: Star,
+    gradient: "from-blue-600 via-indigo-600 to-purple-700",
+    buttonText: "Ver Especialistas",
+    buttonLink: "/consultores",
+    secondaryButtonText: "Conhecer Mais",
+    secondaryButtonLink: "/quem-somos"
   }
 ];
 
-export const HeroBanner: React.FC = () => {
+export const HeroBanner = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const [direction, setDirection] = useState(0);
 
-  // Auto-play functionality
   useEffect(() => {
-    if (!isAutoPlaying) return;
-    
-    const interval = setInterval(() => {
+    const timer = setInterval(() => {
+      setDirection(1);
       setCurrentSlide((prev) => (prev + 1) % bannerSlides.length);
-    }, 5000); // Change slide every 5 seconds
+    }, 6000);
+    return () => clearInterval(timer);
+  }, []);
 
-    return () => clearInterval(interval);
-  }, [isAutoPlaying]);
-
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % bannerSlides.length);
-    setIsAutoPlaying(false);
-  };
-
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + bannerSlides.length) % bannerSlides.length);
-    setIsAutoPlaying(false);
-  };
-
-  const goToSlide = (index: number) => {
-    setCurrentSlide(index);
-    setIsAutoPlaying(false);
-  };
-
-  const currentSlideData = bannerSlides[currentSlide];
+  const slide = bannerSlides[currentSlide];
+  const Icon = slide.icon;
 
   return (
-    <section className="relative h-[500px] sm:h-[600px] md:h-[700px] lg:h-[750px] overflow-hidden">
-      <AnimatePresence mode="wait">
+    <section className="relative h-[500px] sm:h-[600px] md:h-[700px] overflow-hidden" data-testid="hero-banner">
+      <AnimatePresence initial={false} custom={direction}>
         <motion.div
           key={currentSlide}
+          custom={direction}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.5 }}
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url('${currentSlideData.backgroundImage}')` }}
+          transition={{ duration: 0.8 }}
+          className={`absolute inset-0 bg-gradient-to-br ${slide.gradient}`}
         >
-          {/* Overlay gradient */}
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/90 to-secondary/80"></div>
+          {/* Padrão de Fundo Místico */}
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMC41IiBvcGFjaXR5PSIwLjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-30" />
           
-          {/* Floating mystical elements */}
-          <div className="absolute inset-0 overflow-hidden">
-            {[...Array(15)].map((_, i) => {
-              const size = Math.random() * 40 + 20;
-              const isSmall = size < 40;
-              const symbols = ['✦', '✧', '◊', '○', '◇', '☽', '☾', '✺', '❋', '✹'];
+          {/* Efeitos de Luz Flutuantes */}
+          <div className="absolute top-20 right-20 w-72 h-72 md:w-96 md:h-96 bg-yellow-400/20 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-20 left-20 w-72 h-72 md:w-96 md:h-96 bg-blue-400/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+
+          {/* Símbolos Flutuantes */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            {[...Array(12)].map((_, i) => {
+              const symbols = ['✦', '✧', '◊', '☽', '☾', '✺'];
               return (
                 <motion.div
                   key={i}
-                  className={`absolute text-white/10 ${isSmall ? 'hidden md:block' : ''}`}
+                  className="absolute text-white/20 text-3xl hidden md:block"
                   style={{
                     top: `${Math.random() * 100}%`,
                     left: `${Math.random() * 100}%`,
-                    fontSize: `${size}px`,
-                    rotate: `${Math.random() * 360}deg`,
                   }}
-                  initial={{ opacity: 0 }}
-                  animate={{ 
-                    opacity: [0, 0.6, 0],
-                    y: [-20, -40, -60],
-                    rotate: [0, 180, 360]
+                  animate={{
+                    opacity: [0.2, 0.5, 0.2],
+                    y: [-20, -60],
+                    rotate: [0, 360]
                   }}
                   transition={{
                     duration: 8 + Math.random() * 4,
@@ -176,141 +118,157 @@ export const HeroBanner: React.FC = () => {
             })}
           </div>
 
-          {/* Content */}
-          <div className="relative z-10 container mx-auto px-4 h-full flex items-center">
-            <div className="max-w-4xl">
+          {/* Conteúdo Principal */}
+          <div className="container mx-auto px-4 h-full flex items-center justify-center relative z-10">
+            <div className="max-w-5xl text-center">
+              {/* Ícone com Efeito */}
               <motion.div
-                key={`content-${currentSlide}`}
+                initial={{ scale: 0, rotate: -180 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ duration: 0.7, delay: 0.2 }}
+                className="mb-8 flex justify-center"
+              >
+                <div className="relative">
+                  <div className="absolute inset-0 bg-yellow-400/40 rounded-full blur-2xl animate-pulse" />
+                  <Icon className="w-16 h-16 md:w-20 md:h-20 text-yellow-300 relative z-10" strokeWidth={1.5} />
+                </div>
+              </motion.div>
+
+              {/* Badge */}
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+                className="inline-block bg-white/20 backdrop-blur-sm px-6 py-2 rounded-full text-sm font-semibold text-white mb-6"
+              >
+                ✨ Despertar Espiritual
+              </motion.div>
+
+              {/* Título */}
+              <motion.h1
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-                className="text-white"
+                transition={{ duration: 0.6, delay: 0.4 }}
+                className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-4 leading-tight text-white"
               >
-                {/* Badge */}
-                <motion.div 
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.3 }}
-                  className="inline-block bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-medium mb-6"
-                >
-                  Despertar Espiritual
-                </motion.div>
+                {slide.title}
+              </motion.h1>
 
-                {/* Title */}
-                <motion.h1 
-                  initial={{ opacity: 0, x: -30 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.4 }}
-                  className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 leading-tight"
-                >
-                  {currentSlideData.title}{" "}
-                  <span className="text-yellow-300">
-                    {currentSlideData.subtitle}
-                  </span>
-                </motion.h1>
+              {/* Subtítulo com Gradient Dourado */}
+              <motion.h2
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.5 }}
+                className="text-2xl sm:text-3xl md:text-4xl mb-6 font-bold bg-gradient-to-r from-yellow-200 via-yellow-300 to-yellow-400 bg-clip-text text-transparent"
+              >
+                {slide.subtitle}
+              </motion.h2>
 
-                {/* Description */}
-                <motion.p 
-                  initial={{ opacity: 0, x: -30 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.5 }}
-                  className="text-base sm:text-lg md:text-xl lg:text-2xl mb-6 sm:mb-8 max-w-2xl leading-relaxed text-white/90"
-                >
-                  {currentSlideData.description}
-                </motion.p>
+              {/* Descrição */}
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.6 }}
+                className="text-lg sm:text-xl md:text-2xl mb-8 max-w-3xl mx-auto text-gray-100 leading-relaxed"
+              >
+                {slide.description}
+              </motion.p>
 
-                {/* Buttons */}
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.6 }}
-                  className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-8 sm:mb-12"
-                >
-                  <Link 
-                    href={currentSlideData.primaryButton.link}
-                    className="inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 bg-yellow-500 hover:bg-yellow-400 text-gray-900 font-semibold rounded-full transition-all duration-300 hover:scale-105 hover:shadow-lg group text-sm sm:text-base"
+              {/* Botões CTA */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.7 }}
+                className="flex flex-col sm:flex-row gap-4 justify-center mb-12"
+              >
+                <Link href={slide.buttonLink}>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="group relative bg-gradient-to-r from-yellow-400 to-yellow-500 text-purple-900 font-bold py-4 px-10 rounded-full text-lg shadow-2xl overflow-hidden"
+                    data-testid="button-primary-cta"
                   >
-                    {currentSlideData.primaryButton.text}
-                    <span className="ml-2 group-hover:translate-x-1 transition-transform">→</span>
-                  </Link>
-                  
-                  <Link 
-                    href={currentSlideData.secondaryButton.link}
-                    className="inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 border-2 border-white/30 hover:border-white/50 text-white font-semibold rounded-full backdrop-blur-sm bg-white/10 hover:bg-white/20 transition-all duration-300 hover:scale-105 text-sm sm:text-base"
-                  >
-                    ★ {currentSlideData.secondaryButton.text}
-                  </Link>
-                </motion.div>
+                    <span className="relative z-10 flex items-center justify-center gap-2">
+                      {slide.buttonText}
+                      <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+                    </span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-yellow-500 to-yellow-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </motion.button>
+                </Link>
 
-                {/* Stats - Responsivo para Mobile */}
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.7 }}
-                  className="grid grid-cols-3 gap-3 sm:gap-6 text-white/90 max-w-sm sm:max-w-none"
-                >
-                  <div className="text-center">
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 mb-1">
-                      <div className="p-1.5 sm:p-2 bg-white/20 rounded-full backdrop-blur-sm">
-                        <Users className="w-4 h-4 sm:w-5 sm:h-5" />
-                      </div>
-                      <div className="text-lg sm:text-xl md:text-2xl font-bold">{currentSlideData.stats.clients}</div>
+                <Link href={slide.secondaryButtonLink}>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="border-2 border-white/40 hover:border-white/60 text-white font-bold py-4 px-10 rounded-full text-lg backdrop-blur-sm bg-white/10 hover:bg-white/20 transition-all shadow-xl"
+                    data-testid="button-secondary-cta"
+                  >
+                    ★ {slide.secondaryButtonText}
+                  </motion.button>
+                </Link>
+              </motion.div>
+
+              {/* Estatísticas */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.8 }}
+                className="grid grid-cols-3 gap-6 md:gap-8 text-white/90 max-w-2xl mx-auto"
+              >
+                <div className="text-center">
+                  <div className="flex flex-col items-center gap-2 mb-2">
+                    <div className="p-2 bg-white/20 rounded-full backdrop-blur-sm">
+                      <Users className="w-5 h-5 md:w-6 md:h-6" />
                     </div>
-                    <div className="text-xs sm:text-sm opacity-80">Clientes</div>
+                    <div className="text-2xl md:text-3xl font-bold">5.000+</div>
                   </div>
-                  
-                  <div className="text-center">
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 mb-1">
-                      <div className="p-1.5 sm:p-2 bg-white/20 rounded-full backdrop-blur-sm">
-                        <Star className="w-4 h-4 sm:w-5 sm:h-5" />
-                      </div>
-                      <div className="text-lg sm:text-xl md:text-2xl font-bold">{currentSlideData.stats.consultants}</div>
+                  <div className="text-xs md:text-sm opacity-90">Clientes</div>
+                </div>
+
+                <div className="text-center">
+                  <div className="flex flex-col items-center gap-2 mb-2">
+                    <div className="p-2 bg-white/20 rounded-full backdrop-blur-sm">
+                      <Award className="w-5 h-5 md:w-6 md:h-6" />
                     </div>
-                    <div className="text-xs sm:text-sm opacity-80">Consultores</div>
+                    <div className="text-2xl md:text-3xl font-bold">50+</div>
                   </div>
-                  
-                  <div className="text-center">
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 mb-1">
-                      <div className="p-1.5 sm:p-2 bg-white/20 rounded-full backdrop-blur-sm">
-                        <Clock className="w-4 h-4 sm:w-5 sm:h-5" />
-                      </div>
-                      <div className="text-lg sm:text-xl md:text-2xl font-bold">{currentSlideData.stats.availability}</div>
+                  <div className="text-xs md:text-sm opacity-90">Consultores</div>
+                </div>
+
+                <div className="text-center">
+                  <div className="flex flex-col items-center gap-2 mb-2">
+                    <div className="p-2 bg-white/20 rounded-full backdrop-blur-sm">
+                      <Clock className="w-5 h-5 md:w-6 md:h-6" />
                     </div>
-                    <div className="text-xs sm:text-sm opacity-80">Disponível</div>
+                    <div className="text-2xl md:text-3xl font-bold">24/7</div>
                   </div>
-                </motion.div>
+                  <div className="text-xs md:text-sm opacity-90">Disponível</div>
+                </div>
               </motion.div>
             </div>
           </div>
         </motion.div>
       </AnimatePresence>
 
-
-
-      {/* Slide indicators */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex gap-3">
+      {/* Indicadores de Slide */}
+      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex gap-3 z-20">
         {bannerSlides.map((_, index) => (
           <button
             key={index}
-            onClick={() => goToSlide(index)}
-            className={`w-3 h-3 rounded-full transition-all duration-300 ${
-              currentSlide === index 
-                ? 'bg-yellow-400 scale-125' 
-                : 'bg-white/40 hover:bg-white/60'
-            }`}
-            aria-label={`Go to slide ${index + 1}`}
+            onClick={() => {
+              setDirection(index > currentSlide ? 1 : -1);
+              setCurrentSlide(index);
+            }}
+            className={`transition-all duration-300 ${
+              index === currentSlide 
+                ? 'w-10 h-3 bg-yellow-400' 
+                : 'w-3 h-3 bg-white/50 hover:bg-white/70'
+            } rounded-full`}
+            data-testid={`banner-indicator-${index}`}
+            aria-label={`Ir para slide ${index + 1}`}
           />
         ))}
       </div>
-
-      {/* Auto-play control */}
-      <button
-        onClick={() => setIsAutoPlaying(!isAutoPlaying)}
-        className="absolute top-6 right-6 z-20 p-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full text-white transition-all duration-300"
-        aria-label={isAutoPlaying ? "Pause auto-play" : "Resume auto-play"}
-      >
-        {isAutoPlaying ? "⏸" : "▶"}
-      </button>
     </section>
   );
 };
