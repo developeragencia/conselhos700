@@ -235,6 +235,7 @@ const Login = () => {
 
             <div className="mt-6 space-y-3 text-center">
               <button 
+                onClick={() => setLocation('/forgot-password')}
                 className="text-sm text-purple-200/70 hover:text-white transition-colors"
                 data-testid="link-forgot-password"
               >
