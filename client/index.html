@@ -41,12 +41,6 @@
       localStorage.setItem('buildVersion', buildVersion);
       
       console.log("✅ SISTEMA ATUALIZADO:", buildVersion);
-      
-      // Força reload completo se estiver na página de cadastro
-      if (window.location.pathname === '/cadastro') {
-        console.log("🔄 PÁGINA CADASTRO - FORÇANDO RELOAD");
-        setTimeout(() => window.location.reload(true), 100);
-      }
     </script>
   </head>
   <body>

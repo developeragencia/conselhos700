@@ -77,7 +77,7 @@ const ClearCache = lazy(() => import("@/pages/ClearCache"));
 
 // Auth and Dashboard pages
 const Login = lazy(() => import("@/pages/Login"));
-const Cadastro = lazy(() => import("@/pages/CadastroRedirect"));
+const Cadastro = lazy(() => import("@/pages/Cadastro"));
 const CadastroNovo = lazy(() => import("@/pages/CadastroNovo"));
 const ClientDashboard = lazy(() => import("@/pages/ClientDashboard"));
 const ConsultantDashboard = lazy(() => import("@/pages/ConsultantDashboard"));
