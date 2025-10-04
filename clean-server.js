@@ -922,4 +922,11 @@ init().then(() => {
     console.log(`WebSocket Server: ws://localhost:${PORT}`);
     console.log('SISTEMA LIMPO - SEM MIGRAÇÕES');
   });
+}).catch((err) => {
+  console.error('Failed to initialize:', err);
+  // Start server anyway, even if DB fails
+  server.listen(PORT, '0.0.0.0', () => {
+    console.log(`Conselhos Esotéricos (DB fallback): http://localhost:${PORT}`);
+    console.log('Running in memory mode due to DB error');
+  });
 });
