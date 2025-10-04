@@ -178,8 +178,8 @@ function Router() {
 }
 
 function App() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [showContent, setShowContent] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+  const [showContent, setShowContent] = useState(false);
 
   // Tratamento global de erros para toda a aplicação
   useEffect(() => {
