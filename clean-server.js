@@ -65,7 +65,12 @@ const users = new Map();
 const init = async () => {
   try {
     if (process.env.DATABASE_URL) {
-      db = new Pool({ connectionString: process.env.DATABASE_URL });
+      console.log('🔌 Connecting to database...');
+      db = new Pool({ 
+        connectionString: process.env.DATABASE_URL,
+        connectionTimeoutMillis: 5000,
+        max: 10
+      });
       await db.query(`
         CREATE TABLE IF NOT EXISTS users (
           id TEXT PRIMARY KEY,
@@ -141,14 +146,13 @@ const init = async () => {
           created_at TIMESTAMP DEFAULT NOW()
         )
       `);
-      console.log('Database OK');
+      console.log('✅ Database OK');
     } else {
-      console.log('Memory mode');
+      console.log('⚠️  No DATABASE_URL - using memory mode');
     }
   } catch (e) {
-    console.error('Database connection error:', e.message);
-    console.log('Memory fallback');
-    console.log('🚫 DEPLOYMENT MODE: No database migrations needed');
+    console.error('❌ Database connection error:', e.message);
+    console.log('⚠️  Falling back to memory storage');
     db = null;
   }
 };
@@ -923,18 +927,54 @@ app.get('*', (req, res) => {
   res.sendFile(indexPath);
 });
 
-// Start
-init().then(() => {
-  server.listen(PORT, '0.0.0.0', () => {
-    console.log(`Conselhos Esotéricos: http://localhost:${PORT}`);
-    console.log(`WebSocket Server: ws://localhost:${PORT}`);
-    console.log('SISTEMA LIMPO - SEM MIGRAÇÕES');
+// Start server
+const startServer = () => {
+  try {
+    server.listen(PORT, '0.0.0.0', () => {
+      console.log('');
+      console.log('🚀 ===================================');
+      console.log(`✅ Conselhos Esotéricos ONLINE`);
+      console.log(`📡 Server: http://0.0.0.0:${PORT}`);
+      console.log(`🔌 WebSocket: ws://0.0.0.0:${PORT}`);
+      console.log(`🗄️  Database: ${db ? 'Connected' : 'Memory Mode'}`);
+      console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log('🚀 ===================================');
+      console.log('');
+    });
+
+    // Handle server errors
+    server.on('error', (err) => {
+      console.error('❌ Server error:', err);
+      if (err.code === 'EADDRINUSE') {
+        console.error(`⚠️  Port ${PORT} is already in use`);
+        process.exit(1);
+      }
+    });
+
+  } catch (err) {
+    console.error('❌ Fatal error starting server:', err);
+    process.exit(1);
+  }
+};
+
+// Initialize and start
+init()
+  .then(() => {
+    console.log('✅ Initialization complete');
+    startServer();
+  })
+  .catch((err) => {
+    console.error('⚠️  Initialization error (non-fatal):', err.message);
+    console.log('🔄 Starting server in fallback mode...');
+    db = null; // Force memory mode
+    startServer();
   });
-}).catch((err) => {
-  console.error('Failed to initialize:', err);
-  // Start server anyway, even if DB fails
-  server.listen(PORT, '0.0.0.0', () => {
-    console.log(`Conselhos Esotéricos (DB fallback): http://localhost:${PORT}`);
-    console.log('Running in memory mode due to DB error');
-  });
+
+// Handle uncaught errors
+process.on('uncaughtException', (err) => {
+  console.error('❌ Uncaught exception:', err);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('❌ Unhandled rejection at:', promise, 'reason:', reason);
 });
