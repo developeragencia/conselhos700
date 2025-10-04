@@ -146,6 +146,21 @@ const init = async () => {
           created_at TIMESTAMP DEFAULT NOW()
         )
       `);
+      await db.query(`
+        CREATE TABLE IF NOT EXISTS banners (
+          id TEXT PRIMARY KEY,
+          title TEXT NOT NULL,
+          subtitle TEXT,
+          description TEXT,
+          image_url TEXT NOT NULL,
+          button_text TEXT NOT NULL,
+          button_link TEXT NOT NULL,
+          display_order INTEGER NOT NULL DEFAULT 0,
+          is_active BOOLEAN DEFAULT true,
+          created_at TIMESTAMP DEFAULT NOW(),
+          updated_at TIMESTAMP DEFAULT NOW()
+        )
+      `);
       console.log('✅ Database OK');
     } else {
       console.log('⚠️  No DATABASE_URL - using memory mode');
@@ -878,6 +893,115 @@ app.post('/api/testimonials', async (req, res) => {
     return res.status(503).json({ error: 'Banco de dados indisponível' });
   } catch (error) {
     res.status(401).json({ error: 'Token inválido' });
+  }
+});
+
+// === BANNERS API ===
+// GET /api/banners - Lista banners ativos (público)
+app.get('/api/banners', async (req, res) => {
+  try {
+    if (db) {
+      const result = await db.query(
+        'SELECT * FROM banners WHERE is_active = true ORDER BY display_order ASC, created_at DESC'
+      );
+      return res.json(result.rows || []);
+    }
+    // Fallback: retornar banners padrão
+    return res.json([
+      {
+        id: '1',
+        title: 'Conecte-se com o Espiritual',
+        subtitle: 'Portal de Consultas Místicas',
+        description: 'Orientação espiritual autêntica com nossos consultores especializados',
+        image_url: 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1920&h=480&fit=crop',
+        button_text: 'Encontrar Consultor',
+        button_link: '/consultores',
+        display_order: 0,
+        is_active: true
+      }
+    ]);
+  } catch (error) {
+    console.error('Error fetching banners:', error);
+    res.status(500).json({ error: 'Erro ao buscar banners' });
+  }
+});
+
+// GET /api/banners/all - Lista todos os banners (admin)
+app.get('/api/banners/all', async (req, res) => {
+  try {
+    if (!db) return res.status(503).json({ error: 'Banco de dados indisponível' });
+    
+    const result = await db.query(
+      'SELECT * FROM banners ORDER BY display_order ASC, created_at DESC'
+    );
+    res.json(result.rows || []);
+  } catch (error) {
+    console.error('Error fetching all banners:', error);
+    res.status(500).json({ error: 'Erro ao buscar banners' });
+  }
+});
+
+// POST /api/banners - Criar novo banner (admin)
+app.post('/api/banners', async (req, res) => {
+  try {
+    if (!db) return res.status(503).json({ error: 'Banco de dados indisponível' });
+    
+    const { title, subtitle, description, image_url, button_text, button_link, display_order, is_active } = req.body;
+    
+    if (!title || !image_url || !button_text || !button_link) {
+      return res.status(400).json({ error: 'Campos obrigatórios: title, image_url, button_text, button_link' });
+    }
+    
+    const bannerId = `banner_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    
+    await db.query(
+      `INSERT INTO banners (id, title, subtitle, description, image_url, button_text, button_link, display_order, is_active)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+      [bannerId, title, subtitle || null, description || null, image_url, button_text, button_link, display_order || 0, is_active !== false]
+    );
+    
+    res.status(201).json({ success: true, id: bannerId });
+  } catch (error) {
+    console.error('Error creating banner:', error);
+    res.status(500).json({ error: 'Erro ao criar banner' });
+  }
+});
+
+// PUT /api/banners/:id - Atualizar banner (admin)
+app.put('/api/banners/:id', async (req, res) => {
+  try {
+    if (!db) return res.status(503).json({ error: 'Banco de dados indisponível' });
+    
+    const { id } = req.params;
+    const { title, subtitle, description, image_url, button_text, button_link, display_order, is_active } = req.body;
+    
+    await db.query(
+      `UPDATE banners 
+       SET title = $1, subtitle = $2, description = $3, image_url = $4, button_text = $5, 
+           button_link = $6, display_order = $7, is_active = $8, updated_at = NOW()
+       WHERE id = $9`,
+      [title, subtitle, description, image_url, button_text, button_link, display_order || 0, is_active !== false, id]
+    );
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error updating banner:', error);
+    res.status(500).json({ error: 'Erro ao atualizar banner' });
+  }
+});
+
+// DELETE /api/banners/:id - Deletar banner (admin)
+app.delete('/api/banners/:id', async (req, res) => {
+  try {
+    if (!db) return res.status(503).json({ error: 'Banco de dados indisponível' });
+    
+    const { id } = req.params;
+    await db.query('DELETE FROM banners WHERE id = $1', [id]);
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting banner:', error);
+    res.status(500).json({ error: 'Erro ao deletar banner' });
   }
 });
 
