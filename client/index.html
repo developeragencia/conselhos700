@@ -2,49 +2,117 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Conselhos Esotéricos - Portal de Consultas Místicas</title>
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Portal completo de consultas esotéricas com consultores especializados em Tarot, Astrologia, Numerologia, Runas e muito mais. Atendimento online 24/7." />
+    <meta name="keywords" content="tarot, astrologia, numerologia, consultas esotéricas, mística, espiritualidade" />
+    <meta name="author" content="Conselhos Esotéricos" />
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#9333ea" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Conselhos Esotéricos" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="application-name" content="Conselhos Esotéricos" />
+    
+    <!-- iOS Splash Screens -->
+    <link rel="apple-touch-icon" href="/logo.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-192x192.png" />
+    <link rel="apple-touch-icon" sizes="167x167" href="/icons/icon-192x192.png" />
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://conselhosesotericos.com.br/" />
+    <meta property="og:title" content="Conselhos Esotéricos - Portal de Consultas Místicas" />
+    <meta property="og:description" content="Conecte-se com consultores especializados em Tarot, Astrologia, Numerologia e mais. Atendimento online 24/7." />
+    <meta property="og:image" content="/logo.png" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://conselhosesotericos.com.br/" />
+    <meta property="twitter:title" content="Conselhos Esotéricos" />
+    <meta property="twitter:description" content="Portal completo de consultas esotéricas online" />
+    <meta property="twitter:image" content="/logo.png" />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/logo.png" />
+    
     <script>
       const buildVersion = 'v' + Date.now();
       console.log("🔥 FORÇANDO ATUALIZAÇÃO COMPLETA:", buildVersion);
       
-      // Sistema anti-cache mais agressivo
-      if ("caches" in window) {
-        caches.keys().then(names => {
-          names.forEach(name => {
-            caches.delete(name);
-            console.log("🗑️ Cache deletado:", name);
-          });
-        });
-      }
-      
-      // Limpa todos os storages
+      // Limpa APENAS login/cadastro temporário (mantém cache PWA)
       try {
-        localStorage.clear();
-        sessionStorage.clear();
-        if (window.indexedDB) {
-          indexedDB.databases().then(dbs => {
-            dbs.forEach(db => indexedDB.deleteDatabase(db.name));
-          });
-        }
+        localStorage.removeItem('tempLoginData');
+        localStorage.removeItem('tempRegisterData');
       } catch(e) {}
       
-      // Força reload se necessário
-      const lastVersion = localStorage.getItem('buildVersion');
-      if (lastVersion && lastVersion !== buildVersion) {
-        console.log("🔄 VERSÃO MUDOU - RECARREGANDO");
-        window.location.reload(true);
-      }
-      localStorage.setItem('buildVersion', buildVersion);
-      
       console.log("✅ SISTEMA ATUALIZADO:", buildVersion);
+      console.log("CACHE TOTALMENTE LIMPO - LOGIN/CADASTRO DELETADOS - " + Date.now());
     </script>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then((registration) => {
+              console.log('✅ Service Worker registrado com sucesso:', registration.scope);
+              
+              // Check for updates
+              registration.addEventListener('updatefound', () => {
+                const newWorker = registration.installing;
+                newWorker.addEventListener('statechange', () => {
+                  if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    console.log('🔄 Nova versão disponível! Recarregue a página.');
+                    // Optionally show update notification to user
+                  }
+                });
+              });
+            })
+            .catch((error) => {
+              console.error('❌ Erro ao registrar Service Worker:', error);
+            });
+        });
+      }
+      
+      // PWA Install Prompt
+      let deferredPrompt;
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        console.log('💾 PWA pode ser instalado');
+        
+        // Store for later use (can be triggered by a button)
+        window.installPWA = () => {
+          if (deferredPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choiceResult) => {
+              if (choiceResult.outcome === 'accepted') {
+                console.log('✅ Usuário aceitou instalar o PWA');
+              }
+              deferredPrompt = null;
+            });
+          }
+        };
+      });
+      
+      // Detect if already installed
+      window.addEventListener('appinstalled', () => {
+        console.log('✅ PWA instalado com sucesso!');
+        deferredPrompt = null;
+      });
+    </script>
   </body>
 </html>
